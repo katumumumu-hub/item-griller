@@ -27,7 +27,6 @@
 
         h1 { font-size: 1.2rem; text-align: center; letter-spacing: 3px; margin: 20px 0; color: var(--accent); }
 
-        /* iPhone用操作エリア */
         .upload-zone {
             background: var(--card-bg);
             border: 2px dashed var(--border);
@@ -49,7 +48,6 @@
 
         input[type="file"] { display: none; }
 
-        /* アイテム表示カード */
         #result { display: none; margin-bottom: 30px; animation: slideUp 0.4s ease-out; }
         
         @keyframes slideUp {
@@ -83,7 +81,6 @@
         .stat-label { color: #71717a; }
         .stat-val { color: #fbbf24; font-weight: bold; }
 
-        /* コレクション */
         .collection-title { font-size: 0.9rem; color: #71717a; margin-bottom: 10px; padding-left: 5px; }
         .grid {
             display: grid;
@@ -117,9 +114,7 @@
         <p id="status" style="font-size: 12px; color: #71717a; margin-top: 15px;">画像をアップロードして練成開始</p>
     </div>
 
-    <div id="result">
-        <!-- JSで挿入 -->
-    </div>
+    <div id="result"></div>
 
     <div class="collection-title">COLLECTION (<span id="count">0</span>)</div>
     <div class="grid" id="collectionGrid"></div>
@@ -130,6 +125,16 @@
         const canvas = document.getElementById('proc');
         const ctx = canvas.getContext('2d');
         let inventory = [];
+
+        // 🟢 アプリ起動時に保存されたデータを読み込む
+        window.onload = () => {
+            const savedData = localStorage.getItem('itemMasterInventory');
+            if (savedData) {
+                inventory = JSON.parse(savedData);
+                inventory.forEach(item => updateGrid(item));
+                document.getElementById('count').innerText = inventory.length;
+            }
+        };
 
         function processImage(input) {
             if (!input.files || !input.files[0]) return;
@@ -161,7 +166,6 @@
             const avg = { r: r/(size*size), g: g/(size*size), b: b/(size*size) };
             const hex = `#${Math.round(avg.r).toString(16).padStart(2,'0')}${Math.round(avg.g).toString(16).padStart(2,'0')}${Math.round(avg.b).toString(16).padStart(2,'0')}`;
             
-            // ロジック簡略化しつつiPhone向けに調整
             const ratio = img.width / img.height;
             const type = ratio > 1.2 ? "武器" : ratio < 0.8 ? "防具" : "魔法具";
             const rarity = colors.size > 1500 ? {n:"LEGEND", c:"#f87171"} : colors.size > 800 ? {n:"EPIC", c:"#c084fc"} : {n:"RARE", c:"#fbbf24"};
@@ -210,7 +214,13 @@
 
         function save(item) {
             inventory.push(item);
+            // 🟢 localStorageに保存（ここがポイント！）
+            localStorage.setItem('itemMasterInventory', JSON.stringify(inventory));
             document.getElementById('count').innerText = inventory.length;
+            updateGrid(item);
+        }
+
+        function updateGrid(item) {
             const grid = document.getElementById('collectionGrid');
             const div = document.createElement('div');
             div.className = 'thumb';
