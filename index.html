@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>ITEM MASTER</title>
+    <style>
+        :root {
+            --bg: #09090b;
+            --card-bg: #18181b;
+            --accent: #3b82f6;
+            --text: #f4f4f5;
+            --border: #27272a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: env(safe-area-inset-top) 15px env(safe-area-inset-bottom) 15px;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        h1 { font-size: 1.2rem; text-align: center; letter-spacing: 3px; margin: 20px 0; color: var(--accent); }
+
+        /* iPhone用操作エリア */
+        .upload-zone {
+            background: var(--card-bg);
+            border: 2px dashed var(--border);
+            border-radius: 20px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .custom-file-upload {
+            background: var(--accent);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        input[type="file"] { display: none; }
+
+        /* アイテム表示カード */
+        #result { display: none; margin-bottom: 30px; animation: slideUp 0.4s ease-out; }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .item-card {
+            background: linear-gradient(145deg, #27272a, #18181b);
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .visual-container { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .main-img { width: 200px; height: 200px; border-radius: 15px; object-fit: cover; border: 4px solid var(--border); }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            width: 100%;
+            margin-top: 15px;
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .stat-box { display: flex; justify-content: space-between; font-family: 'Courier New', monospace; font-size: 14px; }
+        .stat-label { color: #71717a; }
+        .stat-val { color: #fbbf24; font-weight: bold; }
+
+        /* コレクション */
+        .collection-title { font-size: 0.9rem; color: #71717a; margin-bottom: 10px; padding-left: 5px; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding-bottom: 100px;
+        }
+
+        .thumb {
+            aspect-ratio: 1/1;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+        .thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .rarity-dot { position: absolute; top: 5px; right: 5px; width: 6px; height: 6px; border-radius: 50%; }
+
+    </style>
+</head>
+<body>
+
+    <h1>ITEM MASTER</h1>
+
+    <div class="upload-zone">
+        <label class="custom-file-upload">
+            <input type="file" accept="image/*" onchange="processImage(this)">
+            写真を撮る / ライブラリ
+        </label>
+        <p id="status" style="font-size: 12px; color: #71717a; margin-top: 15px;">画像をアップロードして練成開始</p>
+    </div>
+
+    <div id="result">
+        <!-- JSで挿入 -->
+    </div>
+
+    <div class="collection-title">COLLECTION (<span id="count">0</span>)</div>
+    <div class="grid" id="collectionGrid"></div>
+
+    <canvas id="proc" style="display:none;"></canvas>
+
+    <script>
+        const canvas = document.getElementById('proc');
+        const ctx = canvas.getContext('2d');
+        let inventory = [];
+
+        function processImage(input) {
+            if (!input.files || !input.files[0]) return;
+            document.getElementById('status').innerText = "解析中...";
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => analyze(img, input.files[0].name);
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        function analyze(img, fileName) {
+            const size = 64;
+            canvas.width = size;
+            canvas.height = size;
+            ctx.drawImage(img, 0, 0, size, size);
+            const data = ctx.getImageData(0, 0, size, size).data;
+
+            let r = 0, g = 0, b = 0;
+            const colors = new Set();
+            for (let i = 0; i < data.length; i += 4) {
+                r += data[i]; g += data[i+1]; b += data[i+2];
+                colors.add(`${Math.round(data[i]/20)},${Math.round(data[i+1]/20)},${Math.round(data[i+2]/20)}`);
+            }
+            
+            const avg = { r: r/(size*size), g: g/(size*size), b: b/(size*size) };
+            const hex = `#${Math.round(avg.r).toString(16).padStart(2,'0')}${Math.round(avg.g).toString(16).padStart(2,'0')}${Math.round(avg.b).toString(16).padStart(2,'0')}`;
+            
+            // ロジック簡略化しつつiPhone向けに調整
+            const ratio = img.width / img.height;
+            const type = ratio > 1.2 ? "武器" : ratio < 0.8 ? "防具" : "魔法具";
+            const rarity = colors.size > 1500 ? {n:"LEGEND", c:"#f87171"} : colors.size > 800 ? {n:"EPIC", c:"#c084fc"} : {n:"RARE", c:"#fbbf24"};
+
+            const item = {
+                id: Date.now(),
+                name: fileName.split('.')[0].substring(0,8).toUpperCase() + (type === "武器" ? "の剣" : "の証"),
+                type: type,
+                rarity: rarity,
+                hex: hex,
+                stats: {
+                    ATK: Math.floor(Math.random() * 100) + (rarity.n === "LEGEND" ? 200 : 50),
+                    DEF: Math.floor(Math.random() * 100),
+                    SPD: Math.floor(Math.random() * 50)
+                },
+                img: img.src
+            };
+
+            show(item);
+            save(item);
+            document.getElementById('status').innerText = "練成完了";
+        }
+
+        function show(item) {
+            const res = document.getElementById('result');
+            res.style.display = 'block';
+            res.innerHTML = `
+                <div class="item-card">
+                    <div class="visual-container">
+                        <img src="${item.img}" class="main-img" style="border-color: ${item.hex}">
+                        <div style="text-align:center">
+                            <div style="color:${item.rarity.c}; font-weight:bold; font-size:12px;">${item.rarity.n}</div>
+                            <div style="font-size:20px; font-weight:bold;">${item.name}</div>
+                        </div>
+                    </div>
+                    <div class="status-grid">
+                        <div class="stat-box"><span class="stat-label">ATK</span><span class="stat-val">${item.stats.ATK}</span></div>
+                        <div class="stat-box"><span class="stat-label">DEF</span><span class="stat-val">${item.stats.DEF}</span></div>
+                        <div class="stat-box"><span class="stat-label">SPD</span><span class="stat-val">${item.stats.SPD}</span></div>
+                        <div class="stat-box"><span class="stat-label">TYPE</span><span class="stat-val" style="font-size:10px">${item.type}</span></div>
+                    </div>
+                </div>
+            `;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function save(item) {
+            inventory.push(item);
+            document.getElementById('count').innerText = inventory.length;
+            const grid = document.getElementById('collectionGrid');
+            const div = document.createElement('div');
+            div.className = 'thumb';
+            div.onclick = () => show(item);
+            div.innerHTML = `<img src="${item.img}"><div class="rarity-dot" style="background:${item.rarity.c}"></div>`;
+            grid.prepend(div);
+        }
+    </script>
+</body>
+</html>
