@@ -11,6 +11,7 @@
             --bg: #09090b;
             --card-bg: #18181b;
             --accent: #3b82f6;
+            --danger: #ef4444;
             --text: #f4f4f5;
             --border: #27272a;
         }
@@ -48,10 +49,10 @@
 
         input[type="file"] { display: none; }
 
-        #result { display: none; margin-bottom: 30px; animation: slideUp 0.4s ease-out; }
+        #result { display: none; margin-bottom: 30px; animation: slideUp 0.3s ease-out; }
         
         @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
+            from { transform: translateY(10px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
 
@@ -60,7 +61,20 @@
             border-radius: 24px;
             padding: 20px;
             border: 1px solid var(--border);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: bold;
         }
 
         .visual-container { display: flex; flex-direction: column; align-items: center; gap: 15px; }
@@ -126,20 +140,18 @@
         const ctx = canvas.getContext('2d');
         let inventory = [];
 
-        // 🟢 アプリ起動時に保存されたデータを読み込む
+        // 読み込み
         window.onload = () => {
             const savedData = localStorage.getItem('itemMasterInventory');
             if (savedData) {
                 inventory = JSON.parse(savedData);
-                inventory.forEach(item => updateGrid(item));
-                document.getElementById('count').innerText = inventory.length;
+                refreshGrid();
             }
         };
 
         function processImage(input) {
             if (!input.files || !input.files[0]) return;
             document.getElementById('status').innerText = "解析中...";
-            
             const reader = new FileReader();
             reader.onload = (e) => {
                 const img = new Image();
@@ -155,17 +167,14 @@
             canvas.height = size;
             ctx.drawImage(img, 0, 0, size, size);
             const data = ctx.getImageData(0, 0, size, size).data;
-
             let r = 0, g = 0, b = 0;
             const colors = new Set();
             for (let i = 0; i < data.length; i += 4) {
                 r += data[i]; g += data[i+1]; b += data[i+2];
                 colors.add(`${Math.round(data[i]/20)},${Math.round(data[i+1]/20)},${Math.round(data[i+2]/20)}`);
             }
-            
             const avg = { r: r/(size*size), g: g/(size*size), b: b/(size*size) };
             const hex = `#${Math.round(avg.r).toString(16).padStart(2,'0')}${Math.round(avg.g).toString(16).padStart(2,'0')}${Math.round(avg.b).toString(16).padStart(2,'0')}`;
-            
             const ratio = img.width / img.height;
             const type = ratio > 1.2 ? "武器" : ratio < 0.8 ? "防具" : "魔法具";
             const rarity = colors.size > 1500 ? {n:"LEGEND", c:"#f87171"} : colors.size > 800 ? {n:"EPIC", c:"#c084fc"} : {n:"RARE", c:"#fbbf24"};
@@ -185,7 +194,9 @@
             };
 
             show(item);
-            save(item);
+            inventory.push(item);
+            saveData();
+            refreshGrid();
             document.getElementById('status').innerText = "練成完了";
         }
 
@@ -194,6 +205,7 @@
             res.style.display = 'block';
             res.innerHTML = `
                 <div class="item-card">
+                    <button class="delete-btn" onclick="deleteItem(${item.id})">削除</button>
                     <div class="visual-container">
                         <img src="${item.img}" class="main-img" style="border-color: ${item.hex}">
                         <div style="text-align:center">
@@ -212,21 +224,32 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function save(item) {
-            inventory.push(item);
-            // 🟢 localStorageに保存（ここがポイント！）
-            localStorage.setItem('itemMasterInventory', JSON.stringify(inventory));
-            document.getElementById('count').innerText = inventory.length;
-            updateGrid(item);
+        function deleteItem(id) {
+            if (confirm('このアイテムを削除してもよろしいですか？')) {
+                inventory = inventory.filter(item => item.id !== id);
+                saveData();
+                refreshGrid();
+                document.getElementById('result').style.display = 'none';
+            }
         }
 
-        function updateGrid(item) {
+        function saveData() {
+            localStorage.setItem('itemMasterInventory', JSON.stringify(inventory));
+        }
+
+        function refreshGrid() {
             const grid = document.getElementById('collectionGrid');
-            const div = document.createElement('div');
-            div.className = 'thumb';
-            div.onclick = () => show(item);
-            div.innerHTML = `<img src="${item.img}"><div class="rarity-dot" style="background:${item.rarity.c}"></div>`;
-            grid.prepend(div);
+            grid.innerHTML = '';
+            document.getElementById('count').innerText = inventory.length;
+            
+            // 新しい順に表示
+            [...inventory].reverse().forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'thumb';
+                div.onclick = () => show(item);
+                div.innerHTML = `<img src="${item.img}"><div class="rarity-dot" style="background:${item.rarity.c}"></div>`;
+                grid.appendChild(div);
+            });
         }
     </script>
 </body>
