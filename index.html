@@ -21,7 +21,7 @@
     min-height: 100vh;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
   }
   .screen {
     display: none;
@@ -64,6 +64,10 @@
     color: #007bff;
     font-size: 20px;
   }
+  #life-timer {
+    font-size: 12px;
+    color: #555;
+  }
   .chart-container {
     border: 1px solid #ccc;
     padding: 10px;
@@ -96,9 +100,11 @@
     font-size: 16px;
     margin-bottom: 15px;
     cursor: pointer;
+    border-radius: 4px;
   }
   .action-btn:disabled {
     background-color: #ccc;
+    cursor: not-allowed;
   }
   .share-area {
     display: flex;
@@ -121,6 +127,7 @@
     padding: 10px;
     text-align: center;
     margin-bottom: 10px;
+    font-weight: bold;
   }
   .timer-bar {
     width: 100%;
@@ -136,13 +143,14 @@
   }
   .question-area {
     border: 1px solid #ccc;
-    height: 200px;
+    min-height: 150px;
     padding: 15px;
     margin-bottom: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 16px;
+    text-align: center;
   }
   .choice-btn {
     width: 100%;
@@ -153,16 +161,24 @@
     cursor: pointer;
     font-size: 14px;
     text-align: left;
+    border-radius: 4px;
   }
   
   /* 履歴画面要素 */
   .history-list {
     border: 1px solid #ccc;
-    min-height: 300px;
+    height: 400px;
+    overflow-y: auto;
     margin-bottom: 15px;
     padding: 10px;
     font-size: 14px;
   }
+  .history-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .history-item.correct { color: #28a745; }
+  .history-item.incorrect { color: #dc3545; }
 </style>
 </head>
 <body>
@@ -170,13 +186,13 @@
 <div id="app">
   <div id="home-screen" class="screen active">
     <div class="header">ゲーム名（アニマス）</div>
-    <div class="animas-name">あなたのアニマス名: <strong id="animas-title">見習いウォッチャー</strong></div>
+    <div class="animas-name">あなたのアニマス名<br><strong id="animas-title" style="font-size: 20px;">見習いウォッチャー</strong></div>
     
     <div class="status-bar">
       <div>総回答数 <span id="total-answers">0</span>問</div>
       <div class="life-area">
         <div class="life-icons" id="life-icons">🔵🔵🔵🔵🔵</div>
-        <div id="life-timer">00:00</div>
+        <div id="life-timer">MAX</div>
       </div>
     </div>
 
@@ -210,81 +226,269 @@
     
     <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
     
-    <div class="question-area" id="quiz-text">問題文がここに入ります。</div>
+    <div class="question-area" id="quiz-text">問題文</div>
     
-    <div id="choices-area">
-      </div>
+    <div id="choices-area"></div>
   </div>
 
   <div id="history-screen" class="screen">
     <div class="header">回答履歴</div>
-    <div class="history-list" id="history-list">
-      </div>
+    <div class="history-list" id="history-list"></div>
     <button class="action-btn" onclick="showScreen('home-screen')">ホームに戻る</button>
   </div>
 </div>
 
 <script>
-  // --- ダミーデータ・状態管理 ---
-  let life = 5;
+  // --- 100問のクイズデータ（合体済み） ---
+  const questionsData = [
+    {"id": 1001, "anime": "ワンピース", "genre": "アクション", "text": "ルフィの麦わら帽子は元々誰のものだった？", "choices": ["ゴールド・ロジャー", "シャンクス", "レイリー", "ガープ"], "correctIndex": 1, "level": 1},
+    {"id": 1002, "anime": "ワンピース", "genre": "アクション", "text": "ルフィが食べた悪魔の実はどれ？", "choices": ["バラバラの実", "メラメラの実", "ゴムゴムの実", "ヤミヤミの実"], "correctIndex": 2, "level": 1},
+    {"id": 1003, "anime": "ワンピース", "genre": "アクション", "text": "麦わらの一味の最初の仲間で、三刀流の剣士は誰？", "choices": ["ウソップ", "サンジ", "ロロノア・ゾロ", "フランキー"], "correctIndex": 2, "level": 1},
+    {"id": 1004, "anime": "ワンピース", "genre": "アクション", "text": "サンジの船での役割（職業）は？", "choices": ["コック", "航海士", "船医", "音楽家"], "correctIndex": 0, "level": 1},
+    {"id": 1005, "anime": "ワンピース", "genre": "アクション", "text": "船医であるトニートニー・チョッパーの本来の種族は？", "choices": ["タヌキ", "トナカイ", "犬", "キツネ"], "correctIndex": 1, "level": 1},
+    {"id": 1006, "anime": "ワンピース", "genre": "アクション", "text": "かつて「海賊王」と呼ばれた伝説の人物は？", "choices": ["白ひげ", "カイドウ", "シャンクス", "ゴール・D・ロジャー"], "correctIndex": 3, "level": 1},
+    {"id": 1007, "anime": "ワンピース", "genre": "アクション", "text": "ナミの左肩にあるタトゥーのモチーフは？", "choices": ["ドクロと骨", "みかんと風車", "太陽と波", "桜と雪"], "correctIndex": 1, "level": 1},
+    {"id": 1008, "anime": "ワンピース", "genre": "アクション", "text": "狙撃手ウソップが主に使う武器は？", "choices": ["剣", "銃", "パチンコ", "槍"], "correctIndex": 2, "level": 1},
+    {"id": 1009, "anime": "ワンピース", "genre": "アクション", "text": "海軍本部において「最高戦力」と呼ばれる3人の階級は？", "choices": ["中将", "大将", "元帥", "少将"], "correctIndex": 1, "level": 1},
+    {"id": 1010, "anime": "ワンピース", "genre": "アクション", "text": "麦わらの一味にとっての最初の海賊船の名前は？", "choices": ["サウザンド・サニー号", "ゴーイング・メリー号", "レッド・フォース号", "モビー・ディック号"], "correctIndex": 1, "level": 1},
+    {"id": 1011, "anime": "ワンピース", "genre": "アクション", "text": "クロコダイルから国を救うため、ルフィたちと共に旅をしたアラバスタ王国の王女は？", "choices": ["ネフェルタリ・ビビ", "レベッカ", "しらほし", "ヴィオラ"], "correctIndex": 0, "level": 2},
+    {"id": 1012, "anime": "ワンピース", "genre": "アクション", "text": "船大工フランキーの本来の名前（本名）は？", "choices": ["アイスバーグ", "トム", "カティ・フラム", "パウリー"], "correctIndex": 2, "level": 2},
+    {"id": 1013, "anime": "ワンピース", "genre": "アクション", "text": "王下七武海の紅一点、ボア・ハンコックの異名は？", "choices": ["泥棒猫", "海賊女帝", "悪魔の子", "ビッグ・マム"], "correctIndex": 1, "level": 2},
+    {"id": 1014, "anime": "ワンピース", "genre": "アクション", "text": "ポートガス・D・エースの左腕にある「ASCE」のタトゥー。「S」の部分に打たれているのは何のマーク？", "choices": ["丸印", "バツ印", "星印", "ハート印"], "correctIndex": 1, "level": 2},
+    {"id": 1015, "anime": "ワンピース", "genre": "アクション", "text": "スリラーバーク編で、ゾロが剣豪リューマから譲り受けた刀の名前は？", "choices": ["和道一文字", "三代鬼徹", "雪走", "秋水"], "correctIndex": 3, "level": 2},
+    {"id": 1016, "anime": "ワンピース", "genre": "アクション", "text": "ニコ・ロビンの故郷であり、かつて考古学の聖地と呼ばれていた島は？", "choices": ["オハラ", "ウォーターセブン", "アラバスタ", "ドレスローザ"], "correctIndex": 0, "level": 3},
+    {"id": 1017, "anime": "ワンピース", "genre": "アクション", "text": "ルフィが侵入した時点での、大監獄インペルダウンの署長は誰？", "choices": ["ハンニャバル", "マゼラン", "シリュウ", "サディちゃん"], "correctIndex": 1, "level": 3},
+    {"id": 1018, "anime": "ワンピース", "genre": "アクション", "text": "トラファルガー・ローが食べた、特殊な円（ROOM）を展開する悪魔の実は？", "choices": ["ジキジキの実", "オペオペの実", "イトイトの実", "ドクドクの実"], "correctIndex": 1, "level": 3},
+    {"id": 1019, "anime": "ワンピース", "genre": "アクション", "text": "空島スカイピアを支配していた「神」エネルが食べた自然（ロギア）系の悪魔の実は？", "choices": ["ピカピカの実", "ゴロゴロの実", "マグマグの実", "ヒエヒエの実"], "correctIndex": 1, "level": 3},
+    {"id": 1020, "anime": "ワンピース", "genre": "アクション", "text": "ビッグ・マム海賊団のスイート3将星の一人、シャーロット・カタクリの懸賞金は？", "choices": ["8億6000万ベリー", "9億3200万ベリー", "10億5700万ベリー", "13億2000万ベリー"], "correctIndex": 2, "level": 3},
+    {"id": 2001, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "主人公フリーレンの種族は？", "choices": ["人間", "エルフ", "ドワーフ", "魔族"], "correctIndex": 1, "level": 1},
+    {"id": 2002, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "フリーレンがかつて所属していたパーティーの勇者の名前は？", "choices": ["ハイター", "アイゼン", "ヒンメル", "シュタルク"], "correctIndex": 2, "level": 1},
+    {"id": 2003, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "フリーレンが共に旅をしている弟子の魔法使いの名前は？", "choices": ["フェルン", "フランメ", "ゼーリエ", "カンネ"], "correctIndex": 0, "level": 1},
+    {"id": 2004, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "戦士アイゼンの弟子であり、フリーレンの旅に同行する戦士は？", "choices": ["クラフト", "ザイン", "シュタルク", "デンケン"], "correctIndex": 2, "level": 1},
+    {"id": 2005, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "フリーレンの趣味は何を集めること？", "choices": ["宝石", "魔導書（魔法）", "世界地図", "美味しい食べ物"], "correctIndex": 1, "level": 1},
+    {"id": 2006, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "勇者パーティーが魔王を討伐する旅にかかった年数は？", "choices": ["5年", "10年", "15年", "50年"], "correctIndex": 1, "level": 1},
+    {"id": 2007, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "フリーレンがダンジョンでよく引っかかってしまう、宝箱の姿をした魔物は？", "choices": ["スライム", "ゴーレム", "ミミック", "ガーゴイル"], "correctIndex": 2, "level": 1},
+    {"id": 2008, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "僧侶ハイターが晩年に育てていた孤児は誰？", "choices": ["フェルン", "シュタルク", "ザイン", "ラヴィーネ"], "correctIndex": 0, "level": 1},
+    {"id": 2009, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "フリーレン達が目指している、魂の眠る地（オレオール）がある場所は？", "choices": ["オイサースト", "エンデ", "グラナト伯爵領", "オレオール山"], "correctIndex": 1, "level": 1},
+    {"id": 2010, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "フェルンが戦闘で主に使用する、魔族を殺すために開発された魔法の通称は？", "choices": ["防御魔法", "花畑を出す魔法", "一般攻撃魔法", "空を飛ぶ魔法"], "correctIndex": 2, "level": 1},
+    {"id": 2011, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "フリーレンの師匠である、人間の大魔法使いの名前は？", "choices": ["ゼーリエ", "フランメ", "ラント", "ユーベル"], "correctIndex": 1, "level": 2},
+    {"id": 2012, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "七崩賢「断頭台のアウラ」が使う「服従させる魔法（アゼリューゼ）」は、対象と何を天秤にかけて競う？", "choices": ["寿命", "魔力", "体重", "罪の重さ"], "correctIndex": 1, "level": 2},
+    {"id": 2013, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "途中で一時的にパーティーに加わった僧侶ザインが探している親友の通称は？", "choices": ["戦士ゴリラ", "魔法使いパンダ", "僧侶クマ", "勇者ライオン"], "correctIndex": 0, "level": 2},
+    {"id": 2014, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "魔族のクヴァールが開発し、後に人類に解析・改良された魔法（ゾルトラーク）の本来の名称は？", "choices": ["人を殺す魔法", "万物を黄金に変える魔法", "血を操る魔法", "記憶を消す魔法"], "correctIndex": 0, "level": 2},
+    {"id": 2015, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "勇者ヒンメルが持っていた「勇者の剣」の真実は？", "choices": ["魔王の剣だった", "実は本物の勇者の剣ではなかった（抜けなかった）", "氷でできていた", "実は杖だった"], "correctIndex": 1, "level": 2},
+    {"id": 2016, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "一級魔法使い選抜試験の第一次試験で試験官を務めた一級魔法使いは？", "choices": ["ゼンゼ", "ゲナウ", "ファルシュ", "レルネン"], "correctIndex": 1, "level": 3},
+    {"id": 2017, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "フランメの師匠であり、神話の時代から生きているエルフの大魔法使いは？", "choices": ["ゼーリエ", "クラフト", "エーレ", "メトデ"], "correctIndex": 0, "level": 3},
+    {"id": 2018, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "七崩賢「黄金郷のマハト」が使う、万物を黄金に変える魔法の名前は？", "choices": ["ゾルトラーク", "ディーアゴルゼ", "アゼリューゼ", "バルテーリエ"], "correctIndex": 1, "level": 3},
+    {"id": 2019, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "戦士シュタルクの優秀だった兄の名前は？", "choices": ["シュトルツ", "シュタイン", "アイゼン", "ベルク"], "correctIndex": 0, "level": 3},
+    {"id": 2020, "anime": "葬送のフリーレン", "genre": "ファンタジー", "text": "七崩賢の一人「奇跡のグラオザーム」の得意とする能力は？", "choices": ["空間転移", "時間を止める", "記憶を操作する幻術", "死者を操る"], "correctIndex": 2, "level": 3},
+    {"id": 3001, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "主人公である14歳の少年の名前は？", "choices": ["相田ケンスケ", "碇シンジ", "鈴原トウジ", "渚カヲル"], "correctIndex": 1, "level": 1},
+    {"id": 3002, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "人類を襲う正体不明の巨大生物の総称は？", "choices": ["怪獣", "巨神", "使徒", "悪魔"], "correctIndex": 2, "level": 1},
+    {"id": 3003, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "使徒殲滅のために組織された特務機関の名前は？", "choices": ["ネルフ", "ゼーレ", "ウィレ", "国連軍"], "correctIndex": 0, "level": 1},
+    {"id": 3004, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "物語の主な舞台となる要塞都市の名前は？", "choices": ["第2新東京市", "第3新東京市", "第4新東京市", "ネオ東京"], "correctIndex": 1, "level": 1},
+    {"id": 3005, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "シンジの保護者となり、同居することになるネルフの女性職員は？", "choices": ["赤木リツコ", "伊吹マヤ", "葛城ミサト", "綾波レイ"], "correctIndex": 2, "level": 1},
+    {"id": 3006, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "シンジの父親であり、ネルフの最高司令官は誰？", "choices": ["碇ゲンドウ", "冬月コウゾウ", "加持リョウジ", "キール・ローレンツ"], "correctIndex": 0, "level": 1},
+    {"id": 3007, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "シンジたちが搭乗する「汎用人型決戦兵器」の略称は？", "choices": ["ガンメン", "エヴァ", "モビルスーツ", "ナイトメア"], "correctIndex": 1, "level": 1},
+    {"id": 3008, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "シンジより先にエヴァ零号機のパイロットとなっていた、ミステリアスな少女は？", "choices": ["惣流・アスカ・ラングレー", "真希波・マリ・イラストリアス", "綾波レイ", "洞木ヒカリ"], "correctIndex": 2, "level": 1},
+    {"id": 3009, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "勝ち気な性格で、エヴァ弐号機のパイロットとして来日した少女は？", "choices": ["惣流・アスカ・ラングレー", "綾波レイ", "葛城ミサト", "赤木リツコ"], "correctIndex": 0, "level": 1},
+    {"id": 3010, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "アスカがシンジに対してよく使う、お決まりのセリフは？", "choices": ["逃げちゃダメだ", "あんた、バカァ？", "サービス、サービス！", "笑えばいいと思うよ"], "correctIndex": 1, "level": 1},
+    {"id": 3011, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "初陣で使徒の被害に遭い、妹が怪我をしたことで一時シンジに怒りをぶつけたクラスメイトは誰？", "choices": ["相田ケンスケ", "鈴原トウジ", "渚カヲル", "加持リョウジ"], "correctIndex": 1, "level": 2},
+    {"id": 3012, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "第5の使徒ラミエルを倒すため、日本中の電力を集めて行われた作戦名は？", "choices": ["ウラシマ作戦", "ヤシマ作戦", "スサノオ作戦", "オロチ作戦"], "correctIndex": 1, "level": 2},
+    {"id": 3013, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "ネルフが組織の裏で隠している、過去に起きた地球規模の大災害の名称は？", "choices": ["ファースト・インパクト", "セカンド・インパクト", "サード・インパクト", "フォース・インパクト"], "correctIndex": 1, "level": 2},
+    {"id": 3014, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "ゲンドウにある極秘の「荷物」を届けた、謎多き人物は誰？", "choices": ["冬月コウゾウ", "加持リョウジ", "キール・ローレンツ", "青葉シゲル"], "correctIndex": 1, "level": 2},
+    {"id": 3015, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "エヴァを操縦する14歳の少年少女（パイロット）たちの総称は何と呼ばれている？", "choices": ["適合者", "チルドレン", "イノベイター", "ニュータイプ"], "correctIndex": 1, "level": 2},
+    {"id": 3016, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "ヤシマ作戦において、ラミエルの射程外から狙撃するために使用された武器は？", "choices": ["プログレッシブ・ナイフ", "パレットライフル", "ポジトロンライフル", "ロンギヌスの槍"], "correctIndex": 2, "level": 3},
+    {"id": 3017, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "分裂して活動する使徒を倒すために、シンジとアスカが同時に破壊しなければならなかった臓器の名称は？", "choices": ["コア", "S2機関", "ダミープラグ", "エントリープラグ"], "correctIndex": 0, "level": 3},
+    {"id": 3018, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "アスカが弐号機で捕獲に向かった、浅間山火口で発見された使徒のレアケースな状態とは？", "choices": ["卵状態", "幼虫状態", "蛹（さなぎ）状態", "化石状態"], "correctIndex": 2, "level": 3},
+    {"id": 3019, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "アスカが弐号機に乗って初めて使徒と戦闘を行った場所はどこ？", "choices": ["第3新東京市の市街地", "太平洋上の空母艦隊", "浅間山火口", "宇宙空間"], "correctIndex": 1, "level": 3},
+    {"id": 3020, "anime": "新世紀エヴァンゲリオン", "genre": "SF", "text": "アスカは自らが乗るエヴァ弐号機について、どのような存在だと主張している？", "choices": ["世界初のエヴァンゲリオン", "神に最も近いエヴァンゲリオン", "最強のエヴァンゲリオン", "唯一のエヴァンゲリオン"], "correctIndex": 0, "level": 3},
+    {"id": 4001, "anime": "けいおん！", "genre": "日常", "text": "主人公・平沢唯が担当している楽器は？", "choices": ["ギター", "ベース", "ドラム", "キーボード"], "correctIndex": 0, "level": 1},
+    {"id": 4002, "anime": "けいおん！", "genre": "日常", "text": "軽音部のベース担当で、恥ずかしがり屋な性格のキャラクターは？", "choices": ["平沢唯", "秋山澪", "田井中律", "琴吹紬"], "correctIndex": 1, "level": 1},
+    {"id": 4003, "anime": "けいおん！", "genre": "日常", "text": "軽音部のドラム担当で、元気いっぱいな部長は？", "choices": ["平沢唯", "秋山澪", "田井中律", "琴吹紬"], "correctIndex": 2, "level": 1},
+    {"id": 4004, "anime": "けいおん！", "genre": "日常", "text": "軽音部のキーボード担当で、おっとりしたお嬢様は？", "choices": ["平沢唯", "秋山澪", "田井中律", "琴吹紬"], "correctIndex": 3, "level": 1},
+    {"id": 4005, "anime": "けいおん！", "genre": "日常", "text": "平沢唯たちより1学年下で、後に軽音部に入部するギター担当は？", "choices": ["中野梓", "平沢憂", "真鍋和", "鈴木純"], "correctIndex": 0, "level": 1},
+    {"id": 4006, "anime": "けいおん！", "genre": "日常", "text": "軽音部のメンバーが組んでいるバンド名は何？", "choices": ["桜高軽音部", "放課後ティータイム", "ティータイムガールズ", "放課後マジック"], "correctIndex": 1, "level": 1},
+    {"id": 4007, "anime": "けいおん！", "genre": "日常", "text": "平沢唯の妹で、姉とは対照的にしっかり者の名前は？", "choices": ["平沢憂", "真鍋和", "鈴木純", "中野梓"], "correctIndex": 0, "level": 1},
+    {"id": 4008, "anime": "けいおん！", "genre": "日常", "text": "軽音部の顧問を務める、音楽教師の名前は？", "choices": ["真鍋和", "鈴木純", "山中さわ子", "曽我部恵"], "correctIndex": 2, "level": 1},
+    {"id": 4009, "anime": "けいおん！", "genre": "日常", "text": "中野梓が先輩たちから呼ばれているあだ名は？", "choices": ["あずあず", "あずにゃん", "にゃんあず", "あずさちゃん"], "correctIndex": 1, "level": 1},
+    {"id": 4010, "anime": "けいおん！", "genre": "日常", "text": "琴吹紬が部室によく持ってくるものは？", "choices": ["お菓子とティーセット", "大量の楽譜", "新作の楽器", "授業のノート"], "correctIndex": 0, "level": 1},
+    {"id": 4011, "anime": "けいおん！", "genre": "日常", "text": "平沢唯が使用しているギター（レスポール）に付けた愛称は？", "choices": ["むったん", "ギー太", "エリザベス", "レスポン"], "correctIndex": 1, "level": 2},
+    {"id": 4012, "anime": "けいおん！", "genre": "日常", "text": "秋山澪が使用しているベースに付けた愛称は？", "choices": ["むったん", "ギー太", "エリザベス", "ベースケ"], "correctIndex": 2, "level": 2},
+    {"id": 4013, "anime": "けいおん！", "genre": "日常", "text": "軽音部が初めての学園祭ライブでボーカルを務めたのは誰？", "choices": ["秋山澪", "平沢唯", "田井中律", "琴吹紬"], "correctIndex": 0, "level": 2},
+    {"id": 4014, "anime": "けいおん！", "genre": "日常", "text": "唯の幼馴染で、生徒会役員（後に生徒会長）を務めるキャラクターは？", "choices": ["平沢憂", "鈴木純", "曽我部恵", "真鍋和"], "correctIndex": 3, "level": 2},
+    {"id": 4015, "anime": "けいおん！", "genre": "日常", "text": "山中さわ子先生が学生時代に組んでいたヘヴィメタルバンドの名前は？", "choices": ["DEATH DEVIL", "BLACK HOLE", "WILD TIGER", "DARKNESS"], "correctIndex": 0, "level": 2},
+    {"id": 4016, "anime": "けいおん！", "genre": "日常", "text": "第1期第1話で、唯が「軽音部」という言葉から一番初めに連想した楽器は？", "choices": ["リコーダー", "カスタネット", "トライアングル", "ピアニカ"], "correctIndex": 1, "level": 3},
+    {"id": 4017, "anime": "けいおん！", "genre": "日常", "text": "夏合宿で行った海で、澪が岩場を見て怯えていたものは何？", "choices": ["カニ", "ナマコ", "フジツボ", "クラゲ"], "correctIndex": 2, "level": 3},
+    {"id": 4018, "anime": "けいおん！", "genre": "日常", "text": "軽音部で飼うことになったペットの亀（スッポンモドキ）の名前は？", "choices": ["カメ吉", "ポチ", "かめこ", "トンちゃん"], "correctIndex": 3, "level": 3},
+    {"id": 4019, "anime": "けいおん！", "genre": "日常", "text": "唯たちが入学した当初、軽音部は部員が最低何人集まらないと廃部になる危機だった？", "choices": ["3人", "4人", "5人", "6人"], "correctIndex": 1, "level": 3},
+    {"id": 4020, "anime": "けいおん！", "genre": "日常", "text": "アニメ第1期の最終回で、唯が学園祭のステージに遅刻した直接の理由は？", "choices": ["家にギターを忘れたから", "風邪で寝込んでいたから", "補習を受けていたから", "道に迷ったから"], "correctIndex": 0, "level": 3},
+    {"id": 5001, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "秀知院学園の生徒会長を務める主人公の名前は？", "choices": ["白銀御行", "石上優", "田沼翼", "四条帝"], "correctIndex": 0, "level": 1},
+    {"id": 5002, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "秀知院学園の生徒会副会長を務めるヒロインの名前は？", "choices": ["藤原千花", "早坂愛", "四宮かぐや", "伊井野ミコ"], "correctIndex": 2, "level": 1},
+    {"id": 5003, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "生徒会書記を務める、天真爛漫でゲーム好きなキャラクターは？", "choices": ["早坂愛", "四宮かぐや", "藤原千花", "伊井野ミコ"], "correctIndex": 2, "level": 1},
+    {"id": 5004, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "生徒会会計で、人間観察力に長けるがネガティブ思考な後輩は？", "choices": ["石上優", "白銀御行", "田沼翼", "風祭豪"], "correctIndex": 0, "level": 1},
+    {"id": 5005, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "物語の主な舞台となる、エリートが通う高校の名前は？", "choices": ["秀知院学園", "椚ヶ丘中学校", "音ノ木坂学院", "私立八光学園"], "correctIndex": 0, "level": 1},
+    {"id": 5006, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "四宮かぐやに幼い頃から仕えている、クールな近侍（メイド）は誰？", "choices": ["早坂愛", "藤原千花", "柏木渚", "子安つばめ"], "correctIndex": 0, "level": 1},
+    {"id": 5007, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "かぐやと白銀の恋愛における基本スタンス（本作のテーマ）は？", "choices": ["恋愛は告白した方が負け", "恋愛は告白された方が負け", "恋愛は素直な方が勝ち", "恋愛は先に好きになった方が負け"], "correctIndex": 0, "level": 1},
+    {"id": 5008, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "完璧に見える白銀御行が、実は極端に苦手としていることは？", "choices": ["勉強", "料理", "歌を歌うこと", "生徒会の仕事"], "correctIndex": 2, "level": 1},
+    {"id": 5009, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "四宮かぐやの特技の一つで、全国大会レベルの腕前を持つ武道は？", "choices": ["剣道", "柔道", "弓道", "空手"], "correctIndex": 2, "level": 1},
+    {"id": 5010, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "後に生徒会に加わる、正義感が強く風紀委員も務める新メンバーは？", "choices": ["子安つばめ", "柏木渚", "伊井野ミコ", "四条眞妃"], "correctIndex": 2, "level": 1},
+    {"id": 5011, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "藤原千花の中等部に通う妹の名前は？", "choices": ["藤原豊実", "藤原萌葉", "藤原万葉", "藤原葉月"], "correctIndex": 1, "level": 2},
+    {"id": 5012, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "石上優が密かに想いを寄せている、応援団の副団長を務める先輩は？", "choices": ["子安つばめ", "柏木渚", "四条眞妃", "大仏こころ"], "correctIndex": 0, "level": 2},
+    {"id": 5013, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "白銀御行の父親の本来の職業（過去に就いていた職業）は？", "choices": ["医者", "弁護士", "元会社社長", "現役の国会議員"], "correctIndex": 2, "level": 2},
+    {"id": 5014, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "四宮家の血縁にあたり、かぐやに対して強い対抗心を持つ同級生は？", "choices": ["四条眞妃", "柏木渚", "大仏こころ", "早坂那歩"], "correctIndex": 0, "level": 2},
+    {"id": 5015, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "睡眠不足の白銀御行が、生徒会室でいつも飲んでいるものは？", "choices": ["エナジードリンク", "ブラックコーヒー", "抹茶", "烏龍茶"], "correctIndex": 1, "level": 2},
+    {"id": 5016, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "藤原千花が実家で飼っている犬の名前は？", "choices": ["ペス", "ポチ", "ジョン", "シロ"], "correctIndex": 0, "level": 3},
+    {"id": 5017, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "四宮かぐやの腹黒い長兄の名前は？", "choices": ["四宮雲鷹", "四宮雁庵", "四宮黄光", "四宮青龍"], "correctIndex": 2, "level": 3},
+    {"id": 5018, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "伊井野ミコがリラックスするために、イヤホンで頻繁に聴いている音声は？", "choices": ["焚き火の音", "波の音", "オルゴール", "落語"], "correctIndex": 0, "level": 3},
+    {"id": 5019, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "風邪を引いて理性が低下したかぐやを、本人の脳内法廷では何と呼んでいた？", "choices": ["アホかぐや", "バカかぐや", "甘えん坊かぐや", "幼児かぐや"], "correctIndex": 0, "level": 3},
+    {"id": 5020, "anime": "かぐや様は告らせたい", "genre": "恋愛", "text": "四宮家のお抱えであり、世界最高峰の名医として登場する人物の名前は？", "choices": ["田沼正造", "四条帝", "早坂那歩", "マキ・マクドナルド"], "correctIndex": 0, "level": 3}
+  ];
+
+  // --- データ保存・初期化 (localStorage) ---
+  const DEFAULT_DATA = {
+    life: 5,
+    lastLifeTime: Date.now(),
+    stats: { action: 10, fantasy: 10, scifi: 10, sliceOfLife: 10, romance: 10 },
+    answeredQuestions: [], // 正解した問題のIDリスト
+    totalAnswers: 0,
+    history: []
+  };
+
+  let appData = JSON.parse(localStorage.getItem('animasData')) || DEFAULT_DATA;
+  
+  // 状態管理
   let currentLevel = null;
-  let totalAnswers = 0;
   let isAnswering = false;
   let timerInterval;
   let timeLeft = 10;
-  let historyData = [];
-  
-  // パラメータ（5傾向）
-  let stats = { action: 10, fantasy: 10, scifi: 10, sliceOfLife: 10, romance: 10 };
-
-  const dummyQuestions = [
-    { id: 101, anime: "ワンピース", genre: "冒険", text: "ルフィの麦わら帽子は元々誰のもの？", choices: ["シャンクス", "ゴールド・ロジャー", "レイリー", "ガープ"], correctIndex: 0, level: 1 },
-    { id: 102, anime: "進撃の巨人", genre: "ダークファンタジー", text: "エレン達の同期、第104期訓練兵団を首席で卒業したのは誰？", choices: ["ミカサ", "ライナー", "エレン", "アニ"], correctIndex: 0, level: 2 },
-    { id: 103, anime: "ダミーアニメC", genre: "SF", text: "この中で実在しない兵器は？", choices: ["選択A", "選択B", "正解C", "選択D"], correctIndex: 2, level: 3 }
-  ];
   let currentQuestion = null;
+  let radarChart;
 
-  // --- レーダーチャート初期化 ---
-  const ctx = document.getElementById('radarChart').getContext('2d');
-  const radarChart = new Chart(ctx, {
-    type: 'radar',
-    data: {
-      labels: ['アクション', 'ファンタジー', 'SF', '日常', '恋愛'],
-      datasets: [{
-        label: 'パラメータ',
-        data: [stats.action, stats.fantasy, stats.scifi, stats.sliceOfLife, stats.romance],
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        borderColor: 'rgb(54, 162, 235)',
-        pointBackgroundColor: 'rgb(54, 162, 235)',
-      }]
-    },
-    options: { scales: { r: { min: 0, max: 50, ticks: { display: false } } } }
-  });
+  // --- 初期化処理 ---
+  function init() {
+    initChart();
+    updateHomeUI();
+    renderHistory();
+    // ライフ回復監視ループ（1秒ごと）
+    setInterval(checkLifeRecovery, 1000);
+  }
 
-  // --- 画面遷移 ---
+  function saveData() {
+    localStorage.setItem('animasData', JSON.stringify(appData));
+  }
+
+  // --- レーダーチャート ---
+  function initChart() {
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    radarChart = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: ['アクション', 'ファンタジー', 'SF', '日常', '恋愛'],
+        datasets: [{
+          label: 'パラメータ',
+          data: [appData.stats.action, appData.stats.fantasy, appData.stats.scifi, appData.stats.sliceOfLife, appData.stats.romance],
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderColor: 'rgb(54, 162, 235)',
+          pointBackgroundColor: 'rgb(54, 162, 235)',
+        }]
+      },
+      options: { scales: { r: { min: 0, max: 100, ticks: { display: false } } } }
+    });
+  }
+
+  function updateChart() {
+    radarChart.data.datasets[0].data = [
+      appData.stats.action, appData.stats.fantasy, appData.stats.scifi, 
+      appData.stats.sliceOfLife, appData.stats.romance
+    ];
+    radarChart.update();
+  }
+
+  // --- ライフ回復ロジック（1時間で1回復） ---
+  function checkLifeRecovery() {
+    const HOUR_MS = 60 * 60 * 1000;
+    
+    if (appData.life >= 5) {
+      appData.lastLifeTime = Date.now(); // MAX時は時間を更新し続ける
+      document.getElementById('life-timer').innerText = "MAX";
+      saveData();
+      return;
+    }
+
+    const now = Date.now();
+    const diff = now - appData.lastLifeTime;
+
+    if (diff >= HOUR_MS) {
+      const recovered = Math.floor(diff / HOUR_MS);
+      appData.life = Math.min(5, appData.life + recovered);
+      appData.lastLifeTime += recovered * HOUR_MS;
+      saveData();
+      updateHomeUI();
+    } else {
+      // 次の回復までのカウントダウン表示
+      const remainMs = HOUR_MS - diff;
+      const remainMin = Math.floor(remainMs / (60 * 1000));
+      const remainSec = Math.floor((remainMs % (60 * 1000)) / 1000);
+      document.getElementById('life-timer').innerText = 
+        String(remainMin).padStart(2, '0') + ":" + String(remainSec).padStart(2, '0');
+    }
+  }
+
+  // --- 画面遷移とUI更新 ---
   function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
   }
 
-  // --- レベル選択 ---
   function selectLevel(level) {
     currentLevel = level;
     document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('selected'));
     event.target.classList.add('selected');
   }
 
+  function updateTitle() {
+    const s = appData.stats;
+    const maxStat = Math.max(s.action, s.fantasy, s.scifi, s.sliceOfLife, s.romance);
+    let title = "見習いウォッチャー";
+    if (maxStat > 10) {
+      if (maxStat === s.action) title = "熱血ファイター";
+      else if (maxStat === s.fantasy) title = "異世界トラベラー";
+      else if (maxStat === s.scifi) title = "未来の観測者";
+      else if (maxStat === s.sliceOfLife) title = "日常の達人";
+      else if (maxStat === s.romance) title = "恋愛マスター";
+    }
+    document.getElementById('animas-title').innerText = title;
+  }
+
+  function updateHomeUI() {
+    document.getElementById('total-answers').innerText = appData.totalAnswers;
+    let lifeStr = "";
+    for(let i=0; i<5; i++) { lifeStr += (i < appData.life) ? "🔵" : "⚪️"; }
+    document.getElementById('life-icons').innerText = lifeStr;
+    updateChart();
+    updateTitle();
+  }
+
   // --- クイズ開始 ---
   function startQuiz() {
     if (!currentLevel) { alert("レベルを選択してください！"); return; }
-    if (life <= 0) { alert("ライフが足りません！"); return; }
+    if (appData.life <= 0) { alert("ライフが回復するまでお待ちください！"); return; }
 
-    // ライフ消費（回答ボタンを押した瞬間に消費）
-    life--;
+    // 該当レベルで未正解の問題を絞り込む
+    const available = questionsData.filter(q => 
+      q.level === currentLevel && !appData.answeredQuestions.includes(q.id)
+    );
+
+    if (available.length === 0) {
+      alert("このレベルの問題はすべてクリアしました！他のレベルを選んでね。");
+      return;
+    }
+
+    // ライフ消費
+    appData.life--;
+    saveData();
     updateHomeUI();
 
-    // 問題の選定（ダミーからレベルに合わせて取得）
-    const available = dummyQuestions.filter(q => q.level === currentLevel);
+    // ランダムに出題
     currentQuestion = available[Math.floor(Math.random() * available.length)];
     
     // UIセットアップ
@@ -325,31 +529,40 @@
     isAnswering = false;
     clearInterval(timerInterval);
 
-    totalAnswers++;
+    appData.totalAnswers++;
     const isCorrect = (selectedIndex === currentQuestion.correctIndex);
     const btns = document.querySelectorAll('.choice-btn');
 
     if (isCorrect) {
-      // 正解：パラメータ加算（レベル分）
-      // ※ここではデモとしてアクションの数値を上げる処理にしています
-      stats.action += currentQuestion.level; 
-      radarChart.data.datasets[0].data[0] = stats.action;
-      radarChart.update();
+      // 正解処理
+      btnElement.style.backgroundColor = '#d4edda';
       
-      btnElement.style.backgroundColor = '#d4edda'; // 緑色
-      addHistory("正解");
+      // ジャンルに応じてポイント加算
+      const pt = currentQuestion.level;
+      if(currentQuestion.genre === "アクション") appData.stats.action += pt;
+      if(currentQuestion.genre === "ファンタジー") appData.stats.fantasy += pt;
+      if(currentQuestion.genre === "SF") appData.stats.scifi += pt;
+      if(currentQuestion.genre === "日常") appData.stats.sliceOfLife += pt;
+      if(currentQuestion.genre === "恋愛") appData.stats.romance += pt;
+
+      appData.answeredQuestions.push(currentQuestion.id); // 正解リストに追加
+      addHistory(true);
+      saveData();
       
       setTimeout(() => {
         updateHomeUI();
         showScreen('home-screen');
       }, 1000);
+
     } else {
-      // 不正解：pt変化なし、正解の選択肢の色を変えて2秒待機
-      btnElement.style.backgroundColor = '#f8d7da'; // 選んだものを赤色
-      btns[currentQuestion.correctIndex].style.backgroundColor = '#d4edda'; // 正解を緑色
-      addHistory("不正解");
+      // 不正解処理
+      btnElement.style.backgroundColor = '#f8d7da';
+      btns[currentQuestion.correctIndex].style.backgroundColor = '#d4edda'; // 正解を緑に
+      addHistory(false);
+      saveData();
       
       setTimeout(() => {
+        updateHomeUI();
         showScreen('home-screen');
       }, 2000);
     }
@@ -359,35 +572,42 @@
   function handleTimeout() {
     if (!isAnswering) return;
     isAnswering = false;
-    totalAnswers++;
+    appData.totalAnswers++;
     
     const btns = document.querySelectorAll('.choice-btn');
-    btns[currentQuestion.correctIndex].style.backgroundColor = '#d4edda'; // 正解を緑色
-    addHistory("時間切れ");
+    btns[currentQuestion.correctIndex].style.backgroundColor = '#d4edda';
+    addHistory(false, true);
+    saveData();
     
     setTimeout(() => {
+      updateHomeUI();
       showScreen('home-screen');
     }, 2000);
   }
 
   // --- 履歴追加 ---
-  function addHistory(result) {
-    const historyList = document.getElementById('history-list');
-    const item = document.createElement('div');
-    item.style.padding = "5px 0";
-    item.style.borderBottom = "1px solid #eee";
-    item.innerText = `Lv${currentQuestion.level} ${currentQuestion.anime} : ${result}`;
-    historyList.prepend(item);
+  function addHistory(isCorrect, isTimeout = false) {
+    let resultText = isCorrect ? "⭕️ 正解" : (isTimeout ? "⏳ 時間切れ" : "❌ 不正解");
+    let ptText = isCorrect ? `(+${currentQuestion.level}pt)` : "";
+    let className = isCorrect ? "correct" : "incorrect";
+    
+    const historyStr = `<div class="history-item ${className}">
+      [Lv${currentQuestion.level}] ${currentQuestion.anime}<br>
+      ${resultText} ${ptText}
+    </div>`;
+    
+    appData.history.unshift(historyStr);
+    if(appData.history.length > 50) appData.history.pop(); // 履歴は最大50件まで保存
+    
+    renderHistory();
   }
 
-  // --- ホーム画面更新 ---
-  function updateHomeUI() {
-    document.getElementById('total-answers').innerText = totalAnswers;
-    let lifeStr = "";
-    for(let i=0; i<5; i++) { lifeStr += (i < life) ? "🔵" : "⚪️"; }
-    document.getElementById('life-icons').innerText = lifeStr;
-    // ※実際のタイマー回復ロジックは別途組み込む必要があります
+  function renderHistory() {
+    document.getElementById('history-list').innerHTML = appData.history.join('');
   }
+
+  // 起動時の初期化
+  window.onload = init;
 </script>
 </body>
 </html>
