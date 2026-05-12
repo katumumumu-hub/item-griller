@@ -1,256 +1,393 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>ITEM MASTER</title>
-    <style>
-        :root {
-            --bg: #09090b;
-            --card-bg: #18181b;
-            --accent: #3b82f6;
-            --danger: #ef4444;
-            --text: #f4f4f5;
-            --border: #27272a;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>アニマス - スマホ画面</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  /* 基本設定・スマホ風UI */
+  body {
+    font-family: sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+  }
+  #app {
+    width: 100%;
+    max-width: 400px;
+    background-color: #fff;
+    min-height: 100vh;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  .screen {
+    display: none;
+    padding: 20px;
+    box-sizing: border-box;
+    height: 100%;
+  }
+  .screen.active {
+    display: block;
+  }
+  
+  /* 共通ヘッダー */
+  .header {
+    background-color: #eee;
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  
+  /* ホーム画面要素 */
+  .animas-name {
+    text-align: center;
+    padding: 15px;
+    border: 1px solid #ccc;
+    margin-bottom: 15px;
+  }
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  .life-area {
+    text-align: right;
+  }
+  .life-icons span {
+    color: #007bff;
+    font-size: 20px;
+  }
+  .chart-container {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 15px;
+  }
+  .level-select {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+  }
+  .level-btn {
+    flex: 1;
+    margin: 0 5px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+  }
+  .level-btn.selected {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #0056b3;
+  }
+  .action-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    font-size: 16px;
+    margin-bottom: 15px;
+    cursor: pointer;
+  }
+  .action-btn:disabled {
+    background-color: #ccc;
+  }
+  .share-area {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+  }
+  .share-area button {
+    flex: 1; margin: 0 2px; padding: 10px;
+  }
+  .history-link {
+    text-align: right;
+  }
+  .history-link button {
+    padding: 5px 15px;
+  }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: env(safe-area-inset-top) 15px env(safe-area-inset-bottom) 15px;
-            overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        h1 { font-size: 1.2rem; text-align: center; letter-spacing: 3px; margin: 20px 0; color: var(--accent); }
-
-        .upload-zone {
-            background: var(--card-bg);
-            border: 2px dashed var(--border);
-            border-radius: 20px;
-            padding: 40px 20px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .custom-file-upload {
-            background: var(--accent);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-weight: bold;
-            display: inline-block;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-        }
-
-        input[type="file"] { display: none; }
-
-        #result { display: none; margin-bottom: 30px; animation: slideUp 0.3s ease-out; }
-        
-        @keyframes slideUp {
-            from { transform: translateY(10px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .item-card {
-            background: linear-gradient(145deg, #27272a, #18181b);
-            border-radius: 24px;
-            padding: 20px;
-            border: 1px solid var(--border);
-            position: relative;
-        }
-
-        .delete-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-            border: 1px solid var(--danger);
-            padding: 5px 10px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: bold;
-        }
-
-        .visual-container { display: flex; flex-direction: column; align-items: center; gap: 15px; }
-        .main-img { width: 200px; height: 200px; border-radius: 15px; object-fit: cover; border: 4px solid var(--border); }
-
-        .status-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            width: 100%;
-            margin-top: 15px;
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 12px;
-        }
-
-        .stat-box { display: flex; justify-content: space-between; font-family: 'Courier New', monospace; font-size: 14px; }
-        .stat-label { color: #71717a; }
-        .stat-val { color: #fbbf24; font-weight: bold; }
-
-        .collection-title { font-size: 0.9rem; color: #71717a; margin-bottom: 10px; padding-left: 5px; }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            padding-bottom: 100px;
-        }
-
-        .thumb {
-            aspect-ratio: 1/1;
-            background: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            position: relative;
-        }
-        .thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .rarity-dot { position: absolute; top: 5px; right: 5px; width: 6px; height: 6px; border-radius: 50%; }
-
-    </style>
+  /* 回答画面要素 */
+  .quiz-info {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .timer-bar {
+    width: 100%;
+    height: 10px;
+    background-color: #ddd;
+    margin-bottom: 10px;
+  }
+  .timer-fill {
+    height: 100%;
+    background-color: #ff4c4c;
+    width: 100%;
+    transition: width 1s linear;
+  }
+  .question-area {
+    border: 1px solid #ccc;
+    height: 200px;
+    padding: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .choice-btn {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+  }
+  
+  /* 履歴画面要素 */
+  .history-list {
+    border: 1px solid #ccc;
+    min-height: 300px;
+    margin-bottom: 15px;
+    padding: 10px;
+    font-size: 14px;
+  }
+</style>
 </head>
 <body>
 
-    <h1>ITEM MASTER</h1>
-
-    <div class="upload-zone">
-        <label class="custom-file-upload">
-            <input type="file" accept="image/*" onchange="processImage(this)">
-            写真を撮る / ライブラリ
-        </label>
-        <p id="status" style="font-size: 12px; color: #71717a; margin-top: 15px;">画像をアップロードして練成開始</p>
+<div id="app">
+  <div id="home-screen" class="screen active">
+    <div class="header">ゲーム名（アニマス）</div>
+    <div class="animas-name">あなたのアニマス名: <strong id="animas-title">見習いウォッチャー</strong></div>
+    
+    <div class="status-bar">
+      <div>総回答数 <span id="total-answers">0</span>問</div>
+      <div class="life-area">
+        <div class="life-icons" id="life-icons">🔵🔵🔵🔵🔵</div>
+        <div id="life-timer">00:00</div>
+      </div>
     </div>
 
-    <div id="result"></div>
+    <div class="chart-container">
+      <canvas id="radarChart"></canvas>
+    </div>
 
-    <div class="collection-title">COLLECTION (<span id="count">0</span>)</div>
-    <div class="grid" id="collectionGrid"></div>
+    <div class="level-select">
+      <button class="level-btn" onclick="selectLevel(1)">Lv 1</button>
+      <button class="level-btn" onclick="selectLevel(2)">Lv 2</button>
+      <button class="level-btn" onclick="selectLevel(3)">Lv 3</button>
+    </div>
 
-    <canvas id="proc" style="display:none;"></canvas>
+    <button class="action-btn" id="start-btn" onclick="startQuiz()">回答する</button>
 
-    <script>
-        const canvas = document.getElementById('proc');
-        const ctx = canvas.getContext('2d');
-        let inventory = [];
+    <div class="share-area">
+      <button>コピー</button>
+      <button>LINE</button>
+      <button>X</button>
+    </div>
+    
+    <div class="history-link">
+      <button onclick="showScreen('history-screen')">回答履歴</button>
+    </div>
+  </div>
 
-        // 読み込み
-        window.onload = () => {
-            const savedData = localStorage.getItem('itemMasterInventory');
-            if (savedData) {
-                inventory = JSON.parse(savedData);
-                refreshGrid();
-            }
-        };
+  <div id="quiz-screen" class="screen">
+    <div class="header">ゲーム名（アニマス） <span style="float:right; font-size:12px; margin-top:3px;" id="quiz-level-display">レベル1</span></div>
+    
+    <div class="quiz-info" id="quiz-genre">出題アニメ名 / ジャンル</div>
+    
+    <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
+    
+    <div class="question-area" id="quiz-text">問題文がここに入ります。</div>
+    
+    <div id="choices-area">
+      </div>
+  </div>
 
-        function processImage(input) {
-            if (!input.files || !input.files[0]) return;
-            document.getElementById('status').innerText = "解析中...";
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => analyze(img, input.files[0].name);
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
+  <div id="history-screen" class="screen">
+    <div class="header">回答履歴</div>
+    <div class="history-list" id="history-list">
+      </div>
+    <button class="action-btn" onclick="showScreen('home-screen')">ホームに戻る</button>
+  </div>
+</div>
 
-        function analyze(img, fileName) {
-            const size = 64;
-            canvas.width = size;
-            canvas.height = size;
-            ctx.drawImage(img, 0, 0, size, size);
-            const data = ctx.getImageData(0, 0, size, size).data;
-            let r = 0, g = 0, b = 0;
-            const colors = new Set();
-            for (let i = 0; i < data.length; i += 4) {
-                r += data[i]; g += data[i+1]; b += data[i+2];
-                colors.add(`${Math.round(data[i]/20)},${Math.round(data[i+1]/20)},${Math.round(data[i+2]/20)}`);
-            }
-            const avg = { r: r/(size*size), g: g/(size*size), b: b/(size*size) };
-            const hex = `#${Math.round(avg.r).toString(16).padStart(2,'0')}${Math.round(avg.g).toString(16).padStart(2,'0')}${Math.round(avg.b).toString(16).padStart(2,'0')}`;
-            const ratio = img.width / img.height;
-            const type = ratio > 1.2 ? "武器" : ratio < 0.8 ? "防具" : "魔法具";
-            const rarity = colors.size > 1500 ? {n:"LEGEND", c:"#f87171"} : colors.size > 800 ? {n:"EPIC", c:"#c084fc"} : {n:"RARE", c:"#fbbf24"};
+<script>
+  // --- ダミーデータ・状態管理 ---
+  let life = 5;
+  let currentLevel = null;
+  let totalAnswers = 0;
+  let isAnswering = false;
+  let timerInterval;
+  let timeLeft = 10;
+  let historyData = [];
+  
+  // パラメータ（5傾向）
+  let stats = { action: 10, fantasy: 10, scifi: 10, sliceOfLife: 10, romance: 10 };
 
-            const item = {
-                id: Date.now(),
-                name: fileName.split('.')[0].substring(0,8).toUpperCase() + (type === "武器" ? "の剣" : "の証"),
-                type: type,
-                rarity: rarity,
-                hex: hex,
-                stats: {
-                    ATK: Math.floor(Math.random() * 100) + (rarity.n === "LEGEND" ? 200 : 50),
-                    DEF: Math.floor(Math.random() * 100),
-                    SPD: Math.floor(Math.random() * 50)
-                },
-                img: img.src
-            };
+  const dummyQuestions = [
+    { id: 101, anime: "ワンピース", genre: "冒険", text: "ルフィの麦わら帽子は元々誰のもの？", choices: ["シャンクス", "ゴールド・ロジャー", "レイリー", "ガープ"], correctIndex: 0, level: 1 },
+    { id: 102, anime: "進撃の巨人", genre: "ダークファンタジー", text: "エレン達の同期、第104期訓練兵団を首席で卒業したのは誰？", choices: ["ミカサ", "ライナー", "エレン", "アニ"], correctIndex: 0, level: 2 },
+    { id: 103, anime: "ダミーアニメC", genre: "SF", text: "この中で実在しない兵器は？", choices: ["選択A", "選択B", "正解C", "選択D"], correctIndex: 2, level: 3 }
+  ];
+  let currentQuestion = null;
 
-            show(item);
-            inventory.push(item);
-            saveData();
-            refreshGrid();
-            document.getElementById('status').innerText = "練成完了";
-        }
+  // --- レーダーチャート初期化 ---
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  const radarChart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: ['アクション', 'ファンタジー', 'SF', '日常', '恋愛'],
+      datasets: [{
+        label: 'パラメータ',
+        data: [stats.action, stats.fantasy, stats.scifi, stats.sliceOfLife, stats.romance],
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgb(54, 162, 235)',
+        pointBackgroundColor: 'rgb(54, 162, 235)',
+      }]
+    },
+    options: { scales: { r: { min: 0, max: 50, ticks: { display: false } } } }
+  });
 
-        function show(item) {
-            const res = document.getElementById('result');
-            res.style.display = 'block';
-            res.innerHTML = `
-                <div class="item-card">
-                    <button class="delete-btn" onclick="deleteItem(${item.id})">削除</button>
-                    <div class="visual-container">
-                        <img src="${item.img}" class="main-img" style="border-color: ${item.hex}">
-                        <div style="text-align:center">
-                            <div style="color:${item.rarity.c}; font-weight:bold; font-size:12px;">${item.rarity.n}</div>
-                            <div style="font-size:20px; font-weight:bold;">${item.name}</div>
-                        </div>
-                    </div>
-                    <div class="status-grid">
-                        <div class="stat-box"><span class="stat-label">ATK</span><span class="stat-val">${item.stats.ATK}</span></div>
-                        <div class="stat-box"><span class="stat-label">DEF</span><span class="stat-val">${item.stats.DEF}</span></div>
-                        <div class="stat-box"><span class="stat-label">SPD</span><span class="stat-val">${item.stats.SPD}</span></div>
-                        <div class="stat-box"><span class="stat-label">TYPE</span><span class="stat-val" style="font-size:10px">${item.type}</span></div>
-                    </div>
-                </div>
-            `;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+  // --- 画面遷移 ---
+  function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+  }
 
-        function deleteItem(id) {
-            if (confirm('このアイテムを削除してもよろしいですか？')) {
-                inventory = inventory.filter(item => item.id !== id);
-                saveData();
-                refreshGrid();
-                document.getElementById('result').style.display = 'none';
-            }
-        }
+  // --- レベル選択 ---
+  function selectLevel(level) {
+    currentLevel = level;
+    document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('selected'));
+    event.target.classList.add('selected');
+  }
 
-        function saveData() {
-            localStorage.setItem('itemMasterInventory', JSON.stringify(inventory));
-        }
+  // --- クイズ開始 ---
+  function startQuiz() {
+    if (!currentLevel) { alert("レベルを選択してください！"); return; }
+    if (life <= 0) { alert("ライフが足りません！"); return; }
 
-        function refreshGrid() {
-            const grid = document.getElementById('collectionGrid');
-            grid.innerHTML = '';
-            document.getElementById('count').innerText = inventory.length;
-            
-            // 新しい順に表示
-            [...inventory].reverse().forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'thumb';
-                div.onclick = () => show(item);
-                div.innerHTML = `<img src="${item.img}"><div class="rarity-dot" style="background:${item.rarity.c}"></div>`;
-                grid.appendChild(div);
-            });
-        }
-    </script>
+    // ライフ消費（回答ボタンを押した瞬間に消費）
+    life--;
+    updateHomeUI();
+
+    // 問題の選定（ダミーからレベルに合わせて取得）
+    const available = dummyQuestions.filter(q => q.level === currentLevel);
+    currentQuestion = available[Math.floor(Math.random() * available.length)];
+    
+    // UIセットアップ
+    document.getElementById('quiz-level-display').innerText = `レベル${currentLevel}`;
+    document.getElementById('quiz-genre').innerText = `${currentQuestion.anime} / ${currentQuestion.genre}`;
+    document.getElementById('quiz-text').innerText = currentQuestion.text;
+    
+    const choicesArea = document.getElementById('choices-area');
+    choicesArea.innerHTML = '';
+    currentQuestion.choices.forEach((choice, index) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.innerText = choice;
+      btn.onclick = () => handleAnswer(index, btn);
+      choicesArea.appendChild(btn);
+    });
+
+    isAnswering = true;
+    timeLeft = 10;
+    document.getElementById('timer-fill').style.width = '100%';
+    showScreen('quiz-screen');
+    
+    // タイマー開始
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      document.getElementById('timer-fill').style.width = `${(timeLeft / 10) * 100}%`;
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        handleTimeout();
+      }
+    }, 1000);
+  }
+
+  // --- 回答処理 ---
+  function handleAnswer(selectedIndex, btnElement) {
+    if (!isAnswering) return;
+    isAnswering = false;
+    clearInterval(timerInterval);
+
+    totalAnswers++;
+    const isCorrect = (selectedIndex === currentQuestion.correctIndex);
+    const btns = document.querySelectorAll('.choice-btn');
+
+    if (isCorrect) {
+      // 正解：パラメータ加算（レベル分）
+      // ※ここではデモとしてアクションの数値を上げる処理にしています
+      stats.action += currentQuestion.level; 
+      radarChart.data.datasets[0].data[0] = stats.action;
+      radarChart.update();
+      
+      btnElement.style.backgroundColor = '#d4edda'; // 緑色
+      addHistory("正解");
+      
+      setTimeout(() => {
+        updateHomeUI();
+        showScreen('home-screen');
+      }, 1000);
+    } else {
+      // 不正解：pt変化なし、正解の選択肢の色を変えて2秒待機
+      btnElement.style.backgroundColor = '#f8d7da'; // 選んだものを赤色
+      btns[currentQuestion.correctIndex].style.backgroundColor = '#d4edda'; // 正解を緑色
+      addHistory("不正解");
+      
+      setTimeout(() => {
+        showScreen('home-screen');
+      }, 2000);
+    }
+  }
+
+  // --- 時間切れ処理 ---
+  function handleTimeout() {
+    if (!isAnswering) return;
+    isAnswering = false;
+    totalAnswers++;
+    
+    const btns = document.querySelectorAll('.choice-btn');
+    btns[currentQuestion.correctIndex].style.backgroundColor = '#d4edda'; // 正解を緑色
+    addHistory("時間切れ");
+    
+    setTimeout(() => {
+      showScreen('home-screen');
+    }, 2000);
+  }
+
+  // --- 履歴追加 ---
+  function addHistory(result) {
+    const historyList = document.getElementById('history-list');
+    const item = document.createElement('div');
+    item.style.padding = "5px 0";
+    item.style.borderBottom = "1px solid #eee";
+    item.innerText = `Lv${currentQuestion.level} ${currentQuestion.anime} : ${result}`;
+    historyList.prepend(item);
+  }
+
+  // --- ホーム画面更新 ---
+  function updateHomeUI() {
+    document.getElementById('total-answers').innerText = totalAnswers;
+    let lifeStr = "";
+    for(let i=0; i<5; i++) { lifeStr += (i < life) ? "🔵" : "⚪️"; }
+    document.getElementById('life-icons').innerText = lifeStr;
+    // ※実際のタイマー回復ロジックは別途組み込む必要があります
+  }
+</script>
 </body>
 </html>
