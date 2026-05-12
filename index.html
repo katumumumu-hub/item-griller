@@ -166,7 +166,7 @@
   .custom-list::-webkit-scrollbar { width: 6px; }
   .custom-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
 
-  /* 統計エリア (新規追加) */
+  /* 統計エリア */
   .stats-container {
     background: var(--white); max-height: 250px; overflow-y: auto; margin-bottom: 15px;
     padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); font-size: 13px; font-weight: 700;
@@ -226,9 +226,9 @@
     <button class="action-btn" id="start-btn" onclick="startQuiz()" disabled>データ読み込み中...</button>
 
     <div class="share-area">
-      <button onclick="playClick()">📋 コピー</button>
-      <button onclick="playClick()" style="color:#06C755;">💬 LINE</button>
-      <button onclick="playClick()" style="color:#000;">𝕏 Post</button>
+      <button onclick="shareResult('copy')">📋 コピー</button>
+      <button onclick="shareResult('line')" style="color:#06C755;">💬 LINE</button>
+      <button onclick="shareResult('x')" style="color:#000;">𝕏 Post</button>
     </div>
     
     <div class="history-link">
@@ -367,7 +367,7 @@
     stats: { action: 10, fantasy: 10, scifi: 10, sliceOfLife: 10, romance: 10 },
     answeredQuestions: [], totalAnswers: 0, history: [],
     unlockedTitles: [1], currentTitleId: 1,
-    statistics: { anime: {}, genre: {}, level: {} } // 統計データ用
+    statistics: { anime: {}, genre: {}, level: {} }
   };
 
   let appData = JSON.parse(localStorage.getItem('animasData')) || DEFAULT_DATA;
@@ -396,6 +396,47 @@
     appData.life = 5; appData.lastLifeTime = Date.now();
     saveData(); updateHomeUI();
     alert("【開発用】ライフを全回復しました！");
+  }
+
+  // --- シェア機能 (新規追加) ---
+  function getShareText() {
+    const t = titlesData.find(x => x.id === appData.currentTitleId);
+    const titleName = t ? t.title : "見習いウォッチャー";
+    const s = appData.stats;
+    
+    let text = `私のアニマス名は「${titleName}」です！✨\n\n`;
+    text += `📊 パラメータ\n`;
+    text += `⚔️ アクション: ${s.action}pt\n`;
+    text += `🪄 ファンタジー: ${s.fantasy}pt\n`;
+    text += `🚀 ＳＦ: ${s.scifi}pt\n`;
+    text += `☕️ 日常: ${s.sliceOfLife}pt\n`;
+    text += `💕 恋愛: ${s.romance}pt\n\n`;
+    text += `#アニマス #アニメクイズ`;
+    
+    return text;
+  }
+
+  function shareResult(type) {
+    playClick();
+    const text = getShareText();
+    
+    if (type === 'copy') {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          alert("クリップボードにコピーしました！\nSNSなどに貼り付けてシェアしてください。");
+        }).catch(err => {
+          alert("コピーに失敗しました。");
+        });
+      } else {
+        alert("お使いのブラウザではコピー機能がサポートされていません。");
+      }
+    } else if (type === 'line') {
+      const url = `https://line.me/R/msg/text/?${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+    } else if (type === 'x') {
+      const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+    }
   }
 
   // --- レーダーチャート ---
@@ -458,7 +499,7 @@
   function showScreen(screenId) {
     playClick();
     if (screenId === 'history-screen') {
-      renderStatistics(); // 履歴画面を開く際に統計を描画
+      renderStatistics();
     }
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
@@ -473,7 +514,6 @@
 
   function updateTitleDisplay() {
     const t = titlesData.find(x => x.id === appData.currentTitleId);
-    // 修正: [ジャンル名] の表示を削除しました
     document.getElementById('animas-title').innerText = t ? t.title : "見習いウォッチャー";
   }
 
@@ -523,7 +563,7 @@
     }, 1000);
   }
 
-  // --- 統計記録処理 (新規追加) ---
+  // --- 統計記録処理 ---
   function recordStatistics(q, isCorrect) {
     if (!appData.statistics) appData.statistics = { anime: {}, genre: {}, level: {} };
     const s = appData.statistics;
@@ -544,7 +584,7 @@
     if (isCorrect) s.level[q.level].correct++;
   }
 
-  // --- 統計描画処理 (新規追加) ---
+  // --- 統計描画処理 ---
   function renderStatistics() {
     if (!appData.statistics) appData.statistics = { anime: {}, genre: {}, level: {} };
     const s = appData.statistics;
@@ -556,7 +596,6 @@
       if (keys.length === 0) {
         secHtml += `<div style="color:#999; font-size:11px;">データがありません</div>`;
       } else {
-        // 合計解答数が多い順にソートして表示
         keys.sort((a, b) => dataObj[b].total - dataObj[a].total).forEach(k => {
           const d = dataObj[k];
           const rate = d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0;
@@ -582,7 +621,7 @@
     const isCorrect = (selectedIndex === currentQuestion.correctIndex);
     const btns = document.querySelectorAll('.choice-btn');
 
-    recordStatistics(currentQuestion, isCorrect); // 統計を記録
+    recordStatistics(currentQuestion, isCorrect); 
 
     if (isCorrect) {
       playCorrectSound();
@@ -614,7 +653,7 @@
     isAnswering = false; appData.totalAnswers++;
     playIncorrectSound();
     
-    recordStatistics(currentQuestion, false); // 統計を記録
+    recordStatistics(currentQuestion, false); 
 
     const btns = document.querySelectorAll('.choice-btn');
     btns[currentQuestion.correctIndex].style.background = 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)';
