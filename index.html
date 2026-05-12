@@ -127,7 +127,7 @@
     border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 700; flex: 1;
     box-shadow: 0 3px 8px rgba(0,0,0,0.1);
   }
-  .dev-btn { background-color: #ffb822 !important; color: #fff; } /* 開発ボタン */
+  .dev-btn { background-color: #ffb822 !important; color: #fff; }
 
   /* 回答画面要素 */
   .quiz-info {
@@ -211,7 +211,7 @@
       <button class="level-btn" onclick="selectLevel(3)">Lv 3</button>
     </div>
 
-    <button class="action-btn" id="start-btn" onclick="startQuiz()">▶ クイズに挑戦！</button>
+    <button class="action-btn" id="start-btn" onclick="startQuiz()" disabled>データ読み込み中...</button>
 
     <div class="share-area">
       <button onclick="playClick()">📋 コピー</button>
@@ -271,9 +271,7 @@
     osc.stop(audioCtx.currentTime + duration);
   }
 
-  function playClick() {
-    initAudio(); playTone(800, 'sine', 0.05, 0.05);
-  }
+  function playClick() { initAudio(); playTone(800, 'sine', 0.05, 0.05); }
   function playCorrectSound() {
     initAudio();
     playTone(523.25, 'sine', 0.1, 0.1); // C5
@@ -286,249 +284,73 @@
     setTimeout(() => playTone(150, 'sawtooth', 0.4, 0.1), 150);
   }
 
-  // --- クイズデータ (100問そのまま) ---
-  const questionsData = [
-    {"id":1001,"anime":"ワンピース","genre":"アクション","text":"ルフィの麦わら帽子は元々誰のものだった？","choices":["ゴールド・ロジャー","シャンクス","レイリー","ガープ"],"correctIndex":1,"level":1},
-    {"id":1002,"anime":"ワンピース","genre":"アクション","text":"ルフィが食べた悪魔の実はどれ？","choices":["バラバラの実","メラメラの実","ゴムゴムの実","ヤミヤミの実"],"correctIndex":2,"level":1},
-    {"id":1003,"anime":"ワンピース","genre":"アクション","text":"麦わらの一味の最初の仲間で、三刀流の剣士は誰？","choices":["ウソップ","サンジ","ロロノア・ゾロ","フランキー"],"correctIndex":2,"level":1},
-    {"id":1004,"anime":"ワンピース","genre":"アクション","text":"サンジの船での役割（職業）は？","choices":["コック","航海士","船医","音楽家"],"correctIndex":0,"level":1},
-    {"id":1005,"anime":"ワンピース","genre":"アクション","text":"船医であるトニートニー・チョッパーの本来の種族は？","choices":["タヌキ","トナカイ","犬","キツネ"],"correctIndex":1,"level":1},
-    {"id":1006,"anime":"ワンピース","genre":"アクション","text":"かつて「海賊王」と呼ばれた伝説の人物は？","choices":["白ひげ","カイドウ","シャンクス","ゴール・D・ロジャー"],"correctIndex":3,"level":1},
-    {"id":1007,"anime":"ワンピース","genre":"アクション","text":"ナミの左肩にあるタトゥーのモチーフは？","choices":["ドクロと骨","みかんと風車","太陽と波","桜と雪"],"correctIndex":1,"level":1},
-    {"id":1008,"anime":"ワンピース","genre":"アクション","text":"狙撃手ウソップが主に使う武器は？","choices":["剣","銃","パチンコ","槍"],"correctIndex":2,"level":1},
-    {"id":1009,"anime":"ワンピース","genre":"アクション","text":"海軍本部において「最高戦力」と呼ばれる3人の階級は？","choices":["中将","大将","元帥","少将"],"correctIndex":1,"level":1},
-    {"id":1010,"anime":"ワンピース","genre":"アクション","text":"麦わらの一味にとっての最初の海賊船の名前は？","choices":["サウザンド・サニー号","ゴーイング・メリー号","レッド・フォース号","モビー・ディック号"],"correctIndex":1,"level":1},
-    {"id":1011,"anime":"ワンピース","genre":"アクション","text":"クロコダイルから国を救うため、ルフィたちと共に旅をしたアラバスタ王国の王女は？","choices":["ネフェルタリ・ビビ","レベッカ","しらほし","ヴィオラ"],"correctIndex":0,"level":2},
-    {"id":1012,"anime":"ワンピース","genre":"アクション","text":"船大工フランキーの本来の名前（本名）は？","choices":["アイスバーグ","トム","カティ・フラム","パウリー"],"correctIndex":2,"level":2},
-    {"id":1013,"anime":"ワンピース","genre":"アクション","text":"王下七武海の紅一点、ボア・ハンコックの異名は？","choices":["泥棒猫","海賊女帝","悪魔の子","ビッグ・マム"],"correctIndex":1,"level":2},
-    {"id":1014,"anime":"ワンピース","genre":"アクション","text":"ポートガス・D・エースの左腕にある「ASCE」のタトゥー。「S」の部分に打たれているのは何のマーク？","choices":["丸印","バツ印","星印","ハート印"],"correctIndex":1,"level":2},
-    {"id":1015,"anime":"ワンピース","genre":"アクション","text":"スリラーバーク編で、ゾロが剣豪リューマから譲り受けた刀の名前は？","choices":["和道一文字","三代鬼徹","雪走","秋水"],"correctIndex":3,"level":2},
-    {"id":1016,"anime":"ワンピース","genre":"アクション","text":"ニコ・ロビンの故郷であり、かつて考古学の聖地と呼ばれていた島は？","choices":["オハラ","ウォーターセブン","アラバスタ","ドレスローザ"],"correctIndex":0,"level":3},
-    {"id":1017,"anime":"ワンピース","genre":"アクション","text":"ルフィが侵入した時点での、大監獄インペルダウンの署長は誰？","choices":["ハンニャバル","マゼラン","シリュウ","サディちゃん"],"correctIndex":1,"level":3},
-    {"id":1018,"anime":"ワンピース","genre":"アクション","text":"トラファルガー・ローが食べた、特殊な円（ROOM）を展開する悪魔の実は？","choices":["ジキジキの実","オペオペの実","イトイトの実","ドクドクの実"],"correctIndex":1,"level":3},
-    {"id":1019,"anime":"ワンピース","genre":"アクション","text":"空島スカイピアを支配していた「神」エネルが食べた自然（ロギア）系の悪魔の実は？","choices":["ピカピカの実","ゴロゴロの実","マグマグの実","ヒエヒエの実"],"correctIndex":1,"level":3},
-    {"id":1020,"anime":"ワンピース","genre":"アクション","text":"ビッグ・マム海賊団のスイート3将星の一人、シャーロット・カタクリの懸賞金は？","choices":["8億6000万ベリー","9億3200万ベリー","10億5700万ベリー","13億2000万ベリー"],"correctIndex":2,"level":3},
-    {"id":2001,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"主人公フリーレンの種族は？","choices":["人間","エルフ","ドワーフ","魔族"],"correctIndex":1,"level":1},
-    {"id":2002,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"フリーレンがかつて所属していたパーティーの勇者の名前は？","choices":["ハイター","アイゼン","ヒンメル","シュタルク"],"correctIndex":2,"level":1},
-    {"id":2003,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"フリーレンが共に旅をしている弟子の魔法使いの名前は？","choices":["フェルン","フランメ","ゼーリエ","カンネ"],"correctIndex":0,"level":1},
-    {"id":2004,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"戦士アイゼンの弟子であり、フリーレンの旅に同行する戦士は？","choices":["クラフト","ザイン","シュタルク","デンケン"],"correctIndex":2,"level":1},
-    {"id":2005,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"フリーレンの趣味は何を集めること？","choices":["宝石","魔導書（魔法）","世界地図","美味しい食べ物"],"correctIndex":1,"level":1},
-    {"id":2006,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"勇者パーティーが魔王を討伐する旅にかかった年数は？","choices":["5年","10年","15年","50年"],"correctIndex":1,"level":1},
-    {"id":2007,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"フリーレンがダンジョンでよく引っかかってしまう、宝箱の姿をした魔物は？","choices":["スライム","ゴーレム","ミミック","ガーゴイル"],"correctIndex":2,"level":1},
-    {"id":2008,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"僧侶ハイターが晩年に育てていた孤児は誰？","choices":["フェルン","シュタルク","ザイン","ラヴィーネ"],"correctIndex":0,"level":1},
-    {"id":2009,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"フリーレン達が目指している、魂の眠る地（オレオール）がある場所は？","choices":["オイサースト","エンデ","グラナト伯爵領","オレオール山"],"correctIndex":1,"level":1},
-    {"id":2010,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"フェルンが戦闘で主に使用する、魔族を殺すために開発された魔法の通称は？","choices":["防御魔法","花畑を出す魔法","一般攻撃魔法","空を飛ぶ魔法"],"correctIndex":2,"level":1},
-    {"id":2011,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"フリーレンの師匠である、人間の大魔法使いの名前は？","choices":["ゼーリエ","フランメ","ラント","ユーベル"],"correctIndex":1,"level":2},
-    {"id":2012,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"七崩賢「断頭台のアウラ」が使う「服従させる魔法（アゼリューゼ）」は、対象と何を天秤にかけて競う？","choices":["寿命","魔力","体重","罪の重さ"],"correctIndex":1,"level":2},
-    {"id":2013,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"途中で一時的にパーティーに加わった僧侶ザインが探している親友の通称は？","choices":["戦士ゴリラ","魔法使いパンダ","僧侶クマ","勇者ライオン"],"correctIndex":0,"level":2},
-    {"id":2014,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"魔族のクヴァールが開発し、後に人類に解析・改良された魔法（ゾルトラーク）の本来の名称は？","choices":["人を殺す魔法","万物を黄金に変える魔法","血を操る魔法","記憶を消す魔法"],"correctIndex":0,"level":2},
-    {"id":2015,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"勇者ヒンメルが持っていた「勇者の剣」の真実は？","choices":["魔王の剣だった","実は本物の勇者の剣ではなかった（抜けなかった）","氷でできていた","実は杖だった"],"correctIndex":1,"level":2},
-    {"id":2016,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"一級魔法使い選抜試験の第一次試験で試験官を務めた一級魔法使いは？","choices":["ゼンゼ","ゲナウ","ファルシュ","レルネン"],"correctIndex":1,"level":3},
-    {"id":2017,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"フランメの師匠であり、神話の時代から生きているエルフの大魔法使いは？","choices":["ゼーリエ","クラフト","エーレ","メトデ"],"correctIndex":0,"level":3},
-    {"id":2018,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"七崩賢「黄金郷のマハト」が使う、万物を黄金に変える魔法の名前は？","choices":["ゾルトラーク","ディーアゴルゼ","アゼリューゼ","バルテーリエ"],"correctIndex":1,"level":3},
-    {"id":2019,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"戦士シュタルクの優秀だった兄の名前は？","choices":["シュトルツ","シュタイン","アイゼン","ベルク"],"correctIndex":0,"level":3},
-    {"id":2020,"anime":"葬送のフリーレン","genre":"ファンタジー","text":"七崩賢の一人「奇跡のグラオザーム」の得意とする能力は？","choices":["空間転移","時間を止める","記憶を操作する幻術","死者を操る"],"correctIndex":2,"level":3},
-    {"id":3001,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"主人公である14歳の少年の名前は？","choices":["相田ケンスケ","碇シンジ","鈴原トウジ","渚カヲル"],"correctIndex":1,"level":1},
-    {"id":3002,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"人類を襲う正体不明の巨大生物の総称は？","choices":["怪獣","巨神","使徒","悪魔"],"correctIndex":2,"level":1},
-    {"id":3003,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"使徒殲滅のために組織された特務機関の名前は？","choices":["ネルフ","ゼーレ","ウィレ","国連軍"],"correctIndex":0,"level":1},
-    {"id":3004,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"物語の主な舞台となる要塞都市の名前は？","choices":["第2新東京市","第3新東京市","第4新東京市","ネオ東京"],"correctIndex":1,"level":1},
-    {"id":3005,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"シンジの保護者となり、同居することになるネルフの女性職員は？","choices":["赤木リツコ","伊吹マヤ","葛城ミサト","綾波レイ"],"correctIndex":2,"level":1},
-    {"id":3006,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"シンジの父親であり、ネルフの最高司令官は誰？","choices":["碇ゲンドウ","冬月コウゾウ","加持リョウジ","キール・ローレンツ"],"correctIndex":0,"level":1},
-    {"id":3007,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"シンジたちが搭乗する「汎用人型決戦兵器」の略称は？","choices":["ガンメン","エヴァ","モビルスーツ","ナイトメア"],"correctIndex":1,"level":1},
-    {"id":3008,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"シンジより先にエヴァ零号機のパイロットとなっていた、ミステリアスな少女は？","choices":["惣流・アスカ・ラングレー","真希波・マリ・イラストリアス","綾波レイ","洞木ヒカリ"],"correctIndex":2,"level":1},
-    {"id":3009,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"勝ち気な性格で、エヴァ弐号機のパイロットとして来日した少女は？","choices":["惣流・アスカ・ラングレー","綾波レイ","葛城ミサト","赤木リツコ"],"correctIndex":0,"level":1},
-    {"id":3010,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"アスカがシンジに対してよく使う、お決まりのセリフは？","choices":["逃げちゃダメだ","あんた、バカァ？","サービス、サービス！","笑えばいいと思うよ"],"correctIndex":1,"level":1},
-    {"id":3011,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"初陣で使徒の被害に遭い、妹が怪我をしたことで一時シンジに怒りをぶつけたクラスメイトは誰？","choices":["相田ケンスケ","鈴原トウジ","渚カヲル","加持リョウジ"],"correctIndex":1,"level":2},
-    {"id":3012,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"第5の使徒ラミエルを倒すため、日本中の電力を集めて行われた作戦名は？","choices":["ウラシマ作戦","ヤシマ作戦","スサノオ作戦","オロチ作戦"],"correctIndex":1,"level":2},
-    {"id":3013,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"ネルフが組織の裏で隠している、過去に起きた地球規模の大災害の名称は？","choices":["ファースト・インパクト","セカンド・インパクト","サード・インパクト","フォース・インパクト"],"correctIndex":1,"level":2},
-    {"id":3014,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"ゲンドウにある極秘の「荷物」を届けた、謎多き人物は誰？","choices":["冬月コウゾウ","加持リョウジ","キール・ローレンツ","青葉シゲル"],"correctIndex":1,"level":2},
-    {"id":3015,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"エヴァを操縦する14歳の少年少女（パイロット）たちの総称は何と呼ばれている？","choices":["適合者","チルドレン","イノベイター","ニュータイプ"],"correctIndex":1,"level":2},
-    {"id":3016,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"ヤシマ作戦において、ラミエルの射程外から狙撃するために使用された武器は？","choices":["プログレッシブ・ナイフ","パレットライフル","ポジトロンライフル","ロンギヌスの槍"],"correctIndex":2,"level":3},
-    {"id":3017,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"分裂して活動する使徒を倒すために、シンジとアスカが同時に破壊しなければならなかった臓器の名称は？","choices":["コア","S2機関","ダミープラグ","エントリープラグ"],"correctIndex":0,"level":3},
-    {"id":3018,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"アスカが弐号機で捕獲に向かった、浅間山火口で発見された使徒のレアケースな状態とは？","choices":["卵状態","幼虫状態","蛹（さなぎ）状態","化石状態"],"correctIndex":2,"level":3},
-    {"id":3019,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"アスカが弐号機に乗って初めて使徒と戦闘を行った場所はどこ？","choices":["第3新東京市の市街地","太平洋上の空母艦隊","浅間山火口","宇宙空間"],"correctIndex":1,"level":3},
-    {"id":3020,"anime":"新世紀エヴァンゲリオン","genre":"SF","text":"アスカは自らが乗るエヴァ弐号機について、どのような存在だと主張している？","choices":["世界初のエヴァンゲリオン","神に最も近いエヴァンゲリオン","最強のエヴァンゲリオン","唯一のエヴァンゲリオン"],"correctIndex":0,"level":3},
-    {"id":4001,"anime":"けいおん！","genre":"日常","text":"主人公・平沢唯が担当している楽器は？","choices":["ギター","ベース","ドラム","キーボード"],"correctIndex":0,"level":1},
-    {"id":4002,"anime":"けいおん！","genre":"日常","text":"軽音部のベース担当で、恥ずかしがり屋な性格のキャラクターは？","choices":["平沢唯","秋山澪","田井中律","琴吹紬"],"correctIndex":1,"level":1},
-    {"id":4003,"anime":"けいおん！","genre":"日常","text":"軽音部のドラム担当で、元気いっぱいな部長は？","choices":["平沢唯","秋山澪","田井中律","琴吹紬"],"correctIndex":2,"level":1},
-    {"id":4004,"anime":"けいおん！","genre":"日常","text":"軽音部のキーボード担当で、おっとりしたお嬢様は？","choices":["平沢唯","秋山澪","田井中律","琴吹紬"],"correctIndex":3,"level":1},
-    {"id":4005,"anime":"けいおん！","genre":"日常","text":"平沢唯たちより1学年下で、後に軽音部に入部するギター担当は？","choices":["中野梓","平沢憂","真鍋和","鈴木純"],"correctIndex":0,"level":1},
-    {"id":4006,"anime":"けいおん！","genre":"日常","text":"軽音部のメンバーが組んでいるバンド名は何？","choices":["桜高軽音部","放課後ティータイム","ティータイムガールズ","放課後マジック"],"correctIndex":1,"level":1},
-    {"id":4007,"anime":"けいおん！","genre":"日常","text":"平沢唯の妹で、姉とは対照的にしっかり者の名前は？","choices":["平沢憂","真鍋和","鈴木純","中野梓"],"correctIndex":0,"level":1},
-    {"id":4008,"anime":"けいおん！","genre":"日常","text":"軽音部の顧問を務める、音楽教師の名前は？","choices":["真鍋和","鈴木純","山中さわ子","曽我部恵"],"correctIndex":2,"level":1},
-    {"id":4009,"anime":"けいおん！","genre":"日常","text":"中野梓が先輩たちから呼ばれているあだ名は？","choices":["あずあず","あずにゃん","にゃんあず","あずさちゃん"],"correctIndex":1,"level":1},
-    {"id":4010,"anime":"けいおん！","genre":"日常","text":"琴吹紬が部室によく持ってくるものは？","choices":["お菓子とティーセット","大量の楽譜","新作の楽器","授業のノート"],"correctIndex":0,"level":1},
-    {"id":4011,"anime":"けいおん！","genre":"日常","text":"平沢唯が使用しているギター（レスポール）に付けた愛称は？","choices":["むったん","ギー太","エリザベス","レスポン"],"correctIndex":1,"level":2},
-    {"id":4012,"anime":"けいおん！","genre":"日常","text":"秋山澪が使用しているベースに付けた愛称は？","choices":["むったん","ギー太","エリザベス","ベースケ"],"correctIndex":2,"level":2},
-    {"id":4013,"anime":"けいおん！","genre":"日常","text":"軽音部が初めての学園祭ライブでボーカルを務めたのは誰？","choices":["秋山澪","平沢唯","田井中律","琴吹紬"],"correctIndex":0,"level":2},
-    {"id":4014,"anime":"けいおん！","genre":"日常","text":"唯の幼馴染で、生徒会役員（後に生徒会長）を務めるキャラクターは？","choices":["平沢憂","鈴木純","曽我部恵","真鍋和"],"correctIndex":3,"level":2},
-    {"id":4015,"anime":"けいおん！","genre":"日常","text":"山中さわ子先生が学生時代に組んでいたヘヴィメタルバンドの名前は？","choices":["DEATH DEVIL","BLACK HOLE","WILD TIGER","DARKNESS"],"correctIndex":0,"level":2},
-    {"id":4016,"anime":"けいおん！","genre":"日常","text":"第1期第1話で、唯が「軽音部」という言葉から一番初めに連想した楽器は？","choices":["リコーダー","カスタネット","トライアングル","ピアニカ"],"correctIndex":1,"level":3},
-    {"id":4017,"anime":"けいおん！","genre":"日常","text":"夏合宿で行った海で、澪が岩場を見て怯えていたものは何？","choices":["カニ","ナマコ","フジツボ","クラゲ"],"correctIndex":2,"level":3},
-    {"id":4018,"anime":"けいおん！","genre":"日常","text":"軽音部で飼うことになったペットの亀（スッポンモドキ）の名前は？","choices":["カメ吉","ポチ","かめこ","トンちゃん"],"correctIndex":3,"level":3},
-    {"id":4019,"anime":"けいおん！","genre":"日常","text":"唯たちが入学した当初、軽音部は部員が最低何人集まらないと廃部になる危機だった？","choices":["3人","4人","5人","6人"],"correctIndex":1,"level":3},
-    {"id":4020,"anime":"けいおん！","genre":"日常","text":"アニメ第1期の最終回で、唯が学園祭のステージに遅刻した直接の理由は？","choices":["家にギターを忘れたから","風邪で寝込んでいたから","補習を受けていたから","道に迷ったから"],"correctIndex":0,"level":3},
-    {"id":5001,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"秀知院学園の生徒会長を務める主人公の名前は？","choices":["白銀御行","石上優","田沼翼","四条帝"],"correctIndex":0,"level":1},
-    {"id":5002,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"秀知院学園の生徒会副会長を務めるヒロインの名前は？","choices":["藤原千花","早坂愛","四宮かぐや","伊井野ミコ"],"correctIndex":2,"level":1},
-    {"id":5003,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"生徒会書記を務める、天真爛漫でゲーム好きなキャラクターは？","choices":["早坂愛","四宮かぐや","藤原千花","伊井野ミコ"],"correctIndex":2,"level":1},
-    {"id":5004,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"生徒会会計で、人間観察力に長けるがネガティブ思考な後輩は？","choices":["石上優","白銀御行","田沼翼","風祭豪"],"correctIndex":0,"level":1},
-    {"id":5005,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"物語の主な舞台となる、エリートが通う高校の名前は？","choices":["秀知院学園","椚ヶ丘中学校","音ノ木坂学院","私立八光学園"],"correctIndex":0,"level":1},
-    {"id":5006,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"四宮かぐやに幼い頃から仕えている、クールな近侍（メイド）は誰？","choices":["早坂愛","藤原千花","柏木渚","子安つばめ"],"correctIndex":0,"level":1},
-    {"id":5007,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"かぐやと白銀の恋愛における基本スタンス（本作のテーマ）は？","choices":["恋愛は告白した方が負け","恋愛は告白された方が負け","恋愛は素直な方が勝ち","恋愛は先に好きになった方が負け"],"correctIndex":0,"level":1},
-    {"id":5008,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"完璧に見える白銀御行が、実は極端に苦手としていることは？","choices":["勉強","料理","歌を歌うこと","生徒会の仕事"],"correctIndex":2,"level":1},
-    {"id":5009,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"四宮かぐやの特技の一つで、全国大会レベルの腕前を持つ武道は？","choices":["剣道","柔道","弓道","空手"],"correctIndex":2,"level":1},
-    {"id":5010,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"後に生徒会に加わる、正義感が強く風紀委員も務める新メンバーは？","choices":["子安つばめ","柏木渚","伊井野ミコ","四条眞妃"],"correctIndex":2,"level":1},
-    {"id":5011,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"藤原千花の中等部に通う妹の名前は？","choices":["藤原豊実","藤原萌葉","藤原万葉","藤原葉月"],"correctIndex":1,"level":2},
-    {"id":5012,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"石上優が密かに想いを寄せている、応援団の副団長を務める先輩は？","choices":["子安つばめ","柏木渚","四条眞妃","大仏こころ"],"correctIndex":0,"level":2},
-    {"id":5013,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"白銀御行の父親の本来の職業（過去に就いていた職業）は？","choices":["医者","弁護士","元会社社長","現役の国会議員"],"correctIndex":2,"level":2},
-    {"id":5014,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"四宮家の血縁にあたり、かぐやに対して強い対抗心を持つ同級生は？","choices":["四条眞妃","柏木渚","大仏こころ","早坂那歩"],"correctIndex":0,"level":2},
-    {"id":5015,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"睡眠不足の白銀御行が、生徒会室でいつも飲んでいるものは？","choices":["エナジードリンク","ブラックコーヒー","抹茶","烏龍茶"],"correctIndex":1,"level":2},
-    {"id":5016,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"藤原千花が実家で飼っている犬の名前は？","choices":["ペス","ポチ","ジョン","シロ"],"correctIndex":0,"level":3},
-    {"id":5017,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"四宮かぐやの腹黒い長兄の名前は？","choices":["四宮雲鷹","四宮雁庵","四宮黄光","四宮青龍"],"correctIndex":2,"level":3},
-    {"id":5018,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"伊井野ミコがリラックスするために、イヤホンで頻繁に聴いている音声は？","choices":["焚き火の音","波の音","オルゴール","落語"],"correctIndex":0,"level":3},
-    {"id":5019,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"風邪を引いて理性が低下したかぐやを、本人の脳内法廷では何と呼んでいた？","choices":["アホかぐや","バカかぐや","甘えん坊かぐや","幼児かぐや"],"correctIndex":0,"level":3},
-    {"id":5020,"anime":"かぐや様は告らせたい","genre":"恋愛","text":"四宮家のお抱えであり、世界最高峰の名医として登場する人物の名前は？","choices":["田沼正造","四条帝","早坂那歩","マキ・マクドナルド"],"correctIndex":0,"level":3}
-  ];
+  // --- 空の配列を用意（外部ファイルから読み込みます） ---
+  let questionsData = [];
+  let titlesData = [];
 
-  // --- 称号データ (100パターン) とアンロック判定ロジック ---
-  const titlesData = [
-    {id:1,type:"総合",title:"見習いウォッチャー",condition_desc:"初期状態（総pt 0）"},
-    {id:2,type:"総合",title:"アニメ好きの卵",condition_desc:"総獲得pt 10以上"},
-    {id:3,type:"総合",title:"駆け出しアニメファン",condition_desc:"総獲得pt 50以上"},
-    {id:4,type:"総合",title:"週末の視聴者",condition_desc:"総獲得pt 100以上"},
-    {id:5,type:"総合",title:"熱心なアニメオタク",condition_desc:"総獲得pt 300以上"},
-    {id:6,type:"総合",title:"アニメ評論家",condition_desc:"総獲得pt 500以上"},
-    {id:7,type:"総合",title:"徹夜組の猛者",condition_desc:"総獲得pt 1000以上"},
-    {id:8,type:"総合",title:"覇権アニメ預言者",condition_desc:"総獲得pt 2000以上"},
-    {id:9,type:"総合",title:"伝説のアニオタ",condition_desc:"総獲得pt 5000以上"},
-    {id:10,type:"総合",title:"マスター・オブ・アニマス",condition_desc:"総獲得pt 10000以上"},
-    {id:11,type:"アクション",title:"喧嘩番長",condition_desc:"アクションpt 20以上でトップ"},
-    {id:12,type:"アクション",title:"熱血ファイター",condition_desc:"アクションpt 50以上でトップ"},
-    {id:13,type:"アクション",title:"歴戦の傭兵",condition_desc:"アクションpt 100以上でトップ"},
-    {id:14,type:"アクション",title:"闘技場の覇者",condition_desc:"アクションpt 200以上でトップ"},
-    {id:15,type:"アクション",title:"オーラ使い",condition_desc:"アクションpt 300以上でトップ"},
-    {id:16,type:"アクション",title:"鬼神の如き者",condition_desc:"アクションpt 500以上でトップ"},
-    {id:17,type:"アクション",title:"一騎当千の将",condition_desc:"アクションpt 1000以上でトップ"},
-    {id:18,type:"アクション",title:"地上最強の生物",condition_desc:"アクションpt 2000以上でトップ"},
-    {id:19,type:"アクション",title:"宇宙の破壊神",condition_desc:"アクションpt 5000以上でトップ"},
-    {id:20,type:"アクション",title:"バトルジャンキー",condition_desc:"アクション比率が全体の80%以上"},
-    {id:21,type:"ファンタジー",title:"迷い込んだ村人",condition_desc:"ファンタジーpt 20以上でトップ"},
-    {id:22,type:"ファンタジー",title:"異世界トラベラー",condition_desc:"ファンタジーpt 50以上でトップ"},
-    {id:23,type:"ファンタジー",title:"駆け出し冒険者",condition_desc:"ファンタジーpt 100以上でトップ"},
-    {id:24,type:"ファンタジー",title:"魔法使いの弟子",condition_desc:"ファンタジーpt 200以上でトップ"},
-    {id:25,type:"ファンタジー",title:"王宮の魔導師",condition_desc:"ファンタジーpt 300以上でトップ"},
-    {id:26,type:"ファンタジー",title:"竜を狩る者",condition_desc:"ファンタジーpt 500以上でトップ"},
-    {id:27,type:"ファンタジー",title:"伝説の勇者",condition_desc:"ファンタジーpt 1000以上でトップ"},
-    {id:28,type:"ファンタジー",title:"魔王討伐者",condition_desc:"ファンタジーpt 2000以上でトップ"},
-    {id:29,type:"ファンタジー",title:"神話の代行者",condition_desc:"ファンタジーpt 5000以上でトップ"},
-    {id:30,type:"ファンタジー",title:"転生を繰り返す者",condition_desc:"ファンタジー比率が全体の80%以上"},
-    {id:31,type:"SF",title:"宇宙の迷子",condition_desc:"SFpt 20以上でトップ"},
-    {id:32,type:"SF",title:"未来の観測者",condition_desc:"SFpt 50以上でトップ"},
-    {id:33,type:"SF",title:"星間トラベラー",condition_desc:"SFpt 100以上でトップ"},
-    {id:34,type:"SF",title:"優秀なパイロット",condition_desc:"SFpt 200以上でトップ"},
-    {id:35,type:"SF",title:"サイバーハッカー",condition_desc:"SFpt 300以上でトップ"},
-    {id:36,type:"SF",title:"銀河連邦の英雄",condition_desc:"SFpt 500以上でトップ"},
-    {id:37,type:"SF",title:"時をかける者",condition_desc:"SFpt 1000以上でトップ"},
-    {id:38,type:"SF",title:"ニュータイプ",condition_desc:"SFpt 2000以上でトップ"},
-    {id:39,type:"SF",title:"宇宙の真理を知る者",condition_desc:"SFpt 5000以上でトップ"},
-    {id:40,type:"SF",title:"機械仕掛けの神",condition_desc:"SF比率が全体の80%以上"},
-    {id:41,type:"日常",title:"通りすがりのモブ",condition_desc:"日常pt 20以上でトップ"},
-    {id:42,type:"日常",title:"日常の達人",condition_desc:"日常pt 50以上でトップ"},
-    {id:43,type:"日常",title:"放課後の主役",condition_desc:"日常pt 100以上でトップ"},
-    {id:44,type:"日常",title:"帰宅部のエース",condition_desc:"日常pt 200以上でトップ"},
-    {id:45,type:"日常",title:"癒やしを求める者",condition_desc:"日常pt 300以上でトップ"},
-    {id:46,type:"日常",title:"ゆるふわの化身",condition_desc:"日常pt 500以上でトップ"},
-    {id:47,type:"日常",title:"平和主義者",condition_desc:"日常pt 1000以上でトップ"},
-    {id:48,type:"日常",title:"永遠の高校生",condition_desc:"日常pt 2000以上でトップ"},
-    {id:49,type:"日常",title:"スローライフマスター",condition_desc:"日常pt 5000以上でトップ"},
-    {id:50,type:"日常",title:"日常系難民",condition_desc:"日常比率が全体の80%以上"},
-    {id:51,type:"恋愛",title:"恋の応援団",condition_desc:"恋愛pt 20以上でトップ"},
-    {id:52,type:"恋愛",title:"恋愛マスター",condition_desc:"恋愛pt 50以上でトップ"},
-    {id:53,type:"恋愛",title:"青春の目撃者",condition_desc:"恋愛pt 100以上でトップ"},
-    {id:54,type:"恋愛",title:"ラブコメ主人公の親友",condition_desc:"恋愛pt 200以上でトップ"},
-    {id:55,type:"恋愛",title:"恋のキューピッド",condition_desc:"恋愛pt 300以上でトップ"},
-    {id:56,type:"恋愛",title:"爆発しろと叫ぶ者",condition_desc:"恋愛pt 500以上でトップ"},
-    {id:57,type:"恋愛",title:"尊死スレスレ",condition_desc:"恋愛pt 1000以上でトップ"},
-    {id:58,type:"恋愛",title:"ハーレム王",condition_desc:"恋愛pt 2000以上でトップ"},
-    {id:59,type:"恋愛",title:"永遠の純愛",condition_desc:"恋愛pt 5000以上でトップ"},
-    {id:60,type:"恋愛",title:"脳内お花畑",condition_desc:"恋愛比率が全体の80%以上"},
-    {id:61,type:"複合",title:"魔法剣士",condition_desc:"アクションとファンタジーが同等に高い（50pt以上）"},
-    {id:62,type:"複合",title:"バトルファンタジーの覇者",condition_desc:"アクションとファンタジーが同等に高い（300pt以上）"},
-    {id:63,type:"複合",title:"サイボーグソルジャー",condition_desc:"アクションとSFが同等に高い（50pt以上）"},
-    {id:64,type:"複合",title:"銀河の賞金稼ぎ",condition_desc:"アクションとSFが同等に高い（300pt以上）"},
-    {id:65,type:"複合",title:"熱血番長",condition_desc:"アクションと日常が同等に高い（50pt以上）"},
-    {id:66,type:"複合",title:"ドタバタ活劇の主役",condition_desc:"アクションと日常が同等に高い（300pt以上）"},
-    {id:67,type:"複合",title:"吊り橋効果マニア",condition_desc:"アクションと恋愛が同等に高い（50pt以上）"},
-    {id:68,type:"複合",title:"戦うラブコメヒーロー",condition_desc:"アクションと恋愛が同等に高い（300pt以上）"},
-    {id:69,type:"複合",title:"魔導アーマー乗り",condition_desc:"ファンタジーとSFが同等に高い（50pt以上）"},
-    {id:70,type:"複合",title:"スペースファンタジー",condition_desc:"ファンタジーとSFが同等に高い（300pt以上）"},
-    {id:71,type:"複合",title:"ギルドの看板娘",condition_desc:"ファンタジーと日常が同等に高い（50pt以上）"},
-    {id:72,type:"複合",title:"異世界スローライフ",condition_desc:"ファンタジーと日常が同等に高い（300pt以上）"},
-    {id:73,type:"複合",title:"悪役令嬢の推し",condition_desc:"ファンタジーと恋愛が同等に高い（50pt以上）"},
-    {id:74,type:"複合",title:"異世界ロマンス",condition_desc:"ファンタジーと恋愛が同等に高い（300pt以上）"},
-    {id:75,type:"複合",title:"未来のガジェットオタク",condition_desc:"SFと日常が同等に高い（50pt以上）"},
-    {id:76,type:"複合",title:"すこしふしぎな日常",condition_desc:"SFと日常が同等に高い（300pt以上）"},
-    {id:77,type:"複合",title:"アンドロイドの恋人",condition_desc:"SFと恋愛が同等に高い（50pt以上）"},
-    {id:78,type:"複合",title:"時空を超えた愛",condition_desc:"SFと恋愛が同等に高い（300pt以上）"},
-    {id:79,type:"複合",title:"幼馴染の勝利を祈る者",condition_desc:"日常と恋愛が同等に高い（50pt以上）"},
-    {id:80,type:"複合",title:"青春ラブコメの波動",condition_desc:"日常と恋愛が同等に高い（300pt以上）"},
-    {id:81,type:"バランス",title:"オールラウンダー",condition_desc:"全ステータスが均等（差が少ない）で全50pt以上"},
-    {id:82,type:"バランス",title:"雑食アニメファン",condition_desc:"全ステータスが均等で全100pt以上"},
-    {id:83,type:"バランス",title:"博識なる賢者",condition_desc:"全ステータスが均等で全300pt以上"},
-    {id:84,type:"バランス",title:"完全無欠のオタク",condition_desc:"全ステータスが均等で全1000pt以上"},
-    {id:85,type:"プレイスタイル",title:"石橋を叩いて渡る",condition_desc:"Lv1の問題ばかり（80%以上）答えている"},
-    {id:86,type:"プレイスタイル",title:"チャレンジャー",condition_desc:"Lv3の問題ばかり（80%以上）答えている"},
-    {id:87,type:"プレイスタイル",title:"偏食家",condition_desc:"1つのジャンルしかプレイしていない"},
-    {id:88,type:"プレイスタイル",title:"知識の泉",condition_desc:"正答率100%を維持"},
-    {id:89,type:"プレイスタイル",title:"奇跡のカンマン",condition_desc:"Lv3の問題を連続で正解する"},
-    {id:90,type:"プレイスタイル",title:"不屈の精神",condition_desc:"不正解数が正解数を上回っている"},
-    {id:91,type:"プレイスタイル",title:"時間との戦い",condition_desc:"時間切れの回数が一定以上"},
-    {id:92,type:"特殊",title:"ブロンズコレクター",condition_desc:"総回答数 100問突破"},
-    {id:93,type:"特殊",title:"シルバーコレクター",condition_desc:"総回答数 500問突破"},
-    {id:94,type:"特殊",title:"ゴールドコレクター",condition_desc:"総回答数 1000問突破"},
-    {id:95,type:"特殊",title:"コンプリートの覇者",condition_desc:"全問題（現行バージョン）を制覇"},
-    {id:96,type:"特殊",title:"眠らない眼",condition_desc:"ライフの消費ペースが極端に早い"},
-    {id:97,type:"特殊",title:"久々の帰還兵",condition_desc:"最終プレイから一定期間空いてログインした"},
-    {id:98,type:"特殊",title:"運命の選択",condition_desc:"全ての選択肢で「1番」を選び続けて正解した"},
-    {id:99,type:"特殊",title:"アニマス・オリジン",condition_desc:"全ステータスが綺麗に100ptピッタリで揃った瞬間"},
-    {id:100,type:"特殊",title:"アニメの神様",condition_desc:"開発者が想定するカンスト値に到達"}
-  ];
+  // --- 非同期でJSONデータを読み込む処理 ---
+  async function loadGameData() {
+    try {
+      // 1. 問題データの読み込み
+      const qRes = await fetch('questions.json');
+      if (!qRes.ok) throw new Error('questions.json が見つかりません');
+      questionsData = await qRes.json();
 
-  titlesData.forEach(t => {
-    t.check = function(d) {
-      const earned = d.stats.action + d.stats.fantasy + d.stats.scifi + d.stats.sliceOfLife + d.stats.romance - 50;
-      const maxVal = Math.max(d.stats.action, d.stats.fantasy, d.stats.scifi, d.stats.sliceOfLife, d.stats.romance);
-      if (t.id === 1) return true;
-      if (t.id >= 2 && t.id <= 10) {
-        const req = [0, 10, 50, 100, 300, 500, 1000, 2000, 5000, 10000][t.id - 1];
-        return earned >= req;
-      }
-      if (t.id >= 11 && t.id <= 60) {
-        const typeMap = {1: 'action', 2: 'fantasy', 3: 'scifi', 4: 'sliceOfLife', 5: 'romance'};
-        const statName = typeMap[Math.floor((t.id - 11) / 10) + 1];
-        const reqArr = [20, 50, 100, 200, 300, 500, 1000, 2000, 5000];
-        const idx = (t.id - 1) % 10; 
-        if (idx < 9) return (d.stats[statName] - 10) >= reqArr[idx] && maxVal === d.stats[statName];
-        else return earned > 0 && (d.stats[statName] - 10) / earned >= 0.8;
-      }
-      if (t.id >= 61 && t.id <= 80) {
-        const req = (t.id % 2 !== 0) ? 50 : 300;
-        const s = [d.stats.action, d.stats.fantasy, d.stats.scifi, d.stats.sliceOfLife, d.stats.romance].sort((a,b)=>b-a);
-        return (s[0] - 10) >= req && (s[1] - 10) >= req && (s[0] - s[1]) <= 20; 
-      }
-      if (t.id >= 81 && t.id <= 84) {
-        const req = [50, 100, 300, 1000][t.id - 81];
-        const minVal = Math.min(d.stats.action, d.stats.fantasy, d.stats.scifi, d.stats.sliceOfLife, d.stats.romance);
-        return (minVal - 10) >= req;
-      }
-      if (t.id >= 92 && t.id <= 94) {
-        const req = [100, 500, 1000][t.id - 92];
-        return d.totalAnswers >= req;
-      }
-      if (t.id === 95) return d.answeredQuestions.length >= 100;
-      return false; 
-    };
-  });
+      // 2. 称号データの読み込み
+      const tRes = await fetch('titles.json');
+      if (!tRes.ok) throw new Error('titles.json が見つかりません');
+      const rawTitles = await tRes.json();
+
+      // 3. 称号データにアンロック判定（check）関数を動的に付与する
+      titlesData = rawTitles.map(t => {
+        t.check = function(d) {
+          const earned = d.stats.action + d.stats.fantasy + d.stats.scifi + d.stats.sliceOfLife + d.stats.romance - 50;
+          const maxVal = Math.max(d.stats.action, d.stats.fantasy, d.stats.scifi, d.stats.sliceOfLife, d.stats.romance);
+          if (t.id === 1) return true;
+          if (t.id >= 2 && t.id <= 10) {
+            const req = [0, 10, 50, 100, 300, 500, 1000, 2000, 5000, 10000][t.id - 1];
+            return earned >= req;
+          }
+          if (t.id >= 11 && t.id <= 60) {
+            const typeMap = {1: 'action', 2: 'fantasy', 3: 'scifi', 4: 'sliceOfLife', 5: 'romance'};
+            const statName = typeMap[Math.floor((t.id - 11) / 10) + 1];
+            const reqArr = [20, 50, 100, 200, 300, 500, 1000, 2000, 5000];
+            const idx = (t.id - 1) % 10; 
+            if (idx < 9) return (d.stats[statName] - 10) >= reqArr[idx] && maxVal === d.stats[statName];
+            else return earned > 0 && (d.stats[statName] - 10) / earned >= 0.8;
+          }
+          if (t.id >= 61 && t.id <= 80) {
+            const req = (t.id % 2 !== 0) ? 50 : 300;
+            const s = [d.stats.action, d.stats.fantasy, d.stats.scifi, d.stats.sliceOfLife, d.stats.romance].sort((a,b)=>b-a);
+            return (s[0] - 10) >= req && (s[1] - 10) >= req && (s[0] - s[1]) <= 20; 
+          }
+          if (t.id >= 81 && t.id <= 84) {
+            const req = [50, 100, 300, 1000][t.id - 81];
+            const minVal = Math.min(d.stats.action, d.stats.fantasy, d.stats.scifi, d.stats.sliceOfLife, d.stats.romance);
+            return (minVal - 10) >= req;
+          }
+          if (t.id >= 92 && t.id <= 94) {
+            const req = [100, 500, 1000][t.id - 92];
+            return d.totalAnswers >= req;
+          }
+          if (t.id === 95) return d.answeredQuestions.length >= 100;
+          return false; 
+        };
+        return t;
+      });
+
+      // 4. データが揃ったらボタンを有効化してゲームの初期化を開始
+      document.getElementById('start-btn').innerText = "▶ クイズに挑戦！";
+      document.getElementById('start-btn').disabled = false;
+      init();
+
+    } catch (error) {
+      console.error("データの読み込みに失敗しました:", error);
+      document.getElementById('start-btn').innerText = "通信エラー";
+      alert("データの読み込みに失敗しました。GitHub PagesなどのWebサーバー経由でアクセスしているか確認してください。");
+    }
+  }
+
 
   // --- データ保存・初期化 (localStorage) ---
   const DEFAULT_DATA = {
@@ -803,7 +625,8 @@
     updateHomeUI(); renderTitleList();
   }
 
-  window.onload = init;
+  // ★ 起動時にJSONファイルを読み込む関数を呼び出す
+  window.onload = loadGameData;
 </script>
 </body>
 </html>
