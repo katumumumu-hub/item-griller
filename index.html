@@ -55,8 +55,8 @@
     }
   }
 
-  /* 画面切り替えのポップなアニメーション */
-  .screen { display: none; padding: 20px; box-sizing: border-box; height: 100%; overflow-y: auto; }
+  /* 画面切り替えのポップなアニメーションと余白縮小 */
+  .screen { display: none; padding: 15px 15px 10px 15px; box-sizing: border-box; height: 100%; overflow-y: auto; }
   .screen.active { display: block; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes popIn { 
     from { opacity: 0; transform: scale(0.9) translateY(20px); } 
@@ -74,11 +74,11 @@
     );
     color: var(--white);
     text-align: center;
-    padding: 15px 10px;
+    padding: 10px;
     border-radius: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     font-weight: 900;
-    font-size: 22px;
+    font-size: 20px;
     border: 3px solid var(--border-color);
     box-shadow: 4px 4px 0px var(--border-color);
     text-shadow: 2px 2px 0 var(--border-color), -2px -2px 0 var(--border-color), 2px -2px 0 var(--border-color), -2px 2px 0 var(--border-color);
@@ -88,20 +88,20 @@
   /* ホーム画面のアニマス名表示 */
   .animas-name {
     text-align: center;
-    padding: 20px;
+    padding: 12px;
     background-color: #ffd32a; /* 派手なイエロー */
     border-radius: 15px;
     border: 3px solid var(--border-color);
     box-shadow: 4px 4px 0px var(--border-color);
-    margin-bottom: 20px;
-    font-size: 16px;
+    margin-bottom: 12px;
+    font-size: 14px;
     color: var(--border-color);
   }
   #animas-title {
-    font-size: 26px;
+    font-size: 20px;
     color: #ff3f34;
     display: block;
-    margin-top: 5px;
+    margin-top: 2px;
     text-shadow: 2px 2px 0 var(--white);
   }
 
@@ -109,10 +109,10 @@
   .status-bar {
     display: flex; justify-content: space-between; align-items: center;
     background: #0be881; /* ミントグリーン */
-    padding: 12px 15px; border-radius: 12px;
+    padding: 8px 12px; border-radius: 12px;
     border: 3px solid var(--border-color);
     box-shadow: 4px 4px 0px var(--border-color);
-    margin-bottom: 20px; font-weight: 900;
+    margin-bottom: 12px; font-weight: 900;
   }
   .life-area { text-align: right; }
   .life-icons { letter-spacing: 2px; text-shadow: 1px 1px 0px var(--border-color); }
@@ -120,21 +120,22 @@
 
   /* レーダーチャートの囲み */
   .chart-container {
-    background: var(--white); border-radius: 15px; padding: 15px;
+    background: var(--white); border-radius: 15px; 
+    padding: 5px 30px; /* 左右の余白を増やしてチャートを縮小 */
     border: 3px solid var(--border-color);
     box-shadow: 4px 4px 0px var(--border-color);
-    margin-bottom: 20px; 
+    margin-bottom: 12px; 
     background-image: radial-gradient(#f1f2f6 20%, transparent 21%);
     background-size: 20px 20px;
   }
 
   /* レベル選択ボタン */
-  .level-select { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 25px; }
+  .level-select { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 15px; }
   .level-btn {
-    flex: 1; padding: 12px 0; border: 3px solid var(--border-color); border-radius: 12px;
+    flex: 1; padding: 10px 0; border: 3px solid var(--border-color); border-radius: 12px;
     background-color: #fff; color: var(--text-main); font-weight: 900; cursor: pointer;
     box-shadow: 0 5px 0px var(--border-color);
-    transition: all 0.1s; font-size: 16px;
+    transition: all 0.1s; font-size: 15px;
   }
   .level-btn.selected {
     background: #4bcffa; color: #fff; text-shadow: 1px 1px 0 var(--border-color);
@@ -143,9 +144,9 @@
 
   /* メインアクションボタン（クイズ挑戦など） */
   .action-btn {
-    width: 100%; padding: 18px; border: 3px solid var(--border-color) !important; border-radius: 15px;
+    width: 100%; padding: 14px; border: 3px solid var(--border-color) !important; border-radius: 15px;
     background: linear-gradient(135deg, #ff9ff3 0%, #feca57 100%) !important;
-    color: #fff !important; font-size: 20px; font-weight: 900; margin-bottom: 20px;
+    color: #fff !important; font-size: 18px; font-weight: 900; margin-bottom: 15px;
     cursor: pointer; box-shadow: 0 6px 0px var(--border-color);
     transition: transform 0.1s, box-shadow 0.1s;
     text-shadow: 2px 2px 0 var(--border-color);
@@ -155,18 +156,18 @@
   .action-btn:disabled { background: #d2dae2 !important; box-shadow: 0 6px 0 #808e9b !important; border-color: #808e9b !important; text-shadow: none !important; cursor: not-allowed; transform: none; }
 
   /* サブボタン（シェア、履歴、称号など） */
-  .share-area { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 20px; }
+  .share-area { display: flex; justify-content: space-between; gap: 6px; margin-bottom: 15px; }
   .share-area button {
-    flex: 1; padding: 12px 8px; border: 3px solid var(--border-color); border-radius: 10px; font-weight: 900;
+    flex: 1; padding: 10px 6px; border: 3px solid var(--border-color); border-radius: 10px; font-weight: 900;
     background: #fff; color: var(--text-main); box-shadow: 0 4px 0px var(--border-color); cursor: pointer;
-    transition: all 0.1s; font-size: 14px;
+    transition: all 0.1s; font-size: 13px;
   }
   .share-area button:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); }
 
-  .history-link { display: flex; justify-content: space-between; gap: 8px; }
+  .history-link { display: flex; justify-content: space-between; gap: 6px; }
   .history-link button {
-    padding: 12px 5px; background-color: #d2dae2; color: var(--text-main); border: 3px solid var(--border-color);
-    border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 900; flex: 1;
+    padding: 10px 4px; background-color: #d2dae2; color: var(--text-main); border: 3px solid var(--border-color);
+    border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 900; flex: 1;
     box-shadow: 0 4px 0px var(--border-color); transition: all 0.1s;
   }
   .history-link button:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); }
@@ -177,26 +178,27 @@
     background: #ef5777; color: #fff; text-shadow: 1px 1px 0 var(--border-color);
     border: 3px solid var(--border-color); padding: 12px; text-align: center;
     border-radius: 12px; box-shadow: 4px 4px 0px var(--border-color);
-    margin-bottom: 20px; font-weight: 900; font-size: 16px;
+    margin-bottom: 15px; font-weight: 900; font-size: 16px;
   }
   .timer-bar {
     width: 100%; height: 16px; background-color: #fff; border-radius: 8px;
     border: 3px solid var(--border-color);
-    margin-bottom: 20px; overflow: hidden; box-shadow: 4px 4px 0px var(--border-color);
+    margin-bottom: 15px; overflow: hidden; box-shadow: 4px 4px 0px var(--border-color);
   }
   .timer-fill {
     height: 100%; background: linear-gradient(90deg, #ff3f34 0%, #ffbe76 100%);
     width: 100%; transition: width 1s linear;
   }
   .question-area {
-    background: #48dbfb; color: #fff; text-shadow: 1px 1px 0 var(--border-color);
+    /* 問題文の配色を見やすく白背景・黒文字に変更 */
+    background: #ffffff; color: var(--text-main); text-shadow: none; 
     min-height: 120px; padding: 20px; border-radius: 15px; border: 3px solid var(--border-color);
-    margin-bottom: 25px; display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px; display: flex; align-items: center; justify-content: center;
     font-size: 18px; text-align: center; font-weight: 900; line-height: 1.6;
     box-shadow: 4px 4px 0px var(--border-color);
   }
   .choice-btn {
-    width: 100%; padding: 18px; margin-bottom: 15px; border: 3px solid var(--border-color);
+    width: 100%; padding: 15px; margin-bottom: 12px; border: 3px solid var(--border-color);
     background-color: #fff; cursor: pointer; font-size: 16px; text-align: center;
     border-radius: 12px; font-weight: 900; color: var(--text-main);
     box-shadow: 0 5px 0px var(--border-color); transition: transform 0.1s, background 0.2s;
@@ -206,7 +208,7 @@
   
   /* --- 履歴・統計・称号画面リスト --- */
   .custom-list {
-    background: var(--white); height: 450px; overflow-y: auto; margin-bottom: 20px;
+    background: var(--white); height: 450px; overflow-y: auto; margin-bottom: 15px;
     padding: 15px; border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color);
   }
   .custom-list::-webkit-scrollbar { width: 8px; }
@@ -214,7 +216,7 @@
 
   /* 統計エリア */
   .stats-container {
-    background: var(--white); max-height: 250px; overflow-y: auto; margin-bottom: 20px;
+    background: var(--white); max-height: 250px; overflow-y: auto; margin-bottom: 15px;
     padding: 15px; border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color); font-size: 14px; font-weight: 900;
   }
   .stats-container::-webkit-scrollbar { width: 8px; }
@@ -261,7 +263,7 @@
     <div class="animas-name">あなたのアニマス名<br><strong id="animas-title">見習いウォッチャー</strong></div>
     
     <div class="status-bar">
-      <div>総回答数 <span id="total-answers" style="color:#ff3f34; font-size:22px; text-shadow: 1px 1px 0 #fff;">0</span> 問</div>
+      <div>総回答数 <span id="total-answers" style="color:#ff3f34; font-size:20px; text-shadow: 1px 1px 0 #fff;">0</span> 問</div>
       <div class="life-area">
         <div class="life-icons" id="life-icons">💙💙💙💙💙</div>
         <div id="life-timer">MAX</div>
