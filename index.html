@@ -29,8 +29,8 @@
   .action-btn:disabled { background-color: #ccc; cursor: not-allowed; }
   .share-area { display: flex; justify-content: space-between; margin-bottom: 15px; }
   .share-area button { flex: 1; margin: 0 2px; padding: 10px; }
-  .history-link { display: flex; justify-content: space-between; }
-  .history-link button { padding: 8px 15px; background-color: #333; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+  .history-link { display: flex; justify-content: space-between; gap: 5px; }
+  .history-link button { padding: 8px 10px; background-color: #333; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; flex: 1; }
 
   /* 回答画面要素 */
   .quiz-info { border: 1px solid #ccc; padding: 10px; text-align: center; margin-bottom: 10px; font-weight: bold; }
@@ -45,7 +45,7 @@
   .history-item.correct { color: #28a745; }
   .history-item.incorrect { color: #dc3545; }
 
-  /* 称号画面要素 (新規) */
+  /* 称号画面要素 */
   .title-list { border: 1px solid #ccc; height: 400px; overflow-y: auto; margin-bottom: 15px; padding: 10px; background-color: #fafafa; }
   .title-item { border-bottom: 1px solid #ddd; padding: 10px; display: flex; justify-content: space-between; align-items: center; background-color: #fff; margin-bottom: 5px; border-radius: 4px; }
   .title-item.locked { background-color: #f0f0f0; color: #999; }
@@ -87,8 +87,9 @@
     </div>
     
     <div class="history-link">
-      <button onclick="showTitleScreen()">称号コレクション</button>
-      <button onclick="showScreen('history-screen')">回答履歴</button>
+      <button onclick="recoverLifeDev()" style="background-color: #ff9800;">開発:回復</button>
+      <button onclick="showTitleScreen()">称号</button>
+      <button onclick="showScreen('history-screen')">履歴</button>
     </div>
   </div>
 
@@ -355,7 +356,7 @@
         return d.totalAnswers >= req;
       }
       if (t.id === 95) return d.answeredQuestions.length >= 100;
-      return false; // モックとしてその他特殊条件は割愛
+      return false; 
     };
   });
 
@@ -364,12 +365,11 @@
     life: 5, lastLifeTime: Date.now(),
     stats: { action: 10, fantasy: 10, scifi: 10, sliceOfLife: 10, romance: 10 },
     answeredQuestions: [], totalAnswers: 0, history: [],
-    unlockedTitles: [1], currentTitleId: 1 // 称号システムの追加データ
+    unlockedTitles: [1], currentTitleId: 1
   };
 
   let appData = JSON.parse(localStorage.getItem('animasData')) || DEFAULT_DATA;
   
-  // 既存セーブデータへの互換性対応
   if (!appData.unlockedTitles) appData.unlockedTitles = [1];
   if (!appData.currentTitleId) appData.currentTitleId = 1;
   
@@ -388,6 +388,15 @@
   }
 
   function saveData() { localStorage.setItem('animasData', JSON.stringify(appData)); }
+
+  // --- 開発用機能 (新規追加) ---
+  function recoverLifeDev() {
+    appData.life = 5;
+    appData.lastLifeTime = Date.now();
+    saveData();
+    updateHomeUI();
+    alert("【開発用】ライフを全回復しました！");
+  }
 
   // --- レーダーチャート ---
   function initChart() {
@@ -441,7 +450,6 @@
     event.target.classList.add('selected');
   }
 
-  // ホーム画面の称号表示を更新（セット中のものを表示）
   function updateTitleDisplay() {
     const t = titlesData.find(x => x.id === appData.currentTitleId);
     document.getElementById('animas-title').innerText = t ? t.title : "見習いウォッチャー";
@@ -510,7 +518,7 @@
       
       appData.answeredQuestions.push(currentQuestion.id);
       addHistory(true);
-      checkTitleUnlocks(); // 新称号の獲得チェック
+      checkTitleUnlocks();
       saveData();
       setTimeout(() => { updateHomeUI(); showScreen('home-screen'); }, 1000);
     } else {
