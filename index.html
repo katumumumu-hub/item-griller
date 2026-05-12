@@ -534,20 +534,20 @@
 
   // --- ライフ回復ロジック ---
   function checkLifeRecovery() {
-    const HOUR_MS = 60 * 60 * 1000;
+    const RECOVERY_MS = 10 * 60 * 1000; // 10分に変更
     if (appData.life >= 5) {
       appData.lastLifeTime = Date.now();
       document.getElementById('life-timer').innerText = "MAX";
       saveData(); return;
     }
     const diff = Date.now() - appData.lastLifeTime;
-    if (diff >= HOUR_MS) {
-      const recovered = Math.floor(diff / HOUR_MS);
+    if (diff >= RECOVERY_MS) {
+      const recovered = Math.floor(diff / RECOVERY_MS);
       appData.life = Math.min(5, appData.life + recovered);
-      appData.lastLifeTime += recovered * HOUR_MS;
+      appData.lastLifeTime += recovered * RECOVERY_MS;
       saveData(); updateHomeUI();
     } else {
-      const remainMs = HOUR_MS - diff;
+      const remainMs = RECOVERY_MS - diff;
       const remainMin = Math.floor(remainMs / (60 * 1000));
       const remainSec = Math.floor((remainMs % (60 * 1000)) / 1000);
       document.getElementById('life-timer').innerText = `あと ${String(remainMin).padStart(2, '0')}:${String(remainSec).padStart(2, '0')}`;
