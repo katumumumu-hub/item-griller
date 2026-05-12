@@ -7,27 +7,31 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-  /* 全体の柔らかいテーマ設定 */
+  /* 全体の超ポップなテーマ設定 */
   :root {
-    --primary: #ff8b94;
-    --secondary: #ffaaa5;
-    --accent: #ffd3b6;
-    --bg-color: #f8f9fa;
-    --text-main: #555;
+    --primary: #ff4757; /* ビビッドな赤 */
+    --secondary: #ff6b81;
+    --accent: #ffa502;
+    --bg-color: #fffdf5;
+    --text-main: #2f3542; /* 太い枠線・文字用の黒寄りの色 */
     --white: #ffffff;
-    --correct: #a8e6cf;
-    --incorrect: #ffb6b9;
+    --border-color: #2f3542; 
   }
 
   body {
     font-family: 'M PLUS Rounded 1c', sans-serif;
-    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    /* ポップなドット背景 */
+    background-color: #ffcccc;
+    background-image: radial-gradient(#ff9999 15%, transparent 16%), radial-gradient(#ff9999 15%, transparent 16%);
+    background-size: 30px 30px;
+    background-position: 0 0, 15px 15px;
     color: var(--text-main);
     margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    font-weight: 900; /* 全体を極太フォントに */
   }
 
   #app {
@@ -35,169 +39,218 @@
     max-width: 400px;
     background-color: var(--bg-color);
     min-height: 100vh;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     position: relative;
     overflow-x: hidden;
+    /* コミック風の太枠 */
+    border-left: 4px solid var(--border-color);
+    border-right: 4px solid var(--border-color);
   }
   @media (min-width: 401px) {
-    #app { min-height: 850px; height: 95vh; border-radius: 20px; overflow: hidden; border: 4px solid #fff; }
+    #app { 
+      min-height: 850px; height: 95vh; 
+      border-radius: 24px; 
+      overflow: hidden; 
+      border: 6px solid var(--border-color); 
+      box-shadow: 8px 8px 0px rgba(0,0,0,0.15);
+    }
   }
 
+  /* 画面切り替えのポップなアニメーション */
   .screen { display: none; padding: 20px; box-sizing: border-box; height: 100%; overflow-y: auto; }
-  .screen.active { display: block; animation: fadeIn 0.3s ease-out; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .screen.active { display: block; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  @keyframes popIn { 
+    from { opacity: 0; transform: scale(0.9) translateY(20px); } 
+    to { opacity: 1; transform: scale(1) translateY(0); } 
+  }
 
-  /* 共通ヘッダー（ポップなデザイン） */
+  /* ヘッダー（超派手な斜めストライプ） */
   .header {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: repeating-linear-gradient(
+      -45deg,
+      #ff4757,
+      #ff4757 15px,
+      #ff6b81 15px,
+      #ff6b81 30px
+    );
     color: var(--white);
     text-align: center;
     padding: 15px 10px;
     border-radius: 12px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     font-weight: 900;
-    font-size: 18px;
-    box-shadow: 0 4px 10px rgba(255, 139, 148, 0.3);
+    font-size: 22px;
+    border: 3px solid var(--border-color);
+    box-shadow: 4px 4px 0px var(--border-color);
+    text-shadow: 2px 2px 0 var(--border-color), -2px -2px 0 var(--border-color), 2px -2px 0 var(--border-color), -2px 2px 0 var(--border-color);
+    letter-spacing: 2px;
   }
   
-  /* ホーム画面要素 */
+  /* ホーム画面のアニマス名表示 */
   .animas-name {
     text-align: center;
     padding: 20px;
-    background-color: var(--white);
+    background-color: #ffd32a; /* 派手なイエロー */
     border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    margin-bottom: 15px;
-    font-size: 14px;
+    border: 3px solid var(--border-color);
+    box-shadow: 4px 4px 0px var(--border-color);
+    margin-bottom: 20px;
+    font-size: 16px;
+    color: var(--border-color);
   }
   #animas-title {
-    font-size: 22px;
-    color: var(--primary);
+    font-size: 26px;
+    color: #ff3f34;
     display: block;
     margin-top: 5px;
-    text-shadow: 1px 1px 0px rgba(0,0,0,0.05);
+    text-shadow: 2px 2px 0 var(--white);
   }
 
+  /* ステータスバー（ライフ・問題数） */
   .status-bar {
     display: flex; justify-content: space-between; align-items: center;
-    background: var(--white); padding: 10px 15px; border-radius: 12px;
-    margin-bottom: 15px; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    background: #0be881; /* ミントグリーン */
+    padding: 12px 15px; border-radius: 12px;
+    border: 3px solid var(--border-color);
+    box-shadow: 4px 4px 0px var(--border-color);
+    margin-bottom: 20px; font-weight: 900;
   }
   .life-area { text-align: right; }
-  .life-icons { letter-spacing: 2px; }
-  #life-timer { font-size: 11px; color: #888; background: #eee; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 2px;}
+  .life-icons { letter-spacing: 2px; text-shadow: 1px 1px 0px var(--border-color); }
+  #life-timer { font-size: 12px; color: var(--text-main); background: var(--white); padding: 4px 10px; border-radius: 10px; display: inline-block; margin-top: 4px; border: 2px solid var(--border-color); font-weight: 900;}
 
+  /* レーダーチャートの囲み */
   .chart-container {
     background: var(--white); border-radius: 15px; padding: 15px;
-    margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 3px solid var(--border-color);
+    box-shadow: 4px 4px 0px var(--border-color);
+    margin-bottom: 20px; 
+    background-image: radial-gradient(#f1f2f6 20%, transparent 21%);
+    background-size: 20px 20px;
   }
 
-  .level-select { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px; }
+  /* レベル選択ボタン */
+  .level-select { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 25px; }
   .level-btn {
-    flex: 1; padding: 12px 0; border: none; border-radius: 12px;
-    background-color: #e9ecef; color: #666; font-weight: 700; cursor: pointer;
-    transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    flex: 1; padding: 12px 0; border: 3px solid var(--border-color); border-radius: 12px;
+    background-color: #fff; color: var(--text-main); font-weight: 900; cursor: pointer;
+    box-shadow: 0 5px 0px var(--border-color);
+    transition: all 0.1s; font-size: 16px;
   }
   .level-btn.selected {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    color: var(--white); transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 242, 254, 0.3);
+    background: #4bcffa; color: #fff; text-shadow: 1px 1px 0 var(--border-color);
+    transform: translateY(5px); box-shadow: 0 0px 0 var(--border-color);
   }
 
-  /* 共通ボタン（ぷにっとした動き） */
+  /* メインアクションボタン（クイズ挑戦など） */
   .action-btn {
-    width: 100%; padding: 16px; border: none; border-radius: 15px;
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-    color: #fff; font-size: 18px; font-weight: 900; margin-bottom: 15px;
-    cursor: pointer; box-shadow: 0 6px 15px rgba(67, 233, 123, 0.4);
-    transition: transform 0.1s;
+    width: 100%; padding: 18px; border: 3px solid var(--border-color) !important; border-radius: 15px;
+    background: linear-gradient(135deg, #ff9ff3 0%, #feca57 100%) !important;
+    color: #fff !important; font-size: 20px; font-weight: 900; margin-bottom: 20px;
+    cursor: pointer; box-shadow: 0 6px 0px var(--border-color);
+    transition: transform 0.1s, box-shadow 0.1s;
+    text-shadow: 2px 2px 0 var(--border-color);
     font-family: 'M PLUS Rounded 1c', sans-serif;
   }
-  .action-btn:active { transform: scale(0.95); }
-  .action-btn:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; transform: none; }
+  .action-btn:active { transform: translateY(6px); box-shadow: 0 0px 0 var(--border-color); }
+  .action-btn:disabled { background: #d2dae2 !important; box-shadow: 0 6px 0 #808e9b !important; border-color: #808e9b !important; text-shadow: none !important; cursor: not-allowed; transform: none; }
 
+  /* サブボタン（シェア、履歴、称号など） */
   .share-area { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 20px; }
   .share-area button {
-    flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: 700;
-    background: #fff; color: #555; box-shadow: 0 3px 8px rgba(0,0,0,0.05); cursor: pointer;
+    flex: 1; padding: 12px 8px; border: 3px solid var(--border-color); border-radius: 10px; font-weight: 900;
+    background: #fff; color: var(--text-main); box-shadow: 0 4px 0px var(--border-color); cursor: pointer;
+    transition: all 0.1s; font-size: 14px;
   }
+  .share-area button:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); }
 
   .history-link { display: flex; justify-content: space-between; gap: 8px; }
   .history-link button {
-    padding: 10px; background-color: #6c757d; color: #fff; border: none;
-    border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 700; flex: 1;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    padding: 12px 5px; background-color: #d2dae2; color: var(--text-main); border: 3px solid var(--border-color);
+    border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 900; flex: 1;
+    box-shadow: 0 4px 0px var(--border-color); transition: all 0.1s;
   }
-  .dev-btn { background-color: #ffb822 !important; color: #fff; }
+  .history-link button:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); }
+  .dev-btn { background-color: #ffb822 !important; color: #fff !important; text-shadow: 1px 1px 0 var(--border-color); }
 
-  /* 回答画面要素 */
+  /* --- 回答画面要素 --- */
   .quiz-info {
-    background: var(--white); padding: 12px; text-align: center;
-    border-radius: 10px; margin-bottom: 15px; font-weight: 700; color: var(--primary);
-    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    background: #ef5777; color: #fff; text-shadow: 1px 1px 0 var(--border-color);
+    border: 3px solid var(--border-color); padding: 12px; text-align: center;
+    border-radius: 12px; box-shadow: 4px 4px 0px var(--border-color);
+    margin-bottom: 20px; font-weight: 900; font-size: 16px;
   }
   .timer-bar {
-    width: 100%; height: 12px; background-color: #eee; border-radius: 6px;
-    margin-bottom: 15px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%; height: 16px; background-color: #fff; border-radius: 8px;
+    border: 3px solid var(--border-color);
+    margin-bottom: 20px; overflow: hidden; box-shadow: 4px 4px 0px var(--border-color);
   }
   .timer-fill {
-    height: 100%; background: linear-gradient(90deg, #ff0844 0%, #ffb199 100%);
-    width: 100%; transition: width 1s linear; border-radius: 6px;
+    height: 100%; background: linear-gradient(90deg, #ff3f34 0%, #ffbe76 100%);
+    width: 100%; transition: width 1s linear;
   }
   .question-area {
-    background: var(--white); min-height: 120px; padding: 20px; border-radius: 15px;
-    margin-bottom: 20px; display: flex; align-items: center; justify-content: center;
-    font-size: 16px; text-align: center; font-weight: 700; line-height: 1.5;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 2px solid var(--accent);
+    background: #48dbfb; color: #fff; text-shadow: 1px 1px 0 var(--border-color);
+    min-height: 120px; padding: 20px; border-radius: 15px; border: 3px solid var(--border-color);
+    margin-bottom: 25px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; text-align: center; font-weight: 900; line-height: 1.6;
+    box-shadow: 4px 4px 0px var(--border-color);
   }
   .choice-btn {
-    width: 100%; padding: 16px; margin-bottom: 12px; border: none;
-    background-color: #fff; cursor: pointer; font-size: 15px; text-align: center;
-    border-radius: 12px; font-weight: 700; color: #444;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: transform 0.1s, background 0.2s;
+    width: 100%; padding: 18px; margin-bottom: 15px; border: 3px solid var(--border-color);
+    background-color: #fff; cursor: pointer; font-size: 16px; text-align: center;
+    border-radius: 12px; font-weight: 900; color: var(--text-main);
+    box-shadow: 0 5px 0px var(--border-color); transition: transform 0.1s, background 0.2s;
     font-family: 'M PLUS Rounded 1c', sans-serif;
   }
-  .choice-btn:active { transform: scale(0.97); background-color: #f8f9fa; }
+  .choice-btn:active { transform: translateY(5px); box-shadow: 0 0px 0 var(--border-color); background-color: #f1f2f6; }
   
-  /* 履歴・統計・称号画面リスト */
+  /* --- 履歴・統計・称号画面リスト --- */
   .custom-list {
     background: var(--white); height: 450px; overflow-y: auto; margin-bottom: 20px;
-    padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    padding: 15px; border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color);
   }
-  .custom-list::-webkit-scrollbar { width: 6px; }
-  .custom-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+  .custom-list::-webkit-scrollbar { width: 8px; }
+  .custom-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 
   /* 統計エリア */
   .stats-container {
-    background: var(--white); max-height: 250px; overflow-y: auto; margin-bottom: 15px;
-    padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); font-size: 13px; font-weight: 700;
+    background: var(--white); max-height: 250px; overflow-y: auto; margin-bottom: 20px;
+    padding: 15px; border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color); font-size: 14px; font-weight: 900;
   }
-  .stats-container::-webkit-scrollbar { width: 6px; }
-  .stats-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+  .stats-container::-webkit-scrollbar { width: 8px; }
+  .stats-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
   .stats-section { margin-bottom: 15px; }
   .stats-section:last-child { margin-bottom: 0; }
-  .stats-section-title { color: var(--primary); margin-bottom: 8px; border-bottom: 2px dashed #eee; padding-bottom: 4px; font-size: 14px;}
-  .stats-row { display: flex; justify-content: space-between; padding: 4px 0; color: #555; }
+  .stats-section-title { color: var(--white); background: #3c40c6; display: inline-block; padding: 4px 10px; border-radius: 8px; margin-bottom: 10px; border: 2px solid var(--border-color); font-size: 15px;}
+  .stats-row { display: flex; justify-content: space-between; padding: 6px 0; color: var(--text-main); border-bottom: 2px dashed #d2dae2; }
 
-  .history-item { padding: 12px 10px; border-bottom: 2px dashed #eee; font-weight: 700; }
+  /* 履歴リストアイテム */
+  .history-item { padding: 12px 10px; border-bottom: 3px dashed #d2dae2; font-weight: 900; }
   .history-item:last-child { border-bottom: none; }
-  .history-item.correct { color: #20c997; }
-  .history-item.incorrect { color: #ff6b6b; }
+  .history-item.correct { color: #05c46b; text-shadow: 1px 1px 0px rgba(0,0,0,0.1); }
+  .history-item.incorrect { color: #ff3f34; text-shadow: 1px 1px 0px rgba(0,0,0,0.1); }
 
+  /* 称号アイテム */
   .title-item {
-    border: 2px solid #eee; padding: 12px; display: flex; justify-content: space-between;
-    align-items: center; background-color: #fff; margin-bottom: 10px; border-radius: 12px;
+    border: 3px solid var(--border-color); padding: 12px; display: flex; justify-content: space-between;
+    align-items: center; background-color: #fff; margin-bottom: 12px; border-radius: 12px;
+    box-shadow: 2px 2px 0px var(--border-color);
   }
-  .title-item.locked { background-color: #f8f9fa; border-color: #ddd; color: #aaa; filter: grayscale(100%); }
+  .title-item.locked { background: #d2dae2; box-shadow: none; border-color: #808e9b; color: #808e9b;}
   .title-info { flex: 1; margin-right: 10px; }
-  .title-name { font-weight: 900; font-size: 15px; margin-bottom: 4px; color: var(--primary); }
-  .title-item.locked .title-name { color: #999; }
-  .title-desc { font-size: 11px; color: #777; font-weight: 700; }
+  .title-name { font-weight: 900; font-size: 16px; margin-bottom: 4px; color: #3c40c6; }
+  .title-item.locked .title-name { color: #808e9b; }
+  .title-desc { font-size: 12px; color: #575fcf; font-weight: 900; }
+  .title-item.locked .title-desc { color: #808e9b; }
+  
   .title-btn {
-    padding: 8px 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700;
+    padding: 10px 14px; background: #0fb9b1; border: 3px solid var(--border-color);
+    color: #fff; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 900;
+    box-shadow: 0 3px 0px var(--border-color); transition: all 0.1s; text-shadow: 1px 1px 0 var(--border-color);
   }
-  .title-btn.current { background: #28a745; box-shadow: 0 0 10px rgba(40,167,69,0.3); }
-  .title-btn:disabled { background: #ccc; cursor: not-allowed; }
+  .title-btn:active { transform: translateY(3px); box-shadow: 0 0px 0 var(--border-color); }
+  .title-btn.current { background: #ffdd59; color: var(--text-main); text-shadow: none; }
+  .title-btn:disabled { background: #808e9b; color: #d2dae2; border-color: #808e9b; box-shadow: none; cursor: not-allowed; transform: none; text-shadow: none;}
 </style>
 </head>
 <body>
@@ -208,7 +261,7 @@
     <div class="animas-name">あなたのアニマス名<br><strong id="animas-title">見習いウォッチャー</strong></div>
     
     <div class="status-bar">
-      <div>総回答数 <span id="total-answers" style="color:var(--primary); font-size:18px;">0</span> 問</div>
+      <div>総回答数 <span id="total-answers" style="color:#ff3f34; font-size:22px; text-shadow: 1px 1px 0 #fff;">0</span> 問</div>
       <div class="life-area">
         <div class="life-icons" id="life-icons">💙💙💙💙💙</div>
         <div id="life-timer">MAX</div>
@@ -227,8 +280,8 @@
 
     <div class="share-area">
       <button onclick="shareResult('copy')">📋 コピー</button>
-      <button onclick="shareResult('line')" style="color:#06C755;">💬 LINE</button>
-      <button onclick="shareResult('x')" style="color:#000;">𝕏 Post</button>
+      <button onclick="shareResult('line')" style="color:#05c46b;">💬 LINE</button>
+      <button onclick="shareResult('x')" style="color:var(--text-main);">𝕏 Post</button>
     </div>
     
     <div class="history-link">
@@ -239,7 +292,7 @@
   </div>
 
   <div id="quiz-screen" class="screen">
-    <div class="header">🌟 アニマス 🌟 <span style="float:right; font-size:13px; margin-top:2px;" id="quiz-level-display">Lv1</span></div>
+    <div class="header">🌟 アニマス 🌟 <span style="float:right; font-size:14px; margin-top:2px;" id="quiz-level-display">Lv1</span></div>
     <div class="quiz-info" id="quiz-genre">出題アニメ名 / ジャンル</div>
     <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
     <div class="question-area" id="quiz-text">問題文</div>
@@ -249,14 +302,14 @@
   <div id="history-screen" class="screen">
     <div class="header">📖 回答履歴</div>
     <div class="stats-container" id="stats-area"></div>
-    <div class="custom-list" id="history-list" style="height: 180px; margin-bottom: 15px;"></div>
-    <button class="action-btn" onclick="showScreen('home-screen')" style="background:linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);">🏠 ホームに戻る</button>
+    <div class="custom-list" id="history-list" style="height: 180px; margin-bottom: 20px;"></div>
+    <button class="action-btn" onclick="showScreen('home-screen')">🏠 ホームに戻る</button>
   </div>
 
   <div id="title-screen" class="screen">
     <div class="header">🏆 称号コレクション</div>
     <div class="custom-list" id="title-list"></div>
-    <button class="action-btn" onclick="showScreen('home-screen')" style="background:linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);">🏠 ホームに戻る</button>
+    <button class="action-btn" onclick="showScreen('home-screen')">🏠 ホームに戻る</button>
   </div>
 </div>
 
@@ -398,7 +451,7 @@
     alert("【開発用】ライフを全回復しました！");
   }
 
-  // --- シェア機能 (新規追加) ---
+  // --- シェア機能 ---
   function getShareText() {
     const t = titlesData.find(x => x.id === appData.currentTitleId);
     const titleName = t ? t.title : "見習いウォッチャー";
@@ -449,10 +502,10 @@
         datasets: [{
           label: 'パラメータ',
           data: [appData.stats.action, appData.stats.fantasy, appData.stats.scifi, appData.stats.sliceOfLife, appData.stats.romance],
-          backgroundColor: 'rgba(255, 139, 148, 0.2)',
-          borderColor: 'rgb(255, 139, 148)',
-          pointBackgroundColor: 'rgb(255, 139, 148)',
-          borderWidth: 2
+          backgroundColor: 'rgba(255, 71, 87, 0.2)',
+          borderColor: 'rgb(255, 71, 87)',
+          pointBackgroundColor: 'rgb(255, 71, 87)',
+          borderWidth: 3
         }]
       },
       options: { 
@@ -460,7 +513,7 @@
           r: { 
             min: 0, max: 100, 
             ticks: { display: false },
-            pointLabels: { font: { family: "'M PLUS Rounded 1c', sans-serif", size: 11, weight: 'bold' } }
+            pointLabels: { font: { family: "'M PLUS Rounded 1c', sans-serif", size: 12, weight: 'bold' }, color: '#2f3542' }
           } 
         },
         plugins: { legend: { display: false } }
@@ -594,7 +647,7 @@
       let secHtml = `<div class="stats-section"><div class="stats-section-title">${title}</div>`;
       const keys = Object.keys(dataObj);
       if (keys.length === 0) {
-        secHtml += `<div style="color:#999; font-size:11px;">データがありません</div>`;
+        secHtml += `<div style="color:#999; font-size:12px;">データがありません</div>`;
       } else {
         keys.sort((a, b) => dataObj[b].total - dataObj[a].total).forEach(k => {
           const d = dataObj[k];
@@ -606,9 +659,9 @@
       return secHtml;
     };
 
-    html += makeSection('アニメ別', s.anime, '');
-    html += makeSection('ジャンル別', s.genre, '');
-    html += makeSection('レベル別', s.level, 'Lv ');
+    html += makeSection('📌 アニメ別', s.anime, '');
+    html += makeSection('📌 ジャンル別', s.genre, '');
+    html += makeSection('📌 レベル別', s.level, 'Lv ');
 
     document.getElementById('stats-area').innerHTML = html;
   }
@@ -625,7 +678,7 @@
 
     if (isCorrect) {
       playCorrectSound();
-      btnElement.style.background = 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)';
+      btnElement.style.background = '#0be881'; // ビビッドグリーン
       btnElement.style.color = '#fff';
       const pt = currentQuestion.level;
       if(currentQuestion.genre === "アクション") appData.stats.action += pt;
@@ -639,8 +692,9 @@
       setTimeout(() => { updateHomeUI(); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('home-screen').classList.add('active'); }, 1200);
     } else {
       playIncorrectSound();
-      btnElement.style.backgroundColor = '#ffb6b9';
-      btns[currentQuestion.correctIndex].style.background = 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)';
+      btnElement.style.background = '#ff3f34'; // ビビッドレッド
+      btnElement.style.color = '#fff';
+      btns[currentQuestion.correctIndex].style.background = '#0be881';
       btns[currentQuestion.correctIndex].style.color = '#fff';
       addHistory(false); checkTitleUnlocks(); saveData();
       setTimeout(() => { updateHomeUI(); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('home-screen').classList.add('active'); }, 2000);
@@ -656,7 +710,7 @@
     recordStatistics(currentQuestion, false); 
 
     const btns = document.querySelectorAll('.choice-btn');
-    btns[currentQuestion.correctIndex].style.background = 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)';
+    btns[currentQuestion.correctIndex].style.background = '#0be881';
     btns[currentQuestion.correctIndex].style.color = '#fff';
     addHistory(false, true); checkTitleUnlocks(); saveData();
     setTimeout(() => { updateHomeUI(); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('home-screen').classList.add('active'); }, 2000);
@@ -668,7 +722,7 @@
     let ptText = isCorrect ? `(+${currentQuestion.level}pt)` : "";
     let className = isCorrect ? "correct" : "incorrect";
     const historyStr = `<div class="history-item ${className}">
-      <span style="font-size:11px; color:#999;">[Lv${currentQuestion.level}] ${currentQuestion.anime}</span><br>
+      <span style="font-size:12px; color:#a4b0be;">[Lv${currentQuestion.level}] ${currentQuestion.anime}</span><br>
       ${resultText} ${ptText}
     </div>`;
     appData.history.unshift(historyStr);
