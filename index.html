@@ -120,13 +120,12 @@
 
   /* レーダーチャートの囲み */
   .chart-container {
-    background: var(--white); border-radius: 15px; 
-    padding: 5px 30px; /* 左右の余白を増やしてチャートを縮小 */
-    border: 3px solid var(--border-color);
-    box-shadow: 4px 4px 0px var(--border-color);
-    margin-bottom: 12px; 
-    background-image: radial-gradient(#f1f2f6 20%, transparent 21%);
-    background-size: 20px 20px;
+    /* ウィンドウ枠と背景を削除、余白を減らして大きく主張 */
+    background: transparent; 
+    border: none;
+    box-shadow: none;
+    padding: 0px 10px; 
+    margin-bottom: 15px; 
   }
 
   /* レベル選択ボタン */
@@ -190,7 +189,6 @@
     width: 100%; transition: width 1s linear;
   }
   .question-area {
-    /* 問題文の配色を見やすく白背景・黒文字に変更 */
     background: #ffffff; color: var(--text-main); text-shadow: none; 
     min-height: 120px; padding: 20px; border-radius: 15px; border: 3px solid var(--border-color);
     margin-bottom: 20px; display: flex; align-items: center; justify-content: center;
@@ -304,7 +302,7 @@
   <div id="history-screen" class="screen">
     <div class="header">📖 回答履歴</div>
     <div class="stats-container" id="stats-area"></div>
-    <div class="custom-list" id="history-list" style="height: 180px; margin-bottom: 20px;"></div>
+    <div class="custom-list" id="history-list" style="height: 180px; margin-bottom: 15px;"></div>
     <button class="action-btn" onclick="showScreen('home-screen')">🏠 ホームに戻る</button>
   </div>
 
@@ -504,10 +502,10 @@
         datasets: [{
           label: 'パラメータ',
           data: [appData.stats.action, appData.stats.fantasy, appData.stats.scifi, appData.stats.sliceOfLife, appData.stats.romance],
-          backgroundColor: 'rgba(255, 71, 87, 0.2)',
+          backgroundColor: 'rgba(255, 71, 87, 0.25)', // 色を少し濃く強調
           borderColor: 'rgb(255, 71, 87)',
           pointBackgroundColor: 'rgb(255, 71, 87)',
-          borderWidth: 3
+          borderWidth: 4 // 線を太く主張的に
         }]
       },
       options: { 
@@ -515,7 +513,9 @@
           r: { 
             min: 0, max: 100, 
             ticks: { display: false },
-            pointLabels: { font: { family: "'M PLUS Rounded 1c', sans-serif", size: 12, weight: 'bold' }, color: '#2f3542' }
+            pointLabels: { font: { family: "'M PLUS Rounded 1c', sans-serif", size: 15, weight: '900' }, color: '#2f3542' }, // 文字を大きく強調
+            grid: { color: 'rgba(47, 53, 66, 0.15)' }, // 枠を消した代わりに蜘蛛の巣線を少しハッキリさせる
+            angleLines: { color: 'rgba(47, 53, 66, 0.15)' }
           } 
         },
         plugins: { legend: { display: false } }
