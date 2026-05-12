@@ -158,13 +158,25 @@
   }
   .choice-btn:active { transform: scale(0.97); background-color: #f8f9fa; }
   
-  /* 履歴＆称号画面リスト */
+  /* 履歴・統計・称号画面リスト */
   .custom-list {
     background: var(--white); height: 450px; overflow-y: auto; margin-bottom: 20px;
     padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   }
   .custom-list::-webkit-scrollbar { width: 6px; }
   .custom-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+  /* 統計エリア (新規追加) */
+  .stats-container {
+    background: var(--white); max-height: 250px; overflow-y: auto; margin-bottom: 15px;
+    padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); font-size: 13px; font-weight: 700;
+  }
+  .stats-container::-webkit-scrollbar { width: 6px; }
+  .stats-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+  .stats-section { margin-bottom: 15px; }
+  .stats-section:last-child { margin-bottom: 0; }
+  .stats-section-title { color: var(--primary); margin-bottom: 8px; border-bottom: 2px dashed #eee; padding-bottom: 4px; font-size: 14px;}
+  .stats-row { display: flex; justify-content: space-between; padding: 4px 0; color: #555; }
 
   .history-item { padding: 12px 10px; border-bottom: 2px dashed #eee; font-weight: 700; }
   .history-item:last-child { border-bottom: none; }
@@ -236,7 +248,8 @@
 
   <div id="history-screen" class="screen">
     <div class="header">📖 回答履歴</div>
-    <div class="custom-list" id="history-list"></div>
+    <div class="stats-container" id="stats-area"></div>
+    <div class="custom-list" id="history-list" style="height: 180px; margin-bottom: 15px;"></div>
     <button class="action-btn" onclick="showScreen('home-screen')" style="background:linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);">🏠 ホームに戻る</button>
   </div>
 
@@ -291,17 +304,14 @@
   // --- 非同期でJSONデータを読み込む処理 ---
   async function loadGameData() {
     try {
-      // 1. 問題データの読み込み
       const qRes = await fetch('questions.json');
       if (!qRes.ok) throw new Error('questions.json が見つかりません');
       questionsData = await qRes.json();
 
-      // 2. 称号データの読み込み
       const tRes = await fetch('titles.json');
       if (!tRes.ok) throw new Error('titles.json が見つかりません');
       const rawTitles = await tRes.json();
 
-      // 3. 称号データにアンロック判定（check）関数を動的に付与する
       titlesData = rawTitles.map(t => {
         t.check = function(d) {
           const earned = d.stats.action + d.stats.fantasy + d.stats.scifi + d.stats.sliceOfLife + d.stats.romance - 50;
@@ -339,7 +349,6 @@
         return t;
       });
 
-      // 4. データが揃ったらボタンを有効化してゲームの初期化を開始
       document.getElementById('start-btn').innerText = "▶ クイズに挑戦！";
       document.getElementById('start-btn').disabled = false;
       init();
@@ -357,12 +366,14 @@
     life: 5, lastLifeTime: Date.now(),
     stats: { action: 10, fantasy: 10, scifi: 10, sliceOfLife: 10, romance: 10 },
     answeredQuestions: [], totalAnswers: 0, history: [],
-    unlockedTitles: [1], currentTitleId: 1
+    unlockedTitles: [1], currentTitleId: 1,
+    statistics: { anime: {}, genre: {}, level: {} } // 統計データ用
   };
 
   let appData = JSON.parse(localStorage.getItem('animasData')) || DEFAULT_DATA;
   if (!appData.unlockedTitles) appData.unlockedTitles = [1];
   if (!appData.currentTitleId) appData.currentTitleId = 1;
+  if (!appData.statistics) appData.statistics = { anime: {}, genre: {}, level: {} };
   
   // 状態管理
   let currentLevel = null; let isAnswering = false;
@@ -446,6 +457,9 @@
   // --- 画面遷移とUI更新 ---
   function showScreen(screenId) {
     playClick();
+    if (screenId === 'history-screen') {
+      renderStatistics(); // 履歴画面を開く際に統計を描画
+    }
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
   }
@@ -459,7 +473,8 @@
 
   function updateTitleDisplay() {
     const t = titlesData.find(x => x.id === appData.currentTitleId);
-    document.getElementById('animas-title').innerText = t ? `[${t.type}] ${t.title}` : "見習いウォッチャー";
+    // 修正: [ジャンル名] の表示を削除しました
+    document.getElementById('animas-title').innerText = t ? t.title : "見習いウォッチャー";
   }
 
   function updateHomeUI() {
@@ -508,6 +523,57 @@
     }, 1000);
   }
 
+  // --- 統計記録処理 (新規追加) ---
+  function recordStatistics(q, isCorrect) {
+    if (!appData.statistics) appData.statistics = { anime: {}, genre: {}, level: {} };
+    const s = appData.statistics;
+    
+    // アニメ別
+    if (!s.anime[q.anime]) s.anime[q.anime] = { total: 0, correct: 0 };
+    s.anime[q.anime].total++;
+    if (isCorrect) s.anime[q.anime].correct++;
+    
+    // ジャンル別
+    if (!s.genre[q.genre]) s.genre[q.genre] = { total: 0, correct: 0 };
+    s.genre[q.genre].total++;
+    if (isCorrect) s.genre[q.genre].correct++;
+    
+    // レベル別
+    if (!s.level[q.level]) s.level[q.level] = { total: 0, correct: 0 };
+    s.level[q.level].total++;
+    if (isCorrect) s.level[q.level].correct++;
+  }
+
+  // --- 統計描画処理 (新規追加) ---
+  function renderStatistics() {
+    if (!appData.statistics) appData.statistics = { anime: {}, genre: {}, level: {} };
+    const s = appData.statistics;
+    let html = '';
+
+    const makeSection = (title, dataObj, keyPrefix) => {
+      let secHtml = `<div class="stats-section"><div class="stats-section-title">${title}</div>`;
+      const keys = Object.keys(dataObj);
+      if (keys.length === 0) {
+        secHtml += `<div style="color:#999; font-size:11px;">データがありません</div>`;
+      } else {
+        // 合計解答数が多い順にソートして表示
+        keys.sort((a, b) => dataObj[b].total - dataObj[a].total).forEach(k => {
+          const d = dataObj[k];
+          const rate = d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0;
+          secHtml += `<div class="stats-row"><span>${keyPrefix}${k}</span><span>${d.correct}/${d.total}問 (${rate}%)</span></div>`;
+        });
+      }
+      secHtml += `</div>`;
+      return secHtml;
+    };
+
+    html += makeSection('アニメ別', s.anime, '');
+    html += makeSection('ジャンル別', s.genre, '');
+    html += makeSection('レベル別', s.level, 'Lv ');
+
+    document.getElementById('stats-area').innerHTML = html;
+  }
+
   // --- 回答処理 ---
   function handleAnswer(selectedIndex, btnElement) {
     if (!isAnswering) return;
@@ -515,6 +581,8 @@
     appData.totalAnswers++;
     const isCorrect = (selectedIndex === currentQuestion.correctIndex);
     const btns = document.querySelectorAll('.choice-btn');
+
+    recordStatistics(currentQuestion, isCorrect); // 統計を記録
 
     if (isCorrect) {
       playCorrectSound();
@@ -545,6 +613,9 @@
     if (!isAnswering) return;
     isAnswering = false; appData.totalAnswers++;
     playIncorrectSound();
+    
+    recordStatistics(currentQuestion, false); // 統計を記録
+
     const btns = document.querySelectorAll('.choice-btn');
     btns[currentQuestion.correctIndex].style.background = 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)';
     btns[currentQuestion.correctIndex].style.color = '#fff';
