@@ -535,7 +535,6 @@
             pointLabels: { 
               font: { family: "'M PLUS Rounded 1c', sans-serif", size: 14, weight: '900' }, 
               color: '#2f3542',
-              // 項目毎のポイントを改行して表示
               callback: function(value, index) {
                 const stats = [appData.stats.action, appData.stats.fantasy, appData.stats.scifi, appData.stats.sliceOfLife, appData.stats.romance];
                 return [value, stats[index] + ' pt'];
@@ -638,15 +637,26 @@
     });
 
     isAnswering = true; timeLeft = 10;
-    document.getElementById('timer-fill').style.width = '100%';
+    const timerFill = document.getElementById('timer-fill');
+    timerFill.style.transition = 'none';
+    timerFill.style.width = '100%';
+    setTimeout(() => {
+      timerFill.style.transition = 'width 1s linear';
+    }, 50);
+
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('quiz-screen').classList.add('active');
     
     clearInterval(timerInterval);
     timerInterval = setInterval(() => {
       timeLeft--;
-      document.getElementById('timer-fill').style.width = `${(timeLeft / 10) * 100}%`;
-      if (timeLeft <= 0) { clearInterval(timerInterval); handleTimeout(); }
+      timerFill.style.width = `${(timeLeft / 10) * 100}%`;
+      if (timeLeft <= 0) { 
+        clearInterval(timerInterval); 
+        setTimeout(() => {
+          if (isAnswering) handleTimeout();
+        }, 1000);
+      }
     }, 1000);
   }
 
