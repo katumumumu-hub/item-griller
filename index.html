@@ -413,7 +413,8 @@
 
       titlesData = rawTitles.map(t => {
         t.check = function(d) {
-          const earned = d.stats.action + d.stats.fantasy + d.stats.scifi + d.stats.sliceOfLife + d.stats.romance - 50;
+          // ★ 変更点：初期値0からの計算に合わせて -50 や -10 を削除
+          const earned = d.stats.action + d.stats.fantasy + d.stats.scifi + d.stats.sliceOfLife + d.stats.romance;
           const maxVal = Math.max(d.stats.action, d.stats.fantasy, d.stats.scifi, d.stats.sliceOfLife, d.stats.romance);
           if (t.id === 1) return true;
           if (t.id >= 2 && t.id <= 10) {
@@ -425,18 +426,18 @@
             const statName = typeMap[Math.floor((t.id - 11) / 10) + 1];
             const reqArr = [20, 50, 100, 200, 300, 500, 1000, 2000, 5000];
             const idx = (t.id - 1) % 10; 
-            if (idx < 9) return (d.stats[statName] - 10) >= reqArr[idx] && maxVal === d.stats[statName];
-            else return earned > 0 && (d.stats[statName] - 10) / earned >= 0.8;
+            if (idx < 9) return (d.stats[statName]) >= reqArr[idx] && maxVal === d.stats[statName];
+            else return earned > 0 && (d.stats[statName]) / earned >= 0.8;
           }
           if (t.id >= 61 && t.id <= 80) {
             const req = (t.id % 2 !== 0) ? 50 : 300;
             const s = [d.stats.action, d.stats.fantasy, d.stats.scifi, d.stats.sliceOfLife, d.stats.romance].sort((a,b)=>b-a);
-            return (s[0] - 10) >= req && (s[1] - 10) >= req && (s[0] - s[1]) <= 20; 
+            return (s[0]) >= req && (s[1]) >= req && (s[0] - s[1]) <= 20; 
           }
           if (t.id >= 81 && t.id <= 84) {
             const req = [50, 100, 300, 1000][t.id - 81];
             const minVal = Math.min(d.stats.action, d.stats.fantasy, d.stats.scifi, d.stats.sliceOfLife, d.stats.romance);
-            return (minVal - 10) >= req;
+            return (minVal) >= req;
           }
           if (t.id >= 92 && t.id <= 94) {
             const req = [100, 500, 1000][t.id - 92];
@@ -473,7 +474,7 @@
   // --- データ保存・初期化 (localStorage) ---
   const DEFAULT_DATA = {
     life: 5, lastLifeTime: Date.now(),
-    stats: { action: 10, fantasy: 10, scifi: 10, sliceOfLife: 10, romance: 10 },
+    stats: { action: 0, fantasy: 0, scifi: 0, sliceOfLife: 0, romance: 0 }, // ★ 初期値を0に変更
     answeredQuestions: [], totalAnswers: 0, history: [],
     unlockedTitles: [1], currentTitleId: 1,
     statistics: { anime: {}, genre: {}, level: {} }
@@ -512,7 +513,7 @@
     const t = titlesData.find(x => x.id === appData.currentTitleId);
     const titleName = t ? t.title : "見習いウォッチャー";
     const s = appData.stats;
-    const earnedPts = s.action + s.fantasy + s.scifi + s.sliceOfLife + s.romance - 50;
+    const earnedPts = s.action + s.fantasy + s.scifi + s.sliceOfLife + s.romance; // ★ -50を削除
     
     let text = `私のアニマス名は「${titleName}」です！✨\n`;
     text += `総獲得pt: ${earnedPts}pt\n\n`;
@@ -641,7 +642,7 @@
     document.getElementById('total-answers').innerText = appData.totalAnswers;
     
     // 総獲得ptの計算と表示
-    const earnedPts = appData.stats.action + appData.stats.fantasy + appData.stats.scifi + appData.stats.sliceOfLife + appData.stats.romance - 50;
+    const earnedPts = appData.stats.action + appData.stats.fantasy + appData.stats.scifi + appData.stats.sliceOfLife + appData.stats.romance; // ★ -50を削除
     document.getElementById('total-points').innerText = earnedPts;
 
     let lifeStr = "";
@@ -840,6 +841,7 @@
   }
 
   // --- 称号システム ---
+  // 新しく獲得した称号の配列を返すように変更
   function checkTitleUnlocks() {
     let newlyUnlocked = [];
     titlesData.forEach(t => {
