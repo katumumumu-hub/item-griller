@@ -72,12 +72,22 @@
   .title-logo {
     font-size: 50px; color: #fff; font-weight: 900; line-height: 1.2;
     text-shadow: 4px 4px 0 var(--border-color), -2px -2px 0 var(--border-color), 2px -2px 0 var(--border-color), -2px 2px 0 var(--border-color);
-    margin-bottom: 40px; transform: rotate(-5deg);
+    margin-bottom: 30px; transform: rotate(-5deg);
     animation: bounceLogo 2s infinite ease-in-out;
   }
   @keyframes bounceLogo {
     0%, 100% { transform: rotate(-5deg) scale(1); }
     50% { transform: rotate(-5deg) scale(1.05); }
+  }
+  .game-info {
+    font-size: 16px; color: #fff; font-weight: 900;
+    text-shadow: 2px 2px 0 var(--border-color);
+    margin-bottom: 40px; text-align: center;
+    background: #0be881; padding: 12px 20px;
+    border: 3px solid var(--border-color);
+    border-radius: 12px; box-shadow: 4px 4px 0 var(--border-color);
+    transform: rotate(2deg);
+    line-height: 1.5;
   }
   .tap-to-start {
     font-size: 22px; color: #ffd32a; font-weight: 900;
@@ -288,6 +298,7 @@
 
   <div id="title-start-screen" class="screen active" onclick="tapToStart()">
     <div class="title-logo">🌟 アニマス 🌟<br>QUIZ</div>
+    <div class="game-info" id="game-info-text" style="display: none;"></div>
     <div class="tap-to-start" id="tap-to-start-text">NOW LOADING...</div>
   </div>
 
@@ -413,7 +424,6 @@
 
       titlesData = rawTitles.map(t => {
         t.check = function(d) {
-          // ★ 変更点：初期値0からの計算に合わせて -50 や -10 を削除
           const earned = d.stats.action + d.stats.fantasy + d.stats.scifi + d.stats.sliceOfLife + d.stats.romance;
           const maxVal = Math.max(d.stats.action, d.stats.fantasy, d.stats.scifi, d.stats.sliceOfLife, d.stats.romance);
           if (t.id === 1) return true;
@@ -449,6 +459,14 @@
         return t;
       });
 
+      // ★ 収録アニメ数と問題数の計算・表示
+      const uniqueAnimes = new Set(questionsData.map(q => q.anime)).size;
+      const totalQuestions = questionsData.length;
+      
+      const infoEl = document.getElementById('game-info-text');
+      infoEl.innerHTML = `📺 収録アニメ: <span style="color:#ffd32a; font-size:20px; text-shadow:2px 2px 0 #2f3542;">${uniqueAnimes}</span> 作品<br>📝 総問題数: <span style="color:#ffd32a; font-size:20px; text-shadow:2px 2px 0 #2f3542;">${totalQuestions}</span> 問`;
+      infoEl.style.display = 'block';
+
       document.getElementById('start-btn').innerText = "▶ クイズに挑戦！";
       document.getElementById('start-btn').disabled = false;
       
@@ -474,7 +492,7 @@
   // --- データ保存・初期化 (localStorage) ---
   const DEFAULT_DATA = {
     life: 5, lastLifeTime: Date.now(),
-    stats: { action: 0, fantasy: 0, scifi: 0, sliceOfLife: 0, romance: 0 }, // ★ 初期値を0に変更
+    stats: { action: 0, fantasy: 0, scifi: 0, sliceOfLife: 0, romance: 0 }, 
     answeredQuestions: [], totalAnswers: 0, history: [],
     unlockedTitles: [1], currentTitleId: 1,
     statistics: { anime: {}, genre: {}, level: {} }
@@ -513,7 +531,7 @@
     const t = titlesData.find(x => x.id === appData.currentTitleId);
     const titleName = t ? t.title : "見習いウォッチャー";
     const s = appData.stats;
-    const earnedPts = s.action + s.fantasy + s.scifi + s.sliceOfLife + s.romance; // ★ -50を削除
+    const earnedPts = s.action + s.fantasy + s.scifi + s.sliceOfLife + s.romance; 
     
     let text = `私のアニマス名は「${titleName}」です！✨\n`;
     text += `総獲得pt: ${earnedPts}pt\n\n`;
@@ -642,7 +660,7 @@
     document.getElementById('total-answers').innerText = appData.totalAnswers;
     
     // 総獲得ptの計算と表示
-    const earnedPts = appData.stats.action + appData.stats.fantasy + appData.stats.scifi + appData.stats.sliceOfLife + appData.stats.romance; // ★ -50を削除
+    const earnedPts = appData.stats.action + appData.stats.fantasy + appData.stats.scifi + appData.stats.sliceOfLife + appData.stats.romance; 
     document.getElementById('total-points').innerText = earnedPts;
 
     let lifeStr = "";
