@@ -125,7 +125,7 @@
   /* レーダーチャートの囲み */
   .chart-container {
     background: transparent; border: none; box-shadow: none;
-    padding: 0px 5px; margin-bottom: 10px; flex-grow: 1; /* スペースを埋める */
+    padding: 0px 5px; margin-bottom: 10px; flex-grow: 1; 
     display: flex; align-items: center; justify-content: center;
   }
   canvas { width: 100% !important; max-height: 280px !important; }
@@ -249,6 +249,37 @@
   .title-btn:active { transform: translateY(3px); box-shadow: 0 0px 0 var(--border-color); }
   .title-btn.current { background: #ffdd59; color: var(--text-main); text-shadow: none; }
   .title-btn:disabled { background: #808e9b; color: #d2dae2; border-color: #808e9b; box-shadow: none; cursor: not-allowed; transform: none; text-shadow: none;}
+
+  /* --- 称号獲得通知モーダル (新規追加) --- */
+  .modal-overlay {
+    display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(47, 53, 66, 0.8); z-index: 100;
+    justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;
+  }
+  .modal-overlay.active { display: flex; animation: fadeInModal 0.3s ease; }
+  .modal-content {
+    background: radial-gradient(circle, #ffffff 0%, #fff2cc 100%);
+    padding: 20px; border-radius: 20px; width: 100%; max-height: 80vh; overflow-y: auto;
+    border: 4px solid var(--border-color); box-shadow: 8px 8px 0px var(--border-color);
+    text-align: center; animation: popModal 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .modal-content::-webkit-scrollbar { width: 6px; }
+  .modal-content::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+  @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes popModal { from { transform: scale(0.5) rotate(-10deg); } to { transform: scale(1) rotate(0deg); } }
+  
+  .modal-title {
+    color: #ff4757; text-shadow: 2px 2px 0px var(--border-color);
+    font-size: 26px; margin-top: 0; margin-bottom: 20px; font-weight: 900;
+    animation: flashText 1.5s infinite;
+  }
+  .new-title-item {
+    background: #fff; border: 3px solid var(--border-color); border-radius: 15px;
+    padding: 15px; margin-bottom: 15px; box-shadow: 4px 4px 0px var(--border-color);
+  }
+  .new-title-label { font-size: 12px; color: #ff4757; font-weight: 900; margin-bottom: 5px; }
+  .new-title-name { font-size: 20px; color: #3c40c6; font-weight: 900; margin-bottom: 8px; }
+  .new-title-desc { font-size: 13px; color: var(--text-main); font-weight: 900; }
 </style>
 </head>
 <body>
@@ -317,6 +348,15 @@
     <div class="custom-list" id="title-list"></div>
     <button class="action-btn" onclick="showScreen('home-screen')">🏠 ホームに戻る</button>
   </div>
+  
+  <div id="title-unlock-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h2 class="modal-title">🎉 新称号 獲得!! 🎉</h2>
+      <div id="unlocked-titles-container"></div>
+      <button class="action-btn" style="margin-bottom:0;" onclick="closeTitleModal()">OK!</button>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -453,7 +493,7 @@
   // --- 初期化処理 ---
   function init() {
     initChart();
-    checkTitleUnlocks();
+    checkTitleUnlocks(); // 起動時のチェックはサイレントで行う
     updateHomeUI();
     renderHistory();
     setInterval(checkLifeRecovery, 1000);
@@ -665,17 +705,14 @@
     if (!appData.statistics) appData.statistics = { anime: {}, genre: {}, level: {} };
     const s = appData.statistics;
     
-    // アニメ別
     if (!s.anime[q.anime]) s.anime[q.anime] = { total: 0, correct: 0 };
     s.anime[q.anime].total++;
     if (isCorrect) s.anime[q.anime].correct++;
     
-    // ジャンル別
     if (!s.genre[q.genre]) s.genre[q.genre] = { total: 0, correct: 0 };
     s.genre[q.genre].total++;
     if (isCorrect) s.genre[q.genre].correct++;
     
-    // レベル別
     if (!s.level[q.level]) s.level[q.level] = { total: 0, correct: 0 };
     s.level[q.level].total++;
     if (isCorrect) s.level[q.level].correct++;
@@ -722,7 +759,7 @@
 
     if (isCorrect) {
       playCorrectSound();
-      btnElement.style.background = '#0be881'; // ビビッドグリーン
+      btnElement.style.background = '#0be881';
       btnElement.style.color = '#fff';
       const pt = currentQuestion.level;
       if(currentQuestion.genre === "アクション") appData.stats.action += pt;
@@ -732,16 +769,30 @@
       if(currentQuestion.genre === "恋愛") appData.stats.romance += pt;
       
       appData.answeredQuestions.push(currentQuestion.id);
-      addHistory(true); checkTitleUnlocks(); saveData();
-      setTimeout(() => { updateHomeUI(); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('home-screen').classList.add('active'); }, 1200);
+      addHistory(true); 
+      const newlyUnlocked = checkTitleUnlocks(); // 新称号チェック
+      
+      setTimeout(() => { 
+        updateHomeUI(); 
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+        document.getElementById('home-screen').classList.add('active'); 
+        if (newlyUnlocked.length > 0) showTitleModal(newlyUnlocked); // モーダル表示
+      }, 1200);
     } else {
       playIncorrectSound();
-      btnElement.style.background = '#ff3f34'; // ビビッドレッド
+      btnElement.style.background = '#ff3f34';
       btnElement.style.color = '#fff';
       btns[currentQuestion.correctIndex].style.background = '#0be881';
       btns[currentQuestion.correctIndex].style.color = '#fff';
-      addHistory(false); checkTitleUnlocks(); saveData();
-      setTimeout(() => { updateHomeUI(); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('home-screen').classList.add('active'); }, 2000);
+      addHistory(false); 
+      const newlyUnlocked = checkTitleUnlocks();
+      
+      setTimeout(() => { 
+        updateHomeUI(); 
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+        document.getElementById('home-screen').classList.add('active'); 
+        if (newlyUnlocked.length > 0) showTitleModal(newlyUnlocked);
+      }, 2000);
     }
   }
 
@@ -756,8 +807,15 @@
     const btns = document.querySelectorAll('.choice-btn');
     btns[currentQuestion.correctIndex].style.background = '#0be881';
     btns[currentQuestion.correctIndex].style.color = '#fff';
-    addHistory(false, true); checkTitleUnlocks(); saveData();
-    setTimeout(() => { updateHomeUI(); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('home-screen').classList.add('active'); }, 2000);
+    addHistory(false, true); 
+    const newlyUnlocked = checkTitleUnlocks();
+    
+    setTimeout(() => { 
+      updateHomeUI(); 
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+      document.getElementById('home-screen').classList.add('active'); 
+      if (newlyUnlocked.length > 0) showTitleModal(newlyUnlocked);
+    }, 2000);
   }
 
   // --- 履歴追加 ---
@@ -776,14 +834,38 @@
   function renderHistory() { document.getElementById('history-list').innerHTML = appData.history.join(''); }
 
   // --- 称号システム ---
+  // 新しく獲得した称号の配列を返すように変更
   function checkTitleUnlocks() {
-    let unlocked = false;
+    let newlyUnlocked = [];
     titlesData.forEach(t => {
       if (!appData.unlockedTitles.includes(t.id)) {
-        if (t.check(appData)) { appData.unlockedTitles.push(t.id); unlocked = true; }
+        if (t.check(appData)) { 
+          appData.unlockedTitles.push(t.id); 
+          newlyUnlocked.push(t);
+        }
       }
     });
-    if(unlocked) saveData();
+    if(newlyUnlocked.length > 0) saveData();
+    return newlyUnlocked;
+  }
+
+  // 称号獲得時のモーダル表示機能
+  function showTitleModal(titles) {
+    playCorrectSound(); // 派手な音でお知らせ
+    const container = document.getElementById('unlocked-titles-container');
+    container.innerHTML = titles.map(t => `
+      <div class="new-title-item">
+        <div class="new-title-label">NEW TITLE!!</div>
+        <div class="new-title-name">[${t.type}] ${t.title}</div>
+        <div class="new-title-desc">${t.condition_desc}</div>
+      </div>
+    `).join('');
+    document.getElementById('title-unlock-modal').classList.add('active');
+  }
+
+  function closeTitleModal() {
+    playClick();
+    document.getElementById('title-unlock-modal').classList.remove('active');
   }
 
   function showTitleScreen() {
