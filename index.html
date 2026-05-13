@@ -125,7 +125,7 @@
   /* レーダーチャートの囲み */
   .chart-container {
     background: transparent; border: none; box-shadow: none;
-    padding: 0px 5px; margin-bottom: 10px; flex-grow: 1; 
+    padding: 0px 5px; margin-bottom: 10px; flex-grow: 1; /* スペースを埋める */
     display: flex; align-items: center; justify-content: center;
   }
   canvas { width: 100% !important; max-height: 280px !important; }
@@ -212,7 +212,7 @@
 
   /* 統計エリア */
   .stats-container {
-    background: var(--white); max-height: 200px; overflow-y: auto; margin-bottom: 15px;
+    background: var(--white); flex-grow: 1; overflow-y: auto; margin-bottom: 15px;
     padding: 15px; border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color); font-size: 14px; font-weight: 900;
   }
   .stats-container::-webkit-scrollbar { width: 8px; }
@@ -250,7 +250,7 @@
   .title-btn.current { background: #ffdd59; color: var(--text-main); text-shadow: none; }
   .title-btn:disabled { background: #808e9b; color: #d2dae2; border-color: #808e9b; box-shadow: none; cursor: not-allowed; transform: none; text-shadow: none;}
 
-  /* --- 称号獲得通知モーダル (新規追加) --- */
+  /* --- 称号獲得通知モーダル --- */
   .modal-overlay {
     display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(47, 53, 66, 0.8); z-index: 100;
@@ -324,7 +324,7 @@
     <div class="history-link">
       <button onclick="recoverLifeDev()" class="dev-btn">🛠 開発:全回復</button>
       <button onclick="showTitleScreen()">🏆 称号</button>
-      <button onclick="showScreen('history-screen')">📖 履歴</button>
+      <button onclick="showScreen('history-screen')">📊 データ</button>
     </div>
   </div>
 
@@ -337,9 +337,8 @@
   </div>
 
   <div id="history-screen" class="screen">
-    <div class="header">📖 回答履歴</div>
+    <div class="header">📊 データ</div>
     <div class="stats-container" id="stats-area"></div>
-    <div class="custom-list" id="history-list"></div>
     <button class="action-btn" onclick="showScreen('home-screen')">🏠 ホームに戻る</button>
   </div>
 
@@ -829,12 +828,18 @@
     </div>`;
     appData.history.unshift(historyStr);
     if(appData.history.length > 50) appData.history.pop();
-    renderHistory();
+    
+    // history-list要素が存在する場合のみ描画 (安全策)
+    const hl = document.getElementById('history-list');
+    if(hl) hl.innerHTML = appData.history.join('');
   }
-  function renderHistory() { document.getElementById('history-list').innerHTML = appData.history.join(''); }
+
+  function renderHistory() { 
+    const hl = document.getElementById('history-list');
+    if(hl) hl.innerHTML = appData.history.join(''); 
+  }
 
   // --- 称号システム ---
-  // 新しく獲得した称号の配列を返すように変更
   function checkTitleUnlocks() {
     let newlyUnlocked = [];
     titlesData.forEach(t => {
@@ -851,7 +856,7 @@
 
   // 称号獲得時のモーダル表示機能
   function showTitleModal(titles) {
-    playCorrectSound(); // 派手な音でお知らせ
+    playCorrectSound(); 
     const container = document.getElementById('unlocked-titles-container');
     container.innerHTML = titles.map(t => `
       <div class="new-title-item">
