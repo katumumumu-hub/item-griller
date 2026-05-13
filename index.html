@@ -9,18 +9,17 @@
 <style>
   /* 全体の超ポップなテーマ設定 */
   :root {
-    --primary: #ff4757; /* ビビッドな赤 */
+    --primary: #ff4757;
     --secondary: #ff6b81;
     --accent: #ffa502;
     --bg-color: #fffdf5;
-    --text-main: #2f3542; /* 太い枠線・文字用の黒寄りの色 */
+    --text-main: #2f3542;
     --white: #ffffff;
     --border-color: #2f3542; 
   }
 
   body {
     font-family: 'M PLUS Rounded 1c', sans-serif;
-    /* ポップなドット背景 */
     background-color: #ffcccc;
     background-image: radial-gradient(#ff9999 15%, transparent 16%), radial-gradient(#ff9999 15%, transparent 16%);
     background-size: 30px 30px;
@@ -31,7 +30,7 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    font-weight: 900; /* 全体を極太フォントに */
+    font-weight: 900; 
   }
 
   #app {
@@ -41,45 +40,62 @@
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
-    /* コミック風の太枠 */
     border-left: 4px solid var(--border-color);
     border-right: 4px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
   }
   @media (min-width: 401px) {
     #app { 
-      min-height: 850px; height: 95vh; 
+      min-height: 800px; height: 95vh; 
       border-radius: 24px; 
-      overflow: hidden; 
       border: 6px solid var(--border-color); 
       box-shadow: 8px 8px 0px rgba(0,0,0,0.15);
     }
   }
 
-  /* 画面切り替えのポップなアニメーションと余白縮小 */
-  .screen { display: none; padding: 15px 15px 10px 15px; box-sizing: border-box; height: 100%; overflow-y: auto; }
-  .screen.active { display: block; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  /* 画面切り替えアニメーションとスクロール防止の余白縮小 */
+  .screen { display: none; padding: 12px; box-sizing: border-box; height: 100%; overflow-y: auto; flex-direction: column; }
+  .screen.active { display: flex; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes popIn { 
     from { opacity: 0; transform: scale(0.9) translateY(20px); } 
     to { opacity: 1; transform: scale(1) translateY(0); } 
   }
 
-  /* ヘッダー（超派手な斜めストライプ） */
+  /* --- タイトル開始画面 --- */
+  #title-start-screen {
+    justify-content: center;
+    align-items: center;
+    background: repeating-linear-gradient( -45deg, #ff4757, #ff4757 20px, #ff6b81 20px, #ff6b81 40px );
+    cursor: pointer;
+  }
+  .title-logo {
+    font-size: 50px; color: #fff; font-weight: 900; line-height: 1.2;
+    text-shadow: 4px 4px 0 var(--border-color), -2px -2px 0 var(--border-color), 2px -2px 0 var(--border-color), -2px 2px 0 var(--border-color);
+    margin-bottom: 40px; transform: rotate(-5deg);
+    animation: bounceLogo 2s infinite ease-in-out;
+  }
+  @keyframes bounceLogo {
+    0%, 100% { transform: rotate(-5deg) scale(1); }
+    50% { transform: rotate(-5deg) scale(1.05); }
+  }
+  .tap-to-start {
+    font-size: 22px; color: #ffd32a; font-weight: 900;
+    text-shadow: 2px 2px 0 var(--border-color);
+    animation: flashText 1.5s infinite;
+    background: #fff; padding: 12px 24px; border: 4px solid var(--border-color);
+    border-radius: 15px; box-shadow: 4px 4px 0 var(--border-color);
+  }
+  @keyframes flashText {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  /* 共通ヘッダー（クイズ画面用など） */
   .header {
-    background: repeating-linear-gradient(
-      -45deg,
-      #ff4757,
-      #ff4757 15px,
-      #ff6b81 15px,
-      #ff6b81 30px
-    );
-    color: var(--white);
-    text-align: center;
-    padding: 10px;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    font-weight: 900;
-    font-size: 20px;
-    border: 3px solid var(--border-color);
+    background: repeating-linear-gradient(-45deg, #ff4757, #ff4757 15px, #ff6b81 15px, #ff6b81 30px);
+    color: var(--white); text-align: center; padding: 10px; border-radius: 12px; margin-bottom: 12px;
+    font-weight: 900; font-size: 20px; border: 3px solid var(--border-color);
     box-shadow: 4px 4px 0px var(--border-color);
     text-shadow: 2px 2px 0 var(--border-color), -2px -2px 0 var(--border-color), 2px -2px 0 var(--border-color), -2px 2px 0 var(--border-color);
     letter-spacing: 2px;
@@ -87,76 +103,61 @@
   
   /* ホーム画面のアニマス名表示 */
   .animas-name {
-    text-align: center;
-    padding: 12px;
-    background-color: #ffd32a; /* 派手なイエロー */
-    border-radius: 15px;
-    border: 3px solid var(--border-color);
-    box-shadow: 4px 4px 0px var(--border-color);
-    margin-bottom: 12px;
-    font-size: 14px;
-    color: var(--border-color);
+    text-align: center; padding: 10px; background-color: #ffd32a;
+    border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color);
+    margin-bottom: 10px; font-size: 13px; color: var(--border-color);
   }
   #animas-title {
-    font-size: 20px;
-    color: #ff3f34;
-    display: block;
-    margin-top: 2px;
-    text-shadow: 2px 2px 0 var(--white);
+    font-size: 22px; color: #ff3f34; display: block; margin-top: 2px; text-shadow: 2px 2px 0 var(--white);
   }
 
   /* ステータスバー（ライフ・問題数・獲得pt） */
   .status-bar {
     display: flex; justify-content: space-between; align-items: center;
-    background: #0be881; /* ミントグリーン */
-    padding: 8px 12px; border-radius: 12px;
-    border: 3px solid var(--border-color);
-    box-shadow: 4px 4px 0px var(--border-color);
-    margin-bottom: 12px; font-weight: 900;
+    background: #0be881; padding: 8px 12px; border-radius: 12px;
+    border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color);
+    margin-bottom: 10px; font-weight: 900;
   }
   .life-area { text-align: right; }
   .life-icons { letter-spacing: 2px; text-shadow: 1px 1px 0px var(--border-color); }
-  #life-timer { font-size: 12px; color: var(--text-main); background: var(--white); padding: 4px 10px; border-radius: 10px; display: inline-block; margin-top: 4px; border: 2px solid var(--border-color); font-weight: 900;}
+  #life-timer { font-size: 11px; color: var(--text-main); background: var(--white); padding: 4px 10px; border-radius: 10px; display: inline-block; margin-top: 4px; border: 2px solid var(--border-color); font-weight: 900;}
 
   /* レーダーチャートの囲み */
   .chart-container {
-    background: transparent; 
-    border: none;
-    box-shadow: none;
-    padding: 0px 10px; 
-    margin-bottom: 15px; 
+    background: transparent; border: none; box-shadow: none;
+    padding: 0px 5px; margin-bottom: 10px; flex-grow: 1; /* スペースを埋める */
+    display: flex; align-items: center; justify-content: center;
   }
+  canvas { width: 100% !important; max-height: 280px !important; }
 
   /* レベル選択ボタン */
-  .level-select { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 15px; }
+  .level-select { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
   .level-btn {
     flex: 1; padding: 10px 0; border: 3px solid var(--border-color); border-radius: 12px;
     background-color: #fff; color: var(--text-main); font-weight: 900; cursor: pointer;
-    box-shadow: 0 5px 0px var(--border-color);
-    transition: all 0.1s; font-size: 15px;
+    box-shadow: 0 4px 0px var(--border-color); transition: all 0.1s; font-size: 15px;
   }
   .level-btn.selected {
     background: #4bcffa; color: #fff; text-shadow: 1px 1px 0 var(--border-color);
-    transform: translateY(5px); box-shadow: 0 0px 0 var(--border-color);
+    transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color);
   }
 
   /* メインアクションボタン（クイズ挑戦など） */
   .action-btn {
     width: 100%; padding: 14px; border: 3px solid var(--border-color) !important; border-radius: 15px;
     background: linear-gradient(135deg, #ff9ff3 0%, #feca57 100%) !important;
-    color: #fff !important; font-size: 18px; font-weight: 900; margin-bottom: 15px;
-    cursor: pointer; box-shadow: 0 6px 0px var(--border-color);
-    transition: transform 0.1s, box-shadow 0.1s;
-    text-shadow: 2px 2px 0 var(--border-color);
+    color: #fff !important; font-size: 18px; font-weight: 900; margin-bottom: 10px;
+    cursor: pointer; box-shadow: 0 5px 0px var(--border-color);
+    transition: transform 0.1s, box-shadow 0.1s; text-shadow: 2px 2px 0 var(--border-color);
     font-family: 'M PLUS Rounded 1c', sans-serif;
   }
-  .action-btn:active { transform: translateY(6px); box-shadow: 0 0px 0 var(--border-color); }
-  .action-btn:disabled { background: #d2dae2 !important; box-shadow: 0 6px 0 #808e9b !important; border-color: #808e9b !important; text-shadow: none !important; cursor: not-allowed; transform: none; }
+  .action-btn:active { transform: translateY(5px); box-shadow: 0 0px 0 var(--border-color); }
+  .action-btn:disabled { background: #d2dae2 !important; box-shadow: 0 5px 0 #808e9b !important; border-color: #808e9b !important; text-shadow: none !important; cursor: not-allowed; transform: none; }
 
   /* サブボタン（シェア、履歴、称号など） */
-  .share-area { display: flex; justify-content: space-between; gap: 6px; margin-bottom: 15px; }
+  .share-area { display: flex; justify-content: space-between; gap: 6px; margin-bottom: 10px; }
   .share-area button {
-    flex: 1; padding: 10px 6px; border: 3px solid var(--border-color); border-radius: 10px; font-weight: 900;
+    flex: 1; padding: 8px 4px; border: 3px solid var(--border-color); border-radius: 10px; font-weight: 900;
     background: #fff; color: var(--text-main); box-shadow: 0 4px 0px var(--border-color); cursor: pointer;
     transition: all 0.1s; font-size: 13px;
   }
@@ -164,7 +165,7 @@
 
   .history-link { display: flex; justify-content: space-between; gap: 6px; }
   .history-link button {
-    padding: 10px 4px; background-color: #d2dae2; color: var(--text-main); border: 3px solid var(--border-color);
+    padding: 8px 4px; background-color: #d2dae2; color: var(--text-main); border: 3px solid var(--border-color);
     border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 900; flex: 1;
     box-shadow: 0 4px 0px var(--border-color); transition: all 0.1s;
   }
@@ -174,38 +175,36 @@
   /* --- 回答画面要素 --- */
   .quiz-info {
     background: #ef5777; color: #fff; text-shadow: 1px 1px 0 var(--border-color);
-    border: 3px solid var(--border-color); padding: 12px; text-align: center;
+    border: 3px solid var(--border-color); padding: 10px; text-align: center;
     border-radius: 12px; box-shadow: 4px 4px 0px var(--border-color);
-    margin-bottom: 15px; font-weight: 900; font-size: 16px;
+    margin-bottom: 15px; font-weight: 900; font-size: 15px;
   }
   .timer-bar {
     width: 100%; height: 16px; background-color: #fff; border-radius: 8px;
-    border: 3px solid var(--border-color);
-    margin-bottom: 15px; overflow: hidden; box-shadow: 4px 4px 0px var(--border-color);
+    border: 3px solid var(--border-color); margin-bottom: 15px; overflow: hidden; box-shadow: 4px 4px 0px var(--border-color);
   }
   .timer-fill {
-    height: 100%; background: linear-gradient(90deg, #ff3f34 0%, #ffbe76 100%);
-    width: 100%; transition: width 1s linear;
+    height: 100%; background: linear-gradient(90deg, #ff3f34 0%, #ffbe76 100%); width: 100%; transition: width 1s linear;
   }
   .question-area {
     background: #ffffff; color: var(--text-main); text-shadow: none; 
-    min-height: 120px; padding: 20px; border-radius: 15px; border: 3px solid var(--border-color);
-    margin-bottom: 20px; display: flex; align-items: center; justify-content: center;
-    font-size: 18px; text-align: center; font-weight: 900; line-height: 1.6;
-    box-shadow: 4px 4px 0px var(--border-color);
+    min-height: 100px; padding: 15px; border-radius: 15px; border: 3px solid var(--border-color);
+    margin-bottom: 15px; display: flex; align-items: center; justify-content: center;
+    font-size: 17px; text-align: center; font-weight: 900; line-height: 1.5;
+    box-shadow: 4px 4px 0px var(--border-color); flex-grow: 1;
   }
   .choice-btn {
-    width: 100%; padding: 15px; margin-bottom: 12px; border: 3px solid var(--border-color);
-    background-color: #fff; cursor: pointer; font-size: 16px; text-align: center;
+    width: 100%; padding: 14px; margin-bottom: 10px; border: 3px solid var(--border-color);
+    background-color: #fff; cursor: pointer; font-size: 15px; text-align: center;
     border-radius: 12px; font-weight: 900; color: var(--text-main);
-    box-shadow: 0 5px 0px var(--border-color); transition: transform 0.1s, background 0.2s;
+    box-shadow: 0 4px 0px var(--border-color); transition: transform 0.1s, background 0.2s;
     font-family: 'M PLUS Rounded 1c', sans-serif;
   }
-  .choice-btn:active { transform: translateY(5px); box-shadow: 0 0px 0 var(--border-color); background-color: #f1f2f6; }
+  .choice-btn:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); background-color: #f1f2f6; }
   
   /* --- 履歴・統計・称号画面リスト --- */
   .custom-list {
-    background: var(--white); height: 450px; overflow-y: auto; margin-bottom: 15px;
+    background: var(--white); overflow-y: auto; margin-bottom: 15px; flex-grow: 1;
     padding: 15px; border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color);
   }
   .custom-list::-webkit-scrollbar { width: 8px; }
@@ -213,7 +212,7 @@
 
   /* 統計エリア */
   .stats-container {
-    background: var(--white); max-height: 250px; overflow-y: auto; margin-bottom: 15px;
+    background: var(--white); max-height: 200px; overflow-y: auto; margin-bottom: 15px;
     padding: 15px; border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color); font-size: 14px; font-weight: 900;
   }
   .stats-container::-webkit-scrollbar { width: 8px; }
@@ -237,14 +236,14 @@
   }
   .title-item.locked { background: #d2dae2; box-shadow: none; border-color: #808e9b; color: #808e9b;}
   .title-info { flex: 1; margin-right: 10px; }
-  .title-name { font-weight: 900; font-size: 16px; margin-bottom: 4px; color: #3c40c6; }
+  .title-name { font-weight: 900; font-size: 15px; margin-bottom: 4px; color: #3c40c6; }
   .title-item.locked .title-name { color: #808e9b; }
   .title-desc { font-size: 12px; color: #575fcf; font-weight: 900; }
   .title-item.locked .title-desc { color: #808e9b; }
   
   .title-btn {
-    padding: 10px 14px; background: #0fb9b1; border: 3px solid var(--border-color);
-    color: #fff; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 900;
+    padding: 8px 12px; background: #0fb9b1; border: 3px solid var(--border-color);
+    color: #fff; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 900;
     box-shadow: 0 3px 0px var(--border-color); transition: all 0.1s; text-shadow: 1px 1px 0 var(--border-color);
   }
   .title-btn:active { transform: translateY(3px); box-shadow: 0 0px 0 var(--border-color); }
@@ -255,14 +254,19 @@
 <body>
 
 <div id="app">
-  <div id="home-screen" class="screen active">
-    <div class="header">🌟 アニマス 🌟</div>
+
+  <div id="title-start-screen" class="screen active" onclick="tapToStart()">
+    <div class="title-logo">🌟 アニマス 🌟<br>QUIZ</div>
+    <div class="tap-to-start" id="tap-to-start-text">NOW LOADING...</div>
+  </div>
+
+  <div id="home-screen" class="screen">
     <div class="animas-name">あなたのアニマス名<br><strong id="animas-title">見習いウォッチャー</strong></div>
     
     <div class="status-bar">
       <div>
-        <div>総回答数 <span id="total-answers" style="color:#ff3f34; font-size:20px; text-shadow: 1px 1px 0 #fff;">0</span> 問</div>
-        <div style="font-size:13px; margin-top:2px; color:var(--text-main);">総獲得pt <span id="total-points" style="color:#ffa502; font-size:18px; text-shadow: 1px 1px 0 #fff;">0</span> pt</div>
+        <div style="font-size:14px;">総回答数 <span id="total-answers" style="color:#ff3f34; font-size:18px; text-shadow: 1px 1px 0 #fff;">0</span> 問</div>
+        <div style="font-size:12px; margin-top:2px; color:var(--text-main);">総獲得pt <span id="total-points" style="color:#ffa502; font-size:16px; text-shadow: 1px 1px 0 #fff;">0</span> pt</div>
       </div>
       <div class="life-area">
         <div class="life-icons" id="life-icons">💙💙💙💙💙</div>
@@ -304,7 +308,7 @@
   <div id="history-screen" class="screen">
     <div class="header">📖 回答履歴</div>
     <div class="stats-container" id="stats-area"></div>
-    <div class="custom-list" id="history-list" style="height: 180px; margin-bottom: 15px;"></div>
+    <div class="custom-list" id="history-list"></div>
     <button class="action-btn" onclick="showScreen('home-screen')">🏠 ホームに戻る</button>
   </div>
 
@@ -342,9 +346,9 @@
   function playClick() { initAudio(); playTone(800, 'sine', 0.05, 0.05); }
   function playCorrectSound() {
     initAudio();
-    playTone(523.25, 'sine', 0.1, 0.1); // C5
-    setTimeout(() => playTone(659.25, 'sine', 0.1, 0.1), 100); // E5
-    setTimeout(() => playTone(783.99, 'sine', 0.3, 0.1), 200); // G5
+    playTone(523.25, 'sine', 0.1, 0.1); 
+    setTimeout(() => playTone(659.25, 'sine', 0.1, 0.1), 100); 
+    setTimeout(() => playTone(783.99, 'sine', 0.3, 0.1), 200); 
   }
   function playIncorrectSound() {
     initAudio();
@@ -352,9 +356,10 @@
     setTimeout(() => playTone(150, 'sawtooth', 0.4, 0.1), 150);
   }
 
-  // --- 空の配列を用意（外部ファイルから読み込みます） ---
+  // --- 空の配列を用意 ---
   let questionsData = [];
   let titlesData = [];
+  let isDataLoaded = false;
 
   // --- 非同期でJSONデータを読み込む処理 ---
   async function loadGameData() {
@@ -406,15 +411,25 @@
 
       document.getElementById('start-btn').innerText = "▶ クイズに挑戦！";
       document.getElementById('start-btn').disabled = false;
+      
+      isDataLoaded = true;
+      document.getElementById('tap-to-start-text').innerText = "TAP TO START!";
+      
       init();
 
     } catch (error) {
       console.error("データの読み込みに失敗しました:", error);
-      document.getElementById('start-btn').innerText = "通信エラー";
-      alert("データの読み込みに失敗しました。GitHub PagesなどのWebサーバー経由でアクセスしているか確認してください。");
+      document.getElementById('tap-to-start-text').innerText = "通信エラー";
     }
   }
 
+  // --- タップしてゲーム開始 ---
+  function tapToStart() {
+    if(!isDataLoaded) return;
+    playClick();
+    document.getElementById('title-start-screen').classList.remove('active');
+    document.getElementById('home-screen').classList.add('active');
+  }
 
   // --- データ保存・初期化 (localStorage) ---
   const DEFAULT_DATA = {
@@ -517,7 +532,15 @@
           r: { 
             min: 0, max: 100, 
             ticks: { display: false },
-            pointLabels: { font: { family: "'M PLUS Rounded 1c', sans-serif", size: 15, weight: '900' }, color: '#2f3542' }, 
+            pointLabels: { 
+              font: { family: "'M PLUS Rounded 1c', sans-serif", size: 14, weight: '900' }, 
+              color: '#2f3542',
+              // 項目毎のポイントを改行して表示
+              callback: function(value, index) {
+                const stats = [appData.stats.action, appData.stats.fantasy, appData.stats.scifi, appData.stats.sliceOfLife, appData.stats.romance];
+                return [value, stats[index] + ' pt'];
+              }
+            }, 
             grid: { color: 'rgba(47, 53, 66, 0.15)' }, 
             angleLines: { color: 'rgba(47, 53, 66, 0.15)' }
           } 
@@ -534,7 +557,7 @@
 
   // --- ライフ回復ロジック ---
   function checkLifeRecovery() {
-    const RECOVERY_MS = 10 * 60 * 1000; // 10分に変更
+    const RECOVERY_MS = 10 * 60 * 1000; // 10分
     if (appData.life >= 5) {
       appData.lastLifeTime = Date.now();
       document.getElementById('life-timer').innerText = "MAX";
