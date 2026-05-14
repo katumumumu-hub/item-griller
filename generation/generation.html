@@ -56,15 +56,11 @@
   }
 
   /* 画面切り替えアニメーション */
-  .screen { display: none; padding: 12px; box-sizing: border-box; height: 100%; overflow-y: auto;
-  flex-direction: column; }
-  .screen.active { display: flex; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
+  .screen { display: none; padding: 12px; box-sizing: border-box; height: 100%; overflow-y: auto; flex-direction: column; }
+  .screen.active { display: flex; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes popIn { 
-    from { opacity: 0; transform: scale(0.9) translateY(20px);
-    } 
-    to { opacity: 1; transform: scale(1) translateY(0);
-    } 
+    from { opacity: 0; transform: scale(0.9) translateY(20px); } 
+    to { opacity: 1; transform: scale(1) translateY(0); } 
   }
 
   /* --- タイトル開始画面 --- */
@@ -82,8 +78,7 @@
     animation: bounceLogo 2s infinite ease-in-out;
   }
   @keyframes bounceLogo {
-    0%, 100% { transform: rotate(-5deg) scale(1);
-    }
+    0%, 100% { transform: rotate(-5deg) scale(1); }
     50% { transform: rotate(-5deg) scale(1.05); }
   }
   .game-info {
@@ -97,15 +92,15 @@
     transform: rotate(2deg); line-height: 1.5;
   }
   .tap-to-start {
-    font-size: 22px; color: #ffd32a; font-weight: 900;
+    font-size: 18px; color: #ffd32a; font-weight: 900;
     text-shadow: 2px 2px 0 var(--border-color);
     animation: flashText 1.5s infinite;
-    background: #fff; padding: 12px 24px; border: 4px solid var(--border-color);
+    background: #fff; padding: 12px 20px; border: 4px solid var(--border-color);
     border-radius: 15px; box-shadow: 4px 4px 0 var(--border-color);
+    text-align: center;
   }
   @keyframes flashText {
-    0%, 100% { opacity: 1;
-    }
+    0%, 100% { opacity: 1; }
     50% { opacity: 0.6; }
   }
 
@@ -139,46 +134,37 @@
     margin-bottom: 10px; font-weight: 900;
   }
   .life-area { text-align: right; }
-  .life-icons { letter-spacing: 2px; text-shadow: 1px 1px 0px var(--border-color);
-  }
+  .life-icons { letter-spacing: 2px; text-shadow: 1px 1px 0px var(--border-color); }
   #life-timer { font-size: 11px; color: var(--text-main); background: var(--white); padding: 4px 10px; border-radius: 10px; display: inline-block; margin-top: 4px;
   border: 2px solid var(--border-color); font-weight: 900;}
 
   /* レーダーチャート */
   .chart-container {
-    background: transparent; border: none;
-    box-shadow: none;
+    background: transparent; border: none; box-shadow: none;
     padding: 0px 5px; margin-bottom: 10px; flex-grow: 1;
     display: flex; align-items: center; justify-content: center;
   }
-  canvas { width: 100% !important; max-height: 280px !important;
-  }
+  canvas { width: 100% !important; max-height: 280px !important; }
 
-  /* モード選択に戻るボタン用スタイル */
+  /* モード選択に戻るボタン */
   .btn-back-mode {
-    width: 100%; padding: 10px; margin-bottom: 10px;
-    background: #d2dae2;
+    width: 100%; padding: 10px; margin-bottom: 10px; background: #d2dae2;
     color: var(--text-main); font-weight: 900; font-size: 15px;
     border: 3px solid var(--border-color); border-radius: 12px; cursor: pointer;
-    box-shadow: 0 4px 0px var(--border-color);
-    transition: all 0.1s;
+    box-shadow: 0 4px 0px var(--border-color); transition: all 0.1s;
   }
-  .btn-back-mode:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color);
-  }
+  .btn-back-mode:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); }
 
   /* レベル選択ボタン */
-  .level-select { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px;
-  }
+  .level-select { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
   .level-btn {
     flex: 1; padding: 10px 0; border: 3px solid var(--border-color); border-radius: 12px;
-    background-color: #fff;
-    color: var(--text-main); font-weight: 900; cursor: pointer;
+    background-color: #fff; color: var(--text-main); font-weight: 900; cursor: pointer;
     box-shadow: 0 4px 0px var(--border-color); transition: all 0.1s; font-size: 15px;
   }
   .level-btn.selected {
     background: #4bcffa; color: #fff; text-shadow: 1px 1px 0 var(--border-color);
-    transform: translateY(4px);
-    box-shadow: 0 0px 0 var(--border-color);
+    transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color);
   }
 
   /* メインアクションボタン */
@@ -186,172 +172,130 @@
     width: 100%; padding: 14px;
     border: 3px solid var(--border-color) !important; border-radius: 15px;
     background: linear-gradient(135deg, #ff9ff3 0%, #feca57 100%) !important;
-    color: #fff !important; font-size: 18px;
-    font-weight: 900; margin-bottom: 10px;
+    color: #fff !important; font-size: 18px; font-weight: 900; margin-bottom: 10px;
     cursor: pointer; box-shadow: 0 5px 0px var(--border-color); transition: transform 0.1s, box-shadow 0.1s;
     text-shadow: 2px 2px 0 var(--border-color); font-family: 'M PLUS Rounded 1c', sans-serif;
   }
-  .action-btn:active { transform: translateY(5px);
-  box-shadow: 0 0px 0 var(--border-color); }
+  .action-btn:active { transform: translateY(5px); box-shadow: 0 0px 0 var(--border-color); }
   .action-btn:disabled { background: #d2dae2 !important; box-shadow: 0 5px 0 #808e9b !important;
   border-color: #808e9b !important; text-shadow: none !important; cursor: not-allowed; transform: none; }
 
   /* サブボタン */
-  .share-area { display: flex;
-  justify-content: space-between; gap: 6px; margin-bottom: 10px; }
+  .share-area { display: flex; justify-content: space-between; gap: 6px; margin-bottom: 10px; }
   .share-area button {
-    flex: 1; padding: 8px 4px;
-    border: 3px solid var(--border-color); border-radius: 10px; font-weight: 900;
+    flex: 1; padding: 8px 4px; border: 3px solid var(--border-color); border-radius: 10px; font-weight: 900;
     background: #fff; color: var(--text-main); box-shadow: 0 4px 0px var(--border-color); cursor: pointer;
     transition: all 0.1s; font-size: 13px;
   }
-  .share-area button:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color);
-  }
+  .share-area button:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); }
 
-  .history-link { display: flex; justify-content: space-between; gap: 6px;
-  }
+  .history-link { display: flex; justify-content: space-between; gap: 6px; }
   .history-link button {
     padding: 8px 4px; background-color: #d2dae2; color: var(--text-main); border: 3px solid var(--border-color);
     border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 900; flex: 1;
     box-shadow: 0 4px 0px var(--border-color); transition: all 0.1s;
   }
   .history-link button:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); }
-  .dev-btn { background-color: #ffb822 !important;
-  color: #fff !important; text-shadow: 1px 1px 0 var(--border-color); }
+  .dev-btn { background-color: #ffb822 !important; color: #fff !important; text-shadow: 1px 1px 0 var(--border-color); }
 
   /* --- 回答画面要素 --- */
   .quiz-info {
-    background: #ef5777;
-    color: #fff; text-shadow: 1px 1px 0 var(--border-color);
+    background: #ef5777; color: #fff; text-shadow: 1px 1px 0 var(--border-color);
     border: 3px solid var(--border-color); padding: 10px; text-align: center; border-radius: 12px;
     box-shadow: 4px 4px 0px var(--border-color); margin-bottom: 15px; font-weight: 900; font-size: 15px;
   }
   .timer-bar {
-    width: 100%;
-    height: 16px; background-color: #fff; border-radius: 8px;
+    width: 100%; height: 16px; background-color: #fff; border-radius: 8px;
     border: 3px solid var(--border-color); margin-bottom: 15px; overflow: hidden; box-shadow: 4px 4px 0px var(--border-color);
   }
-  .timer-fill {
-    height: 100%; background: linear-gradient(90deg, #ff3f34 0%, #ffbe76 100%); width: 100%;
-    transition: width 1s linear;
-  }
+  .timer-fill { height: 100%; background: linear-gradient(90deg, #ff3f34 0%, #ffbe76 100%); width: 100%; transition: width 1s linear; }
   .question-area {
     background: #ffffff; color: var(--text-main); text-shadow: none; min-height: 100px;
     padding: 15px; border-radius: 15px; border: 3px solid var(--border-color);
     margin-bottom: 15px; display: flex; align-items: center; justify-content: center;
-    font-size: 17px; text-align: center;
-    font-weight: 900; line-height: 1.5;
+    font-size: 17px; text-align: center; font-weight: 900; line-height: 1.5;
     box-shadow: 4px 4px 0px var(--border-color); flex-grow: 1;
   }
   .choice-btn {
-    width: 100%;
-    padding: 14px; margin-bottom: 10px; border: 3px solid var(--border-color);
+    width: 100%; padding: 14px; margin-bottom: 10px; border: 3px solid var(--border-color);
     background-color: #fff; cursor: pointer; font-size: 15px; text-align: center; border-radius: 12px; font-weight: 900;
     color: var(--text-main); box-shadow: 0 4px 0px var(--border-color); transition: transform 0.1s, background 0.2s;
     font-family: 'M PLUS Rounded 1c', sans-serif;
   }
-  .choice-btn:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); background-color: #f1f2f6;
-  }
+  .choice-btn:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); background-color: #f1f2f6; }
   
   /* --- 履歴・統計・称号画面リスト --- */
   .custom-list {
-    background: var(--white); overflow-y: auto;
-    margin-bottom: 15px; flex-grow: 1;
+    background: var(--white); overflow-y: auto; margin-bottom: 15px; flex-grow: 1;
     padding: 15px; border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color);
   }
   .custom-list::-webkit-scrollbar { width: 8px; }
-  .custom-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px;
-  }
+  .custom-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 
-  /* 統計エリア */
   .stats-container {
     background: var(--white); flex-grow: 1; overflow-y: auto; margin-bottom: 15px;
     padding: 15px; border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color); font-size: 14px; font-weight: 900;
   }
   .stats-container::-webkit-scrollbar { width: 8px; }
   .stats-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-  .stats-section { margin-bottom: 15px;
-  }
+  .stats-section { margin-bottom: 15px; }
   .stats-section:last-child { margin-bottom: 0; }
   .stats-section-title { color: var(--white); background: #3c40c6; display: inline-block; padding: 4px 10px;
     border-radius: 8px; margin-bottom: 10px; border: 2px solid var(--border-color); font-size: 15px;}
-  .stats-row { display: flex; justify-content: space-between; padding: 6px 0;
-    color: var(--text-main); border-bottom: 2px dashed #d2dae2; }
+  .stats-row { display: flex; justify-content: space-between; padding: 6px 0; color: var(--text-main); border-bottom: 2px dashed #d2dae2; }
 
-  /* 履歴リストアイテム */
-  .history-item { padding: 12px 10px;
-    border-bottom: 3px dashed #d2dae2; font-weight: 900; }
+  .history-item { padding: 12px 10px; border-bottom: 3px dashed #d2dae2; font-weight: 900; }
   .history-item:last-child { border-bottom: none; }
-  .history-item.correct { color: #05c46b;
-    text-shadow: 1px 1px 0px rgba(0,0,0,0.1); }
-  .history-item.incorrect { color: #ff3f34; text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
-  }
+  .history-item.correct { color: #05c46b; text-shadow: 1px 1px 0px rgba(0,0,0,0.1); }
+  .history-item.incorrect { color: #ff3f34; text-shadow: 1px 1px 0px rgba(0,0,0,0.1); }
 
-  /* 称号アイテム */
   .title-item {
     border: 3px solid var(--border-color); padding: 12px; display: flex;
-    justify-content: space-between;
-    align-items: center; background-color: #fff; margin-bottom: 12px; border-radius: 12px; box-shadow: 2px 2px 0px var(--border-color);
+    justify-content: space-between; align-items: center; background-color: #fff; margin-bottom: 12px; border-radius: 12px; box-shadow: 2px 2px 0px var(--border-color);
   }
   .title-item.locked { background: #d2dae2; box-shadow: none; border-color: #808e9b; color: #808e9b;}
-  .title-info { flex: 1; margin-right: 10px;
-  }
+  .title-info { flex: 1; margin-right: 10px; }
   .title-name { font-weight: 900; font-size: 15px; margin-bottom: 4px; color: #3c40c6; }
-  .title-item.locked .title-name { color: #808e9b;
-  }
+  .title-item.locked .title-name { color: #808e9b; }
   .title-desc { font-size: 12px; color: #575fcf; font-weight: 900; }
-  .title-item.locked .title-desc { color: #808e9b;
-  }
+  .title-item.locked .title-desc { color: #808e9b; }
   
   .title-btn {
     padding: 8px 12px; background: #0fb9b1; border: 3px solid var(--border-color); color: #fff;
     border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 900;
-    box-shadow: 0 3px 0px var(--border-color); transition: all 0.1s;
-    text-shadow: 1px 1px 0 var(--border-color);
+    box-shadow: 0 3px 0px var(--border-color); transition: all 0.1s; text-shadow: 1px 1px 0 var(--border-color);
   }
-  .title-btn:active { transform: translateY(3px); box-shadow: 0 0px 0 var(--border-color);
-  }
+  .title-btn:active { transform: translateY(3px); box-shadow: 0 0px 0 var(--border-color); }
   .title-btn.current { background: #ffdd59; color: var(--text-main); text-shadow: none; }
-  .title-btn:disabled { background: #808e9b; color: #d2dae2; border-color: #808e9b;
-    box-shadow: none; cursor: not-allowed; transform: none; text-shadow: none;}
+  .title-btn:disabled { background: #808e9b; color: #d2dae2; border-color: #808e9b; box-shadow: none; cursor: not-allowed; transform: none; text-shadow: none;}
 
   /* --- 称号獲得通知モーダル --- */
   .modal-overlay {
-    display: none;
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(47, 53, 66, 0.8); z-index: 100; justify-content: center;
-    align-items: center; padding: 20px; box-sizing: border-box;
+    display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(47, 53, 66, 0.8); z-index: 100; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;
   }
-  .modal-overlay.active { display: flex; animation: fadeInModal 0.3s ease;
-  }
+  .modal-overlay.active { display: flex; animation: fadeInModal 0.3s ease; }
   .modal-content {
     background: radial-gradient(circle, #ffffff 0%, #fff2cc 100%); padding: 20px; border-radius: 20px; width: 100%;
     max-height: 80vh; overflow-y: auto; border: 4px solid var(--border-color); box-shadow: 8px 8px 0px var(--border-color);
-    text-align: center;
-    animation: popModal 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-align: center; animation: popModal 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
   .modal-content::-webkit-scrollbar { width: 6px; }
-  .modal-content::-webkit-scrollbar-thumb { background: var(--border-color);
-    border-radius: 3px; }
-  @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1;
-  } }
-  @keyframes popModal { from { transform: scale(0.5) rotate(-10deg); } to { transform: scale(1) rotate(0deg);
-  } }
+  .modal-content::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+  @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes popModal { from { transform: scale(0.5) rotate(-10deg); } to { transform: scale(1) rotate(0deg); } }
   
   .modal-title {
     color: #ff4757; text-shadow: 2px 2px 0px var(--border-color); font-size: 26px;
     margin-top: 0; margin-bottom: 20px; font-weight: 900; animation: flashText 1.5s infinite;
   }
   .new-title-item {
-    background: #fff;
-    border: 3px solid var(--border-color); border-radius: 15px;
+    background: #fff; border: 3px solid var(--border-color); border-radius: 15px;
     padding: 15px; margin-bottom: 15px; box-shadow: 4px 4px 0px var(--border-color);
   }
   .new-title-label { font-size: 12px; color: #ff4757; font-weight: 900; margin-bottom: 5px; }
-  .new-title-name { font-size: 20px; color: #3c40c6;
-    font-weight: 900; margin-bottom: 8px; }
-  .new-title-desc { font-size: 13px; color: var(--text-main); font-weight: 900;
-  }
+  .new-title-name { font-size: 20px; color: #3c40c6; font-weight: 900; margin-bottom: 8px; }
+  .new-title-desc { font-size: 13px; color: var(--text-main); font-weight: 900; }
 </style>
 </head>
 <body>
@@ -371,7 +315,6 @@
       <div>
         <div style="font-size:14px;">総回答数 <span id="total-answers" style="color:#ff3f34; font-size:18px; text-shadow: 1px 1px 0 #fff;">0</span> 問</div>
         <div style="font-size:12px; margin-top:2px; color:var(--text-main);">総獲得pt <span id="total-points" style="color:#ffa502; font-size:16px; text-shadow: 1px 1px 0 #fff;">0</span> pt</div>
-    
       </div>
       <div class="life-area">
         <div class="life-icons" id="life-icons">💙💙💙💙💙</div>
@@ -405,8 +348,7 @@
   </div>
 
   <div id="quiz-screen" class="screen">
-    <div class="header">🌟 世代別 🌟 <span style="float:right;
-    font-size:14px; margin-top:2px;" id="quiz-level-display">Lv1</span></div>
+    <div class="header">🌟 世代別 🌟 <span style="float:right; font-size:14px; margin-top:2px;" id="quiz-level-display">Lv1</span></div>
     <div class="quiz-info" id="quiz-genre">出題アニメ名 / 世代</div>
     <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
     <div class="question-area" id="quiz-text">問題文</div>
@@ -427,8 +369,7 @@
   
   <div id="title-unlock-modal" class="modal-overlay">
     <div class="modal-content">
-      <h2 class="modal-title">🎉 新称号 
-      獲得!! 🎉</h2>
+      <h2 class="modal-title">🎉 新称号 獲得!! 🎉</h2>
       <div id="unlocked-titles-container"></div>
       <button class="action-btn" style="margin-bottom:0;" onclick="closeTitleModal()">OK!</button>
     </div>
@@ -437,7 +378,7 @@
 </div>
 
 <script>
-  // --- 効果音システム (Web Audio API) ---
+  // --- 効果音システム ---
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   let audioCtx;
 
@@ -462,14 +403,11 @@
   function playClick() { initAudio(); playTone(800, 'sine', 0.05, 0.05); }
   function playCorrectSound() {
     initAudio();
-    playTone(523.25, 'sine', 0.1, 0.1); 
-    setTimeout(() => playTone(659.25, 'sine', 0.1, 0.1), 100);
-    setTimeout(() => playTone(783.99, 'sine', 0.3, 0.1), 200); 
+    playTone(523.25, 'sine', 0.1, 0.1); setTimeout(() => playTone(659.25, 'sine', 0.1, 0.1), 100); setTimeout(() => playTone(783.99, 'sine', 0.3, 0.1), 200); 
   }
   function playIncorrectSound() {
     initAudio();
-    playTone(200, 'sawtooth', 0.2, 0.1);
-    setTimeout(() => playTone(150, 'sawtooth', 0.4, 0.1), 150);
+    playTone(200, 'sawtooth', 0.2, 0.1); setTimeout(() => playTone(150, 'sawtooth', 0.4, 0.1), 150);
   }
 
   // --- 空の配列を用意 ---
@@ -480,14 +418,33 @@
   // --- 非同期でJSONデータを読み込む処理 ---
   async function loadGameData() {
     try {
-      // generation.json は同じフォルダにあるため変更なし
-      const qRes = await fetch('generation.json');
-      if (!qRes.ok) throw new Error('generation.json が見つかりません');
-      questionsData = await qRes.json();
+      // 1. クイズデータの読み込み（同フォルダ）
+      const qRes = await fetch('./generation.json');
+      if (!qRes.ok) throw new Error(`HTTP ${qRes.status}`);
+      let rawQuestions = await qRes.json();
 
-      // ★ titles.json 取得でエラーになってもゲームは続行する（try...catchで囲む）
+      // ★ 日本語キーで書かれたJSONデータを、システム用の英語キーに自動変換 ★
+      questionsData = rawQuestions.map((q, index) => {
+        let correctIdx = 0;
+        // JSONの中の「回答」の文字列が、「選択肢」配列の何番目かを取得
+        if (q["選択肢"] && q["回答"]) {
+          correctIdx = q["選択肢"].indexOf(q["回答"]);
+          if(correctIdx === -1) correctIdx = 0; // 見つからない時のための安全策
+        }
+        return {
+          id: "gen_" + index, // IDかぶりを防ぐため一意なIDを生成
+          level: q["レベル"],
+          anime: q["アニメ名"],
+          genre: q["年代"],
+          text: q["問題"],
+          choices: q["選択肢"],
+          correctIndex: correctIdx
+        };
+      });
+
+      // 2. 称号データの読み込み（同フォルダ。無ければエラーにならずにスキップ）
       try {
-        const tRes = await fetch('titles.json');
+        const tRes = await fetch('./titles.json');
         if (tRes.ok) {
           const rawTitles = await tRes.json();
           titlesData = rawTitles.map(t => {
@@ -496,16 +453,12 @@
               const maxVal = Math.max(d.stats.showaEarly, d.stats.showaLate, d.stats.heiseiEarly, d.stats.heiseiLate, d.stats.reiwa);
               
               if (t.id === 1) return true;
-              if (t.id >= 2 && t.id <= 10) {
-                const req = [0, 10, 50, 100, 300, 500, 1000, 2000, 5000, 10000][t.id - 1];
-                return earned >= req;
-              }
+              if (t.id >= 2 && t.id <= 10) return earned >= [0, 10, 50, 100, 300, 500, 1000, 2000, 5000, 10000][t.id - 1];
               if (t.id >= 11 && t.id <= 60) {
                 const typeMap = {1: 'showaEarly', 2: 'showaLate', 3: 'heiseiEarly', 4: 'heiseiLate', 5: 'reiwa'};
                 const statName = typeMap[Math.floor((t.id - 11) / 10) + 1];
-                const reqArr = [20, 50, 100, 200, 300, 500, 1000, 2000, 5000];
                 const idx = (t.id - 1) % 10; 
-                if (idx < 9) return (d.stats[statName]) >= reqArr[idx] && maxVal === d.stats[statName];
+                if (idx < 9) return (d.stats[statName]) >= [20, 50, 100, 200, 300, 500, 1000, 2000, 5000][idx] && maxVal === d.stats[statName];
                 else return earned > 0 && (d.stats[statName]) / earned >= 0.8;
               }
               if (t.id >= 61 && t.id <= 80) {
@@ -513,29 +466,19 @@
                 const s = [d.stats.showaEarly, d.stats.showaLate, d.stats.heiseiEarly, d.stats.heiseiLate, d.stats.reiwa].sort((a,b)=>b-a);
                 return (s[0]) >= req && (s[1]) >= req && (s[0] - s[1]) <= 20;
               }
-              if (t.id >= 81 && t.id <= 84) {
-                const req = [50, 100, 300, 1000][t.id - 81];
-                const minVal = Math.min(d.stats.showaEarly, d.stats.showaLate, d.stats.heiseiEarly, d.stats.heiseiLate, d.stats.reiwa);
-                return (minVal) >= req;
-              }
-              if (t.id >= 92 && t.id <= 94) {
-                const req = [100, 500, 1000][t.id - 92];
-                return d.totalAnswers >= req;
-              }
+              if (t.id >= 81 && t.id <= 84) return Math.min(d.stats.showaEarly, d.stats.showaLate, d.stats.heiseiEarly, d.stats.heiseiLate, d.stats.reiwa) >= [50, 100, 300, 1000][t.id - 81];
+              if (t.id >= 92 && t.id <= 94) return d.totalAnswers >= [100, 500, 1000][t.id - 92];
               if (t.id === 95) return d.answeredQuestions.length >= 100;
               return false; 
             };
             return t;
           });
-        } else {
-          console.warn("titles.json の読み込みをスキップしました（準備中）");
-          titlesData = [];
         }
       } catch (titleError) {
-        console.warn("titles.json が見つかりません。称号システムは現在オフです。", titleError);
-        titlesData = [];
+        console.warn("titles.json の読み込みをスキップしました");
       }
 
+      // UIの更新処理
       const uniqueAnimes = new Set(questionsData.map(q => q.anime)).size;
       const totalQuestions = questionsData.length;
       const infoEl = document.getElementById('game-info-text');
@@ -550,8 +493,9 @@
       
       init();
     } catch (error) {
-      console.error("クイズデータの読み込みに失敗しました:", error);
-      document.getElementById('tap-to-start-text').innerText = "通信エラー";
+      console.error(error);
+      document.getElementById('tap-to-start-text').innerText = "エラー: データの形式が間違っています";
+      document.getElementById('tap-to-start-text').style.fontSize = "14px";
     }
   }
 
@@ -729,7 +673,6 @@
     appData.life--; saveData(); updateHomeUI();
     currentQuestion = available[Math.floor(Math.random() * available.length)];
     document.getElementById('quiz-level-display').innerText = `Lv${currentLevel}`;
-    // ※ 世代別なので「ジャンル」プロパティには「昭和前期」などが入る想定
     document.getElementById('quiz-genre').innerText = `【 ${currentQuestion.anime} 】\n${currentQuestion.genre}`;
     document.getElementById('quiz-text').innerText = currentQuestion.text;
     const choicesArea = document.getElementById('choices-area');
@@ -812,7 +755,6 @@
       playCorrectSound();
       btnElement.style.background = '#0be881'; btnElement.style.color = '#fff';
       const pt = currentQuestion.level;
-      // ★ 加算ロジックを世代別に変更
       if(currentQuestion.genre === "昭和前期") appData.stats.showaEarly += pt;
       if(currentQuestion.genre === "昭和後期") appData.stats.showaLate += pt;
       if(currentQuestion.genre === "平成前期") appData.stats.heiseiEarly += pt;
@@ -886,7 +828,7 @@
   // --- 称号システム ---
   function checkTitleUnlocks() {
     let newlyUnlocked = [];
-    if(titlesData.length === 0) return newlyUnlocked; // タイトルが無い場合はスキップ
+    if(titlesData.length === 0) return newlyUnlocked;
 
     titlesData.forEach(t => {
       if (!appData.unlockedTitles.includes(t.id)) {
