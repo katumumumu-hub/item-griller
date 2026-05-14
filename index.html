@@ -332,7 +332,7 @@
       <button onclick="showScreen('history-screen')">📊 データ</button>
     </div>
     
-    <button class="action-btn" style="margin-top: 15px; background: linear-gradient(135deg, #d2dae2 0%, #a4b0be 100%) !important; color: #2f3542 !important; text-shadow: 1px 1px 0 #fff !important; border-color: #808e9b !important; box-shadow: 0 5px 0px #808e9b !important;" onclick="goToModeSelect()">⬅️ モード選択に戻る</button>
+    <button class="action-btn" style="margin-top: 10px; padding: 10px; font-size: 15px; background: linear-gradient(135deg, #d2dae2 0%, #a4b0be 100%) !important; color: #2f3542 !important; text-shadow: 1px 1px 0 #fff !important; border-color: #808e9b !important; box-shadow: 0 4px 0px #808e9b !important;" onclick="goToModeSelect()">⬅️ モード選択に戻る</button>
   </div>
 
   <div id="quiz-screen" class="screen">
@@ -580,7 +580,7 @@
     radarChart = new Chart(ctx, {
       type: 'radar',
       data: {
-        labels: ['アクション', 'ファンタジー', 'SF', '日常', '恋愛'],
+        labels: ['アクション', ['ファンタ', 'ジー'], 'SF', '日常', '恋愛'],
         datasets: [{
           label: 'パラメータ',
           data: [appData.stats.action, appData.stats.fantasy, appData.stats.scifi, appData.stats.sliceOfLife, appData.stats.romance],
@@ -596,6 +596,9 @@
               font: { family: "'M PLUS Rounded 1c', sans-serif", size: 14, weight: '900' }, color: '#2f3542',
               callback: function(value, index) {
                 const stats = [appData.stats.action, appData.stats.fantasy, appData.stats.scifi, appData.stats.sliceOfLife, appData.stats.romance];
+                if (Array.isArray(value)) {
+                  return [...value, stats[index] + ' pt'];
+                }
                 return [value, stats[index] + ' pt'];
               }
             }, 
@@ -768,6 +771,8 @@
       appData.answeredQuestions.push(currentQuestion.id);
       addHistory(true); 
       const newlyUnlocked = checkTitleUnlocks();
+
+      saveData();
       
       setTimeout(() => { 
         updateHomeUI(); 
@@ -783,6 +788,8 @@
       addHistory(false); 
       const newlyUnlocked = checkTitleUnlocks();
       
+      saveData();
+
       setTimeout(() => { 
         updateHomeUI(); 
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
@@ -803,6 +810,8 @@
     addHistory(false, true);
     const newlyUnlocked = checkTitleUnlocks();
     
+    saveData();
+
     setTimeout(() => { 
       updateHomeUI(); 
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
