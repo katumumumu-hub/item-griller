@@ -376,7 +376,7 @@
         <span style="font-size: 14px;">（分野別）</span>
       </button>
       
-      <button class="action-btn" style="padding: 25px 10px; font-size: 20px;" onclick="window.location.href='generation.html'">
+      <button class="action-btn" style="padding: 25px 10px; font-size: 20px;" onclick="window.location.href='generation/generation.html'">
         アニマスクイズ<br>
         <span style="font-size: 14px;">（世代別）</span>
       </button>
@@ -576,18 +576,18 @@
     if(!isDataLoaded) return;
     playClick();
     document.getElementById('title-start-screen').classList.remove('active');
-    // 【変更】ホーム画面ではなくモード選択画面を表示
+    // ホーム画面ではなくモード選択画面を表示
     document.getElementById('mode-select-screen').classList.add('active');
   }
 
-  // 【新規追加】モード選択からホームへ遷移する処理
+  // モード選択からホームへ遷移する処理
   function goToHome() {
     playClick();
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('home-screen').classList.add('active');
   }
 
-  // 【新規追加】ホームからモード選択へ戻る処理
+  // ホームからモード選択へ戻る処理
   function goToModeSelect() {
     playClick();
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
