@@ -63,47 +63,6 @@
     to { opacity: 1; transform: scale(1) translateY(0); } 
   }
 
-  /* --- タイトル開始画面 --- */
-  #title-start-screen {
-    justify-content: center;
-    align-items: center;
-    background: repeating-linear-gradient( -45deg, #ff4757, #ff4757 20px, #ff6b81 20px, #ff6b81 40px );
-    cursor: pointer;
-  }
-  .title-logo {
-    font-size: 50px; color: #fff; font-weight: 900; line-height: 1.2;
-    text-shadow: 4px 4px 0 var(--border-color), -2px -2px 0 var(--border-color), 2px -2px 0 var(--border-color), -2px 2px 0 var(--border-color);
-    margin-bottom: 30px;
-    transform: rotate(-5deg);
-    animation: bounceLogo 2s infinite ease-in-out;
-  }
-  @keyframes bounceLogo {
-    0%, 100% { transform: rotate(-5deg) scale(1); }
-    50% { transform: rotate(-5deg) scale(1.05); }
-  }
-  .game-info {
-    font-size: 16px;
-    color: #fff; font-weight: 900;
-    text-shadow: 2px 2px 0 var(--border-color);
-    margin-bottom: 40px; text-align: center;
-    background: #0be881; padding: 12px 20px;
-    border: 3px solid var(--border-color);
-    border-radius: 12px; box-shadow: 4px 4px 0 var(--border-color);
-    transform: rotate(2deg); line-height: 1.5;
-  }
-  .tap-to-start {
-    font-size: 18px; color: #ffd32a; font-weight: 900;
-    text-shadow: 2px 2px 0 var(--border-color);
-    animation: flashText 1.5s infinite;
-    background: #fff; padding: 12px 20px; border: 4px solid var(--border-color);
-    border-radius: 15px; box-shadow: 4px 4px 0 var(--border-color);
-    text-align: center;
-  }
-  @keyframes flashText {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-  }
-
   /* 共通ヘッダー */
   .header {
     background: repeating-linear-gradient(-45deg, #ff4757, #ff4757 15px, #ff6b81 15px, #ff6b81 30px);
@@ -146,7 +105,7 @@
   }
   canvas { width: 100% !important; max-height: 280px !important; }
 
-  /* モード選択に戻るボタン */
+  /* モード選択に戻るボタン用スタイル */
   .btn-back-mode {
     width: 100%; padding: 10px; margin-bottom: 10px; background: #d2dae2;
     color: var(--text-main); font-weight: 900; font-size: 15px;
@@ -232,6 +191,7 @@
   .custom-list::-webkit-scrollbar { width: 8px; }
   .custom-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 
+  /* 統計エリア */
   .stats-container {
     background: var(--white); flex-grow: 1; overflow-y: auto; margin-bottom: 15px;
     padding: 15px; border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color); font-size: 14px; font-weight: 900;
@@ -244,11 +204,13 @@
     border-radius: 8px; margin-bottom: 10px; border: 2px solid var(--border-color); font-size: 15px;}
   .stats-row { display: flex; justify-content: space-between; padding: 6px 0; color: var(--text-main); border-bottom: 2px dashed #d2dae2; }
 
+  /* 履歴リストアイテム */
   .history-item { padding: 12px 10px; border-bottom: 3px dashed #d2dae2; font-weight: 900; }
   .history-item:last-child { border-bottom: none; }
   .history-item.correct { color: #05c46b; text-shadow: 1px 1px 0px rgba(0,0,0,0.1); }
   .history-item.incorrect { color: #ff3f34; text-shadow: 1px 1px 0px rgba(0,0,0,0.1); }
 
+  /* 称号アイテム */
   .title-item {
     border: 3px solid var(--border-color); padding: 12px; display: flex;
     justify-content: space-between; align-items: center; background-color: #fff; margin-bottom: 12px; border-radius: 12px; box-shadow: 2px 2px 0px var(--border-color);
@@ -302,13 +264,7 @@
 
 <div id="app">
 
-  <div id="title-start-screen" class="screen active" onclick="tapToStart()">
-    <div class="title-logo">🌟 世代別 🌟<br>QUIZ</div>
-    <div class="game-info" id="game-info-text" style="display: none;"></div>
-    <div class="tap-to-start" id="tap-to-start-text">NOW LOADING...</div>
-  </div>
-
-  <div id="home-screen" class="screen">
+  <div id="home-screen" class="screen active">
     <div class="animas-name">あなたの世代称号<br><strong id="animas-title">見習いウォッチャー</strong></div>
     
     <div class="status-bar">
@@ -426,7 +382,6 @@
       // ★ 日本語キーで書かれたJSONデータを、システム用の英語キーに自動変換 ★
       questionsData = rawQuestions.map((q, index) => {
         let correctIdx = 0;
-        // JSONの中の「回答」の文字列が、「選択肢」配列の何番目かを取得
         if (q["選択肢"] && q["回答"]) {
           correctIdx = q["選択肢"].indexOf(q["回答"]);
           if(correctIdx === -1) correctIdx = 0; // 見つからない時のための安全策
@@ -442,9 +397,9 @@
         };
       });
 
-      // 2. 称号データの読み込み（同フォルダ。無ければエラーにならずにスキップ）
+      // 2. 称号データの読み込み（一つ上の階層。無ければエラーにならずにスキップ）
       try {
-        const tRes = await fetch('./titles.json');
+        const tRes = await fetch('../titles.json');
         if (tRes.ok) {
           const rawTitles = await tRes.json();
           titlesData = rawTitles.map(t => {
@@ -478,32 +433,15 @@
         console.warn("titles.json の読み込みをスキップしました");
       }
 
-      // UIの更新処理
-      const uniqueAnimes = new Set(questionsData.map(q => q.anime)).size;
-      const totalQuestions = questionsData.length;
-      const infoEl = document.getElementById('game-info-text');
-      infoEl.innerHTML = `📺 収録アニメ: <span style="color:#ffd32a; font-size:20px; text-shadow:2px 2px 0 #2f3542;">${uniqueAnimes}</span> 作品<br>📝 総問題数: <span style="color:#ffd32a; font-size:20px; text-shadow:2px 2px 0 #2f3542;">${totalQuestions}</span> 問`;
-      infoEl.style.display = 'block';
-
       document.getElementById('start-btn').innerText = "▶ クイズに挑戦！";
       document.getElementById('start-btn').disabled = false;
       
       isDataLoaded = true;
-      document.getElementById('tap-to-start-text').innerText = "TAP TO START!";
-      
       init();
     } catch (error) {
       console.error(error);
-      document.getElementById('tap-to-start-text').innerText = "エラー: データの形式が間違っています";
-      document.getElementById('tap-to-start-text').style.fontSize = "14px";
+      alert("データの形式が間違っているか、読み込みに失敗しました。");
     }
-  }
-
-  function tapToStart() {
-    if(!isDataLoaded) return;
-    playClick();
-    document.getElementById('title-start-screen').classList.remove('active');
-    document.getElementById('home-screen').classList.add('active');
   }
 
   // --- データ保存・初期化 (localStorage) ---
@@ -765,6 +703,9 @@
       addHistory(true);
       const newlyUnlocked = checkTitleUnlocks();
       
+      // ★ 回答ごとに進行状況を保存 ★
+      saveData();
+      
       setTimeout(() => { 
         updateHomeUI(); 
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
@@ -779,6 +720,9 @@
       addHistory(false); 
       const newlyUnlocked = checkTitleUnlocks();
       
+      // ★ 回答ごとに進行状況を保存 ★
+      saveData();
+
       setTimeout(() => { 
         updateHomeUI(); 
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
@@ -797,6 +741,10 @@
     btns[currentQuestion.correctIndex].style.color = '#fff';
     addHistory(false, true);
     const newlyUnlocked = checkTitleUnlocks();
+
+    // ★ 回答ごとに進行状況を保存 ★
+    saveData();
+
     setTimeout(() => { 
       updateHomeUI(); 
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
@@ -807,8 +755,7 @@
 
   // --- 履歴処理 ---
   function addHistory(isCorrect, isTimeout = false) {
-    let resultText = isCorrect ?
-    "🌟 正解！" : (isTimeout ? "⏳ タイムアップ" : "💧 ザンネン...");
+    let resultText = isCorrect ? "🌟 正解！" : (isTimeout ? "⏳ タイムアップ" : "💧 ザンネン...");
     let ptText = isCorrect ? `(+${currentQuestion.level}pt)` : "";
     let className = isCorrect ? "correct" : "incorrect";
     const historyStr = `<div class="history-item ${className}">
@@ -838,6 +785,7 @@
         }
       }
     });
+    // 称号獲得時も保存
     if(newlyUnlocked.length > 0) saveData();
     return newlyUnlocked;
   }
