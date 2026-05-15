@@ -63,6 +63,47 @@
     to { opacity: 1; transform: scale(1) translateY(0); } 
   }
 
+  /* --- タイトル開始画面 --- */
+  #title-start-screen {
+    justify-content: center;
+    align-items: center;
+    background: repeating-linear-gradient( -45deg, #ff4757, #ff4757 20px, #ff6b81 20px, #ff6b81 40px );
+    cursor: pointer;
+  }
+  .title-logo {
+    font-size: 50px; color: #fff; font-weight: 900; line-height: 1.2;
+    text-shadow: 4px 4px 0 var(--border-color), -2px -2px 0 var(--border-color), 2px -2px 0 var(--border-color), -2px 2px 0 var(--border-color);
+    margin-bottom: 30px;
+    transform: rotate(-5deg);
+    animation: bounceLogo 2s infinite ease-in-out;
+  }
+  @keyframes bounceLogo {
+    0%, 100% { transform: rotate(-5deg) scale(1); }
+    50% { transform: rotate(-5deg) scale(1.05); }
+  }
+  .game-info {
+    font-size: 16px;
+    color: #fff; font-weight: 900;
+    text-shadow: 2px 2px 0 var(--border-color);
+    margin-bottom: 40px; text-align: center;
+    background: #0be881; padding: 12px 20px;
+    border: 3px solid var(--border-color);
+    border-radius: 12px; box-shadow: 4px 4px 0 var(--border-color);
+    transform: rotate(2deg); line-height: 1.5;
+  }
+  .tap-to-start {
+    font-size: 18px; color: #ffd32a; font-weight: 900;
+    text-shadow: 2px 2px 0 var(--border-color);
+    animation: flashText 1.5s infinite;
+    background: #fff; padding: 12px 20px; border: 4px solid var(--border-color);
+    border-radius: 15px; box-shadow: 4px 4px 0 var(--border-color);
+    text-align: center;
+  }
+  @keyframes flashText {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
   /* 共通ヘッダー */
   .header {
     background: repeating-linear-gradient(-45deg, #ff4757, #ff4757 15px, #ff6b81 15px, #ff6b81 30px);
@@ -105,7 +146,7 @@
   }
   canvas { width: 100% !important; max-height: 280px !important; }
 
-  /* モード選択に戻るボタン用スタイル */
+  /* モード選択に戻るボタン */
   .btn-back-mode {
     width: 100%; padding: 10px; margin-bottom: 10px; background: #d2dae2;
     color: var(--text-main); font-weight: 900; font-size: 15px;
@@ -610,6 +651,16 @@
 
     appData.life--; saveData(); updateHomeUI();
     currentQuestion = available[Math.floor(Math.random() * available.length)];
+    
+    // ▼ 追加部分：出題ごとに選択肢をランダムにシャッフルする
+    let correctText = currentQuestion.choices[currentQuestion.correctIndex];
+    for (let i = currentQuestion.choices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [currentQuestion.choices[i], currentQuestion.choices[j]] = [currentQuestion.choices[j], currentQuestion.choices[i]];
+    }
+    currentQuestion.correctIndex = currentQuestion.choices.indexOf(correctText);
+    // ▲ 追加部分ここまで
+
     document.getElementById('quiz-level-display').innerText = `Lv${currentLevel}`;
     document.getElementById('quiz-genre').innerText = `【 ${currentQuestion.anime} 】\n${currentQuestion.genre}`;
     document.getElementById('quiz-text').innerText = currentQuestion.text;
@@ -703,7 +754,6 @@
       addHistory(true);
       const newlyUnlocked = checkTitleUnlocks();
       
-      // ★ 回答ごとに進行状況を保存 ★
       saveData();
       
       setTimeout(() => { 
@@ -720,7 +770,6 @@
       addHistory(false); 
       const newlyUnlocked = checkTitleUnlocks();
       
-      // ★ 回答ごとに進行状況を保存 ★
       saveData();
 
       setTimeout(() => { 
@@ -742,7 +791,6 @@
     addHistory(false, true);
     const newlyUnlocked = checkTitleUnlocks();
 
-    // ★ 回答ごとに進行状況を保存 ★
     saveData();
 
     setTimeout(() => { 
@@ -785,7 +833,6 @@
         }
       }
     });
-    // 称号獲得時も保存
     if(newlyUnlocked.length > 0) saveData();
     return newlyUnlocked;
   }
@@ -808,8 +855,7 @@
   }
 
   function showTitleScreen() {
-    playClick();
-    renderTitleList();
+    playClick(); renderTitleList();
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('title-screen').classList.add('active');
   }
