@@ -167,7 +167,6 @@
     box-shadow: 0 4px 0px var(--border-color); transition: all 0.1s;
   }
   .history-link button:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); }
-  .dev-btn { background-color: #ffb822 !important; color: #fff !important; text-shadow: 1px 1px 0 var(--border-color); }
 
   /* --- 回答画面要素 --- */
   .quiz-info {
@@ -324,6 +323,10 @@
     </div>
 
     <button class="action-btn" id="start-btn" onclick="startQuiz()" disabled>データ読み込み中...</button>
+    
+    <button id="ad-recover-btn" class="action-btn" style="display: none; background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%) !important; margin-bottom: 10px;" onclick="watchAdToRecover()">
+      📺 広告を見てライフ全回復！
+    </button>
 
     <div class="share-area">
       <button onclick="shareResult('copy')">📋 コピー</button>
@@ -332,7 +335,6 @@
     </div>
     
     <div class="history-link">
-      <button onclick="recoverLifeDev()" class="dev-btn">🛠 開発:全回復</button>
       <button onclick="showTitleScreen()">🏆 称号</button>
       <button onclick="showScreen('history-screen')">📊 データ</button>
     </div>
@@ -554,11 +556,26 @@
 
   function saveData() { localStorage.setItem('animasData', JSON.stringify(appData)); }
 
-  function recoverLifeDev() {
+  // --- 広告を見て回復する処理（仮組み） ---
+  function watchAdToRecover() {
     playClick();
-    appData.life = 5; appData.lastLifeTime = Date.now();
-    saveData(); updateHomeUI();
-    alert("【開発用】ライフを全回復しました！");
+    
+    const btn = document.getElementById('ad-recover-btn');
+    btn.disabled = true;
+    btn.innerText = "⏳ 広告を再生中..."; 
+
+    // 擬似的な広告再生時間（2秒）
+    setTimeout(() => {
+      appData.life = 5;
+      appData.lastLifeTime = Date.now();
+      saveData();
+      updateHomeUI(); 
+      
+      alert("広告の視聴が完了しました！\nライフが全回復しました！💙");
+      
+      btn.disabled = false;
+      btn.innerText = "📺 広告を見てライフ全回復！";
+    }, 2000); 
   }
 
   // --- シェア機能 ---
@@ -686,6 +703,16 @@
     for(let i=0; i<5; i++) { lifeStr += (i < appData.life) ? "💙" : "🤍"; }
     document.getElementById('life-icons').innerText = lifeStr;
     updateChart(); updateTitleDisplay();
+
+    // ライフが5未満の場合のみ広告ボタンを表示
+    const adBtn = document.getElementById('ad-recover-btn');
+    if (adBtn) {
+      if (appData.life < 5) {
+        adBtn.style.display = 'block';
+      } else {
+        adBtn.style.display = 'none';
+      }
+    }
   }
 
   // --- クイズ開始 ---
