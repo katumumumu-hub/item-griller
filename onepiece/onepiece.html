@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>アニマスクイズ - ワンピースモード</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  /* 全体の超ポップなテーマ設定 */
+  :root {
+    --primary: #ff4757;
+    --secondary: #ff6b81;
+    --accent: #ffa502;
+    --bg-color: #fffdf5;
+    --text-main: #2f3542;
+    --white: #ffffff;
+    --border-color: #2f3542;
+  }
+
+  body {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    background-color: #ffcccc;
+    background-image: radial-gradient(#ff9999 15%, transparent 16%), radial-gradient(#ff9999 15%, transparent 16%);
+    background-size: 30px 30px;
+    background-position: 0 0, 15px 15px;
+    color: var(--text-main);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-weight: 900;
+  }
+
+  #app {
+    width: 100%;
+    max-width: 400px;
+    background-color: var(--bg-color);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    border-left: 4px solid var(--border-color);
+    border-right: 4px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+  }
+  @media (min-width: 401px) {
+    #app { 
+      min-height: 800px;
+      height: 95vh; 
+      border-radius: 24px; 
+      border: 6px solid var(--border-color); 
+      box-shadow: 8px 8px 0px rgba(0,0,0,0.15);
+    }
+  }
+
+  /* 画面切り替えアニメーション */
+  .screen { display: none; padding: 12px; box-sizing: border-box; height: 100%; overflow-y: auto; flex-direction: column; }
+  .screen.active { display: flex; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  @keyframes popIn { 
+    from { opacity: 0; transform: scale(0.9) translateY(20px); } 
+    to { opacity: 1; transform: scale(1) translateY(0); } 
+  }
+
+  /* 共通ヘッダー */
+  .header {
+    background: repeating-linear-gradient(-45deg, #ff4757, #ff4757 15px, #ff6b81 15px, #ff6b81 30px);
+    color: var(--white); text-align: center; padding: 10px; border-radius: 12px; margin-bottom: 12px;
+    font-weight: 900; font-size: 20px; border: 3px solid var(--border-color);
+    box-shadow: 4px 4px 0px var(--border-color);
+    text-shadow: 2px 2px 0 var(--border-color), -2px -2px 0 var(--border-color), 2px -2px 0 var(--border-color), -2px 2px 0 var(--border-color);
+    letter-spacing: 2px;
+  }
+  
+  /* ホーム画面のアニマス名表示 */
+  .animas-name {
+    text-align: center; padding: 10px;
+    background-color: #ffd32a;
+    border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color);
+    margin-bottom: 10px; font-size: 13px; color: var(--border-color);
+  }
+  #animas-title {
+    font-size: 22px; color: #ff3f34; display: block; margin-top: 2px; text-shadow: 2px 2px 0 var(--white);
+  }
+
+  /* ステータスバー */
+  .status-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #0be881;
+    padding: 8px 12px; border-radius: 12px;
+    border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color);
+    margin-bottom: 10px; font-weight: 900;
+  }
+  .life-area { text-align: right; }
+  .life-icons { letter-spacing: 2px; text-shadow: 1px 1px 0px var(--border-color); }
+  #life-timer { font-size: 11px; color: var(--text-main); background: var(--white); padding: 4px 10px; border-radius: 10px; display: inline-block; margin-top: 4px;
+  border: 2px solid var(--border-color); font-weight: 900;}
+
+  /* 棒グラフ用のコンテナ */
+  .chart-container {
+    background: transparent; border: none; box-shadow: none;
+    padding: 0px 5px; margin-bottom: 10px; flex-grow: 1; min-height: 250px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  canvas { width: 100% !important; height: 100% !important; max-height: none !important; }
+
+  /* モード選択に戻るボタン */
+  .btn-back-mode {
+    width: 100%; padding: 10px; margin-bottom: 10px; background: #d2dae2;
+    color: var(--text-main); font-weight: 900; font-size: 15px;
+    border: 3px solid var(--border-color); border-radius: 12px; cursor: pointer;
+    box-shadow: 0 4px 0px var(--border-color); transition: all 0.1s;
+  }
+  .btn-back-mode:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); }
+
+  /* メインアクションボタン */
+  .action-btn {
+    width: 100%; padding: 14px;
+    border: 3px solid var(--border-color) !important; border-radius: 15px;
+    background: linear-gradient(135deg, #ff9ff3 0%, #feca57 100%) !important;
+    color: #fff !important; font-size: 18px; font-weight: 900; margin-bottom: 10px;
+    cursor: pointer; box-shadow: 0 5px 0px var(--border-color); transition: transform 0.1s, box-shadow 0.1s;
+    text-shadow: 2px 2px 0 var(--border-color); font-family: 'M PLUS Rounded 1c', sans-serif;
+  }
+  .action-btn:active { transform: translateY(5px); box-shadow: 0 0px 0 var(--border-color); }
+  .action-btn:disabled { background: #d2dae2 !important; box-shadow: 0 5px 0 #808e9b !important;
+  border-color: #808e9b !important; text-shadow: none !important; cursor: not-allowed; transform: none; }
+
+  /* サブボタン */
+  .share-area { display: flex; justify-content: space-between; gap: 6px; margin-bottom: 10px; }
+  .share-area button {
+    flex: 1; padding: 8px 4px; border: 3px solid var(--border-color); border-radius: 10px; font-weight: 900;
+    background: #fff; color: var(--text-main); box-shadow: 0 4px 0px var(--border-color); cursor: pointer;
+    transition: all 0.1s; font-size: 13px;
+  }
+  .share-area button:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); }
+
+  .history-link { display: flex; justify-content: space-between; gap: 6px; }
+  .history-link button {
+    padding: 8px 4px; background-color: #d2dae2; color: var(--text-main); border: 3px solid var(--border-color);
+    border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 900; flex: 1;
+    box-shadow: 0 4px 0px var(--border-color); transition: all 0.1s;
+  }
+  .history-link button:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); }
+  .dev-btn { background-color: #ffb822 !important; color: #fff !important; text-shadow: 1px 1px 0 var(--border-color); }
+
+  /* --- 回答画面要素 --- */
+  .quiz-info {
+    background: #ef5777; color: #fff; text-shadow: 1px 1px 0 var(--border-color);
+    border: 3px solid var(--border-color); padding: 10px; text-align: center; border-radius: 12px;
+    box-shadow: 4px 4px 0px var(--border-color); margin-bottom: 15px; font-weight: 900; font-size: 15px;
+  }
+  .timer-bar {
+    width: 100%; height: 16px; background-color: #fff; border-radius: 8px;
+    border: 3px solid var(--border-color); margin-bottom: 15px; overflow: hidden; box-shadow: 4px 4px 0px var(--border-color);
+  }
+  .timer-fill { height: 100%; background: linear-gradient(90deg, #ff3f34 0%, #ffbe76 100%); width: 100%; transition: width 1s linear; }
+  .question-area {
+    background: #ffffff; color: var(--text-main); text-shadow: none; min-height: 100px;
+    padding: 15px; border-radius: 15px; border: 3px solid var(--border-color);
+    margin-bottom: 15px; display: flex; align-items: center; justify-content: center;
+    font-size: 17px; text-align: center; font-weight: 900; line-height: 1.5;
+    box-shadow: 4px 4px 0px var(--border-color); flex-grow: 1;
+  }
+  .choice-btn {
+    width: 100%; padding: 14px; margin-bottom: 10px; border: 3px solid var(--border-color);
+    background-color: #fff; cursor: pointer; font-size: 15px; text-align: center; border-radius: 12px; font-weight: 900;
+    color: var(--text-main); box-shadow: 0 4px 0px var(--border-color); transition: transform 0.1s, background 0.2s;
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+  }
+  .choice-btn:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); background-color: #f1f2f6; }
+  
+  /* --- 履歴・統計・称号画面リスト --- */
+  .custom-list {
+    background: var(--white); overflow-y: auto; margin-bottom: 15px; flex-grow: 1;
+    padding: 15px; border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color);
+  }
+  .custom-list::-webkit-scrollbar { width: 8px; }
+  .custom-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+
+  .stats-container {
+    background: var(--white); flex-grow: 1; overflow-y: auto; margin-bottom: 15px;
+    padding: 15px; border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color); font-size: 14px; font-weight: 900;
+  }
+  .stats-container::-webkit-scrollbar { width: 8px; }
+  .stats-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+  .stats-section { margin-bottom: 15px; }
+  .stats-section:last-child { margin-bottom: 0; }
+  .stats-section-title { color: var(--white); background: #3c40c6; display: inline-block; padding: 4px 10px;
+    border-radius: 8px; margin-bottom: 10px; border: 2px solid var(--border-color); font-size: 15px;}
+  .stats-row { display: flex; justify-content: space-between; padding: 6px 0; color: var(--text-main); border-bottom: 2px dashed #d2dae2; }
+
+  .history-item { padding: 12px 10px; border-bottom: 3px dashed #d2dae2; font-weight: 900; }
+  .history-item:last-child { border-bottom: none; }
+  .history-item.correct { color: #05c46b; text-shadow: 1px 1px 0px rgba(0,0,0,0.1); }
+  .history-item.incorrect { color: #ff3f34; text-shadow: 1px 1px 0px rgba(0,0,0,0.1); }
+
+  .title-item {
+    border: 3px solid var(--border-color); padding: 12px; display: flex;
+    justify-content: space-between; align-items: center; background-color: #fff; margin-bottom: 12px; border-radius: 12px; box-shadow: 2px 2px 0px var(--border-color);
+  }
+  .title-item.locked { background: #d2dae2; box-shadow: none; border-color: #808e9b; color: #808e9b;}
+  .title-info { flex: 1; margin-right: 10px; }
+  .title-name { font-weight: 900; font-size: 15px; margin-bottom: 4px; color: #3c40c6; }
+  .title-item.locked .title-name { color: #808e9b; }
+  .title-desc { font-size: 12px; color: #575fcf; font-weight: 900; }
+  .title-item.locked .title-desc { color: #808e9b; }
+  
+  .title-btn {
+    padding: 8px 12px; background: #0fb9b1; border: 3px solid var(--border-color); color: #fff;
+    border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 900;
+    box-shadow: 0 3px 0px var(--border-color); transition: all 0.1s; text-shadow: 1px 1px 0 var(--border-color);
+  }
+  .title-btn:active { transform: translateY(3px); box-shadow: 0 0px 0 var(--border-color); }
+  .title-btn.current { background: #ffdd59; color: var(--text-main); text-shadow: none; }
+  .title-btn:disabled { background: #808e9b; color: #d2dae2; border-color: #808e9b; box-shadow: none; cursor: not-allowed; transform: none; text-shadow: none;}
+
+  /* --- 称号獲得通知モーダル --- */
+  .modal-overlay {
+    display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(47, 53, 66, 0.8); z-index: 100; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;
+  }
+  .modal-overlay.active { display: flex; animation: fadeInModal 0.3s ease; }
+  .modal-content {
+    background: radial-gradient(circle, #ffffff 0%, #fff2cc 100%); padding: 20px; border-radius: 20px; width: 100%;
+    max-height: 80vh; overflow-y: auto; border: 4px solid var(--border-color); box-shadow: 8px 8px 0px var(--border-color);
+    text-align: center; animation: popModal 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .modal-content::-webkit-scrollbar { width: 6px; }
+  .modal-content::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+  @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes popModal { from { transform: scale(0.5) rotate(-10deg); } to { transform: scale(1) rotate(0deg); } }
+  
+  .modal-title {
+    color: #ff4757; text-shadow: 2px 2px 0px var(--border-color); font-size: 26px;
+    margin-top: 0; margin-bottom: 20px; font-weight: 900; animation: flashText 1.5s infinite;
+  }
+  .new-title-item {
+    background: #fff; border: 3px solid var(--border-color); border-radius: 15px;
+    padding: 15px; margin-bottom: 15px; box-shadow: 4px 4px 0px var(--border-color);
+  }
+  .new-title-label { font-size: 12px; color: #ff4757; font-weight: 900; margin-bottom: 5px; }
+  .new-title-name { font-size: 20px; color: #3c40c6; font-weight: 900; margin-bottom: 8px; }
+  .new-title-desc { font-size: 13px; color: var(--text-main); font-weight: 900; }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <div id="home-screen" class="screen active">
+    <div class="animas-name">あなたの海賊称号<br><strong id="animas-title">見習いウォッチャー</strong></div>
+    
+    <div class="status-bar">
+      <div>
+        <div style="font-size:14px;">総回答数 <span id="total-answers" style="color:#ff3f34; font-size:18px; text-shadow: 1px 1px 0 #fff;">0</span> 問</div>
+        <div style="font-size:12px; margin-top:2px; color:var(--text-main);">総獲得pt <span id="total-points" style="color:#ffa502; font-size:16px; text-shadow: 1px 1px 0 #fff;">0</span> pt</div>
+        <div style="font-size:12px; margin-top:2px; color:var(--text-main);">正解率 <span id="correct-rate" style="color:#0be881; font-size:16px; text-shadow: 1px 1px 0 #fff;">0</span> %</div>
+      </div>
+      <div class="life-area">
+        <div class="life-icons" id="life-icons">💙💙💙💙💙</div>
+        <div id="life-timer">MAX</div>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="barChart"></canvas>
+    </div>
+
+    <button class="btn-back-mode" onclick="window.location.href='../index.html'">🔙 モード選択に戻る</button>
+
+    <button class="action-btn" id="start-btn" onclick="startQuiz()" disabled>データ読み込み中...</button>
+
+    <div class="share-area">
+      <button onclick="shareResult('copy')">📋 コピー</button>
+      <button onclick="shareResult('line')" style="color:#05c46b;">💬 LINE</button>
+      <button onclick="shareResult('x')" style="color:var(--text-main);">𝕏 Post</button>
+    </div>
+    
+    <div class="history-link">
+      <button onclick="recoverLifeDev()" class="dev-btn">🛠 開発:全回復</button>
+      <button onclick="showTitleScreen()">🏆 称号</button>
+      <button onclick="showScreen('history-screen')">📊 データ</button>
+    </div>
+  </div>
+
+  <div id="quiz-screen" class="screen">
+    <div class="header">🌟 ワンピース 🌟 <span style="float:right; font-size:14px; margin-top:2px;" id="quiz-level-display">Lv1</span></div>
+    <div class="quiz-info" id="quiz-genre">【 ワンピース 】<br>〇〇編</div>
+    <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
+    <div class="question-area" id="quiz-text">問題文</div>
+    <div id="choices-area"></div>
+  </div>
+
+  <div id="history-screen" class="screen">
+    <div class="header">📊 データ</div>
+    <div class="stats-container" id="stats-area"></div>
+    <button class="action-btn" onclick="showScreen('home-screen')">🏠 ホームに戻る</button>
+  </div>
+
+  <div id="title-screen" class="screen">
+    <div class="header">🏆 称号コレクション</div>
+    <div class="custom-list" id="title-list"></div>
+    <button class="action-btn" onclick="showScreen('home-screen')">🏠 ホームに戻る</button>
+  </div>
+  
+  <div id="title-unlock-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h2 class="modal-title">🎉 新称号 獲得!! 🎉</h2>
+      <div id="unlocked-titles-container"></div>
+      <button class="action-btn" style="margin-bottom:0;" onclick="closeTitleModal()">OK!</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // --- 効果音システム ---
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  let audioCtx;
+
+  function initAudio() {
+    if (!audioCtx) audioCtx = new AudioContext();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  function playTone(freq, type, duration, vol=0.1) {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  }
+
+  function playClick() { initAudio(); playTone(800, 'sine', 0.05, 0.05); }
+  function playCorrectSound() {
+    initAudio();
+    playTone(523.25, 'sine', 0.1, 0.1); setTimeout(() => playTone(659.25, 'sine', 0.1, 0.1), 100); setTimeout(() => playTone(783.99, 'sine', 0.3, 0.1), 200); 
+  }
+  function playIncorrectSound() {
+    initAudio();
+    playTone(200, 'sawtooth', 0.2, 0.1); setTimeout(() => playTone(150, 'sawtooth', 0.4, 0.1), 150);
+  }
+
+  // --- 空の配列を用意 ---
+  let questionsData = [];
+  let titlesData = [];
+  let isDataLoaded = false;
+
+  // --- 非同期でJSONデータを読み込む処理 ---
+  async function loadGameData() {
+    try {
+      // 1. クイズデータの読み込み（同フォルダ）
+      const qRes = await fetch('./onepiece.json');
+      if (!qRes.ok) throw new Error(`HTTP ${qRes.status}`);
+      let rawQuestions = await qRes.json();
+
+      questionsData = rawQuestions.map((q, index) => {
+        let correctIdx = 0;
+        if (q["選択肢"] && q["回答"]) {
+          correctIdx = q["選択肢"].indexOf(q["回答"]);
+          if(correctIdx === -1) correctIdx = 0;
+        } else if (q.choices && q.correctIndex !== undefined) {
+          correctIdx = q.correctIndex;
+        }
+        
+        let genreStr = q["編"] || q.genre || "不明な編";
+
+        return {
+          id: "op_" + index,
+          level: q["レベル"] || q.level || 1,
+          anime: "ワンピース",
+          genre: genreStr,
+          text: q["問題"] || q.text,
+          choices: q["選択肢"] || q.choices,
+          correctIndex: correctIdx
+        };
+      });
+
+      // 〇〇編の一覧を取得し、statsに存在しない場合は初期化
+      const allArcs = [...new Set(questionsData.map(q => q.genre))];
+      allArcs.forEach(arc => {
+        if (appData.stats[arc] === undefined) {
+          appData.stats[arc] = 0;
+        }
+      });
+
+      // 2. 称号データの読み込み（同フォルダ。無ければエラーにならずにスキップ）
+      try {
+        const tRes = await fetch('./titles.json');
+        if (tRes.ok) {
+          const rawTitles = await tRes.json();
+          titlesData = rawTitles.map(t => {
+            t.check = function(d) {
+              let earned = 0;
+              Object.values(d.stats).forEach(v => earned += v);
+              if (t.id === 1) return true;
+              if (t.id >= 2 && t.id <= 10) return earned >= [0, 10, 50, 100, 300, 500, 1000, 2000, 5000, 10000][t.id - 1];
+              return false; // 他の条件は後でJSONに追加される想定
+            };
+            return t;
+          });
+        }
+      } catch (titleError) {
+        console.warn("titles.json の読み込みをスキップしました");
+      }
+
+      document.getElementById('start-btn').innerText = "▶ クイズに挑戦！";
+      document.getElementById('start-btn').disabled = false;
+      
+      isDataLoaded = true;
+      init();
+    } catch (error) {
+      console.error(error);
+      alert("データの読み込みに失敗しました。onepiece.jsonが存在するか確認してください。");
+    }
+  }
+
+  // --- データ保存・初期化 (localStorage) ---
+  const DEFAULT_DATA = {
+    life: 5, lastLifeTime: Date.now(),
+    stats: {}, // 動的に〇〇編のポイントを入れる
+    answeredQuestions: [], totalAnswers: 0, totalCorrects: 0, history: [],
+    unlockedTitles: [1], currentTitleId: 1,
+    statistics: { arc: {}, level: {} }
+  };
+  let appData = JSON.parse(localStorage.getItem('animasOnepieceData')) || DEFAULT_DATA;
+  if (!appData.unlockedTitles) appData.unlockedTitles = [1];
+  if (!appData.currentTitleId) appData.currentTitleId = 1;
+  if (!appData.statistics) appData.statistics = { arc: {}, level: {} };
+  if (!appData.stats) appData.stats = {};
+  if (appData.totalCorrects === undefined) appData.totalCorrects = 0;
+  
+  // 状態管理
+  let isAnswering = false;
+  let timerInterval; let timeLeft = 10;
+  let currentQuestion = null; let barChart;
+  
+  function init() {
+    initChart(); checkTitleUnlocks(); updateHomeUI(); renderHistory(); setInterval(checkLifeRecovery, 1000);
+  }
+
+  function saveData() { localStorage.setItem('animasOnepieceData', JSON.stringify(appData)); }
+
+  function recoverLifeDev() {
+    playClick(); appData.life = 5;
+    appData.lastLifeTime = Date.now();
+    saveData(); updateHomeUI(); alert("【開発用】ライフを全回復しました！");
+  }
+
+  // --- シェア機能 ---
+  function getShareText() {
+    const t = titlesData.find(x => x.id === appData.currentTitleId);
+    const titleName = t ? t.title : "見習いウォッチャー";
+    let earnedPts = 0;
+    Object.values(appData.stats).forEach(v => earnedPts += v);
+    const rate = appData.totalAnswers > 0 ? Math.floor((appData.totalCorrects / appData.totalAnswers) * 100) : 0;
+    
+    let text = `私のワンピース称号は「${titleName}」です！✨\n`;
+    text += `総獲得pt: ${earnedPts}pt (正解率: ${rate}%)\n\n`;
+    text += `#アニマスワンピース #アニメクイズ`;
+    
+    return text;
+  }
+
+  function shareResult(type) {
+    playClick();
+    const text = getShareText();
+    if (type === 'copy') {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => { alert("コピーしました！\nSNSなどに貼り付けてシェアしてください。"); }).catch(err => { alert("コピーに失敗しました。"); });
+      } else { alert("サポートされていません。"); }
+    } else if (type === 'line') {
+      window.open(`https://line.me/R/msg/text/?${encodeURIComponent(text)}`, '_blank');
+    } else if (type === 'x') {
+      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+    }
+  }
+
+  // --- 棒グラフ（横） ---
+  function initChart() {
+    const ctx = document.getElementById('barChart').getContext('2d');
+    
+    let labels = Object.keys(appData.stats);
+    let data = Object.values(appData.stats);
+    
+    if (labels.length === 0) {
+      labels = ['データなし'];
+      data = [0];
+    }
+
+    barChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: '獲得ポイント',
+          data: data,
+          backgroundColor: 'rgba(255, 165, 2, 0.7)',
+          borderColor: 'rgb(255, 165, 2)',
+          borderWidth: 2,
+          borderRadius: 4
+        }]
+      },
+      options: { 
+        indexAxis: 'y',
+        maintainAspectRatio: false,
+        scales: { 
+          x: { 
+            beginAtZero: true, 
+            ticks: { precision: 0 } 
+          },
+          y: { 
+            ticks: { font: { family: "'M PLUS Rounded 1c', sans-serif", weight: '900', size: 12 }, color: '#2f3542' } 
+          }
+        },
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
+
+  function updateChart() {
+    if (Object.keys(appData.stats).length > 0) {
+      barChart.data.labels = Object.keys(appData.stats);
+      barChart.data.datasets[0].data = Object.values(appData.stats);
+    }
+    barChart.update();
+  }
+
+  // --- ライフ回復ロジック ---
+  function checkLifeRecovery() {
+    const RECOVERY_MS = 10 * 60 * 1000;
+    if (appData.life >= 5) {
+      appData.lastLifeTime = Date.now();
+      document.getElementById('life-timer').innerText = "MAX";
+      saveData(); return;
+    }
+    const diff = Date.now() - appData.lastLifeTime;
+    if (diff >= RECOVERY_MS) {
+      const recovered = Math.floor(diff / RECOVERY_MS);
+      appData.life = Math.min(5, appData.life + recovered);
+      appData.lastLifeTime += recovered * RECOVERY_MS;
+      saveData(); updateHomeUI();
+    } else {
+      const remainMs = RECOVERY_MS - diff;
+      const remainMin = Math.floor(remainMs / (60 * 1000));
+      const remainSec = Math.floor((remainMs % (60 * 1000)) / 1000);
+      document.getElementById('life-timer').innerText = `あと ${String(remainMin).padStart(2, '0')}:${String(remainSec).padStart(2, '0')}`;
+    }
+  }
+
+  // --- 画面遷移とUI更新 ---
+  function showScreen(screenId) {
+    playClick();
+    if (screenId === 'history-screen') renderStatistics();
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+  }
+
+  function updateTitleDisplay() {
+    const t = titlesData.find(x => x.id === appData.currentTitleId);
+    document.getElementById('animas-title').innerText = t ? t.title : "見習いウォッチャー";
+  }
+
+  function updateHomeUI() {
+    document.getElementById('total-answers').innerText = appData.totalAnswers;
+    
+    let earnedPts = 0;
+    Object.values(appData.stats).forEach(v => earnedPts += v);
+    document.getElementById('total-points').innerText = earnedPts;
+    
+    const rate = appData.totalAnswers > 0 ? Math.floor((appData.totalCorrects / appData.totalAnswers) * 100) : 0;
+    document.getElementById('correct-rate').innerText = rate;
+
+    let lifeStr = "";
+    for(let i=0; i<5; i++) { lifeStr += (i < appData.life) ? "💙" : "🤍"; }
+    document.getElementById('life-icons').innerText = lifeStr;
+    updateChart(); updateTitleDisplay();
+  }
+
+  // --- クイズ開始 ---
+  function startQuiz() {
+    playClick();
+    if (appData.life <= 0) { alert("ライフが回復するまでお待ちください！"); return; }
+    
+    // レベルに関係なく、全問題から未回答のものを抽出
+    const available = questionsData.filter(q => !appData.answeredQuestions.includes(q.id));
+    if (available.length === 0) { alert("全ての問題をクリアしました！"); return; }
+
+    appData.life--; saveData(); updateHomeUI();
+    currentQuestion = available[Math.floor(Math.random() * available.length)];
+    
+    // 選択肢をランダムにシャッフル
+    let correctText = currentQuestion.choices[currentQuestion.correctIndex];
+    for (let i = currentQuestion.choices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [currentQuestion.choices[i], currentQuestion.choices[j]] = [currentQuestion.choices[j], currentQuestion.choices[i]];
+    }
+    currentQuestion.correctIndex = currentQuestion.choices.indexOf(correctText);
+
+    document.getElementById('quiz-level-display').innerText = `Lv${currentQuestion.level}`;
+    document.getElementById('quiz-genre').innerText = `【 ワンピース 】\n${currentQuestion.genre}`;
+    document.getElementById('quiz-text').innerText = currentQuestion.text;
+    const choicesArea = document.getElementById('choices-area');
+    choicesArea.innerHTML = '';
+    currentQuestion.choices.forEach((choice, index) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn'; btn.innerText = choice;
+      btn.onclick = () => handleAnswer(index, btn);
+      choicesArea.appendChild(btn);
+    });
+    isAnswering = true; timeLeft = 10;
+    const timerFill = document.getElementById('timer-fill');
+    timerFill.style.transition = 'none'; timerFill.style.width = '100%';
+    setTimeout(() => { timerFill.style.transition = 'width 1s linear'; }, 50);
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('quiz-screen').classList.add('active');
+    
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timeLeft--; timerFill.style.width = `${(timeLeft / 10) * 100}%`;
+      if (timeLeft <= 0) { 
+        clearInterval(timerInterval); 
+        setTimeout(() => { if (isAnswering) handleTimeout(); }, 1000);
+      }
+    }, 1000);
+  }
+
+  // --- 統計記録処理 ---
+  function recordStatistics(q, isCorrect) {
+    if (!appData.statistics) appData.statistics = { arc: {}, level: {} };
+    const s = appData.statistics;
+    
+    if (!s.arc[q.genre]) s.arc[q.genre] = { total: 0, correct: 0 };
+    s.arc[q.genre].total++; if (isCorrect) s.arc[q.genre].correct++;
+    
+    if (!s.level[q.level]) s.level[q.level] = { total: 0, correct: 0 };
+    s.level[q.level].total++; if (isCorrect) s.level[q.level].correct++;
+  }
+
+  function renderStatistics() {
+    if (!appData.statistics) appData.statistics = { arc: {}, level: {} };
+    const s = appData.statistics;
+    let html = '';
+
+    const makeSection = (title, dataObj, keyPrefix, isLevel = false) => {
+      let secHtml = `<div class="stats-section"><div class="stats-section-title">${title}</div>`;
+      let keys = Object.keys(dataObj);
+      if (keys.length === 0) {
+        secHtml += `<div style="color:#999; font-size:12px;">データがありません</div>`;
+      } else {
+        if (isLevel) {
+          keys.sort((a, b) => parseInt(a) - parseInt(b));
+        } else {
+          keys.sort((a, b) => dataObj[b].total - dataObj[a].total);
+        }
+        keys.forEach(k => {
+          const d = dataObj[k];
+          const rate = d.total > 0 ? Math.round((d.correct / d.total) * 100) : 0;
+          secHtml += `<div class="stats-row"><span>${keyPrefix}${k}</span><span>${d.correct}/${d.total}問 (${rate}%)</span></div>`;
+        });
+      }
+      secHtml += `</div>`;
+      return secHtml;
+    };
+
+    html += makeSection('📌 〇〇編別', s.arc, '');
+    html += makeSection('📌 レベル別', s.level, 'Lv ', true);
+
+    document.getElementById('stats-area').innerHTML = html;
+  }
+
+  // --- 回答処理 ---
+  function handleAnswer(selectedIndex, btnElement) {
+    if (!isAnswering) return;
+    isAnswering = false;
+    clearInterval(timerInterval);
+    appData.totalAnswers++;
+    const isCorrect = (selectedIndex === currentQuestion.correctIndex);
+    const btns = document.querySelectorAll('.choice-btn');
+
+    recordStatistics(currentQuestion, isCorrect);
+    
+    if (isCorrect) {
+      playCorrectSound();
+      appData.totalCorrects++;
+      btnElement.style.background = '#0be881'; btnElement.style.color = '#fff';
+      const pt = currentQuestion.level;
+      
+      // 編別のポイントを加算
+      appData.stats[currentQuestion.genre] = (appData.stats[currentQuestion.genre] || 0) + pt;
+      
+      appData.answeredQuestions.push(currentQuestion.id);
+      addHistory(true);
+      const newlyUnlocked = checkTitleUnlocks();
+      
+      saveData();
+      
+      setTimeout(() => { 
+        updateHomeUI(); 
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+        document.getElementById('home-screen').classList.add('active'); 
+        if (newlyUnlocked.length > 0) showTitleModal(newlyUnlocked);
+      }, 1200);
+    } else {
+      playIncorrectSound();
+      btnElement.style.background = '#ff3f34'; btnElement.style.color = '#fff';
+      btns[currentQuestion.correctIndex].style.background = '#0be881';
+      btns[currentQuestion.correctIndex].style.color = '#fff';
+      addHistory(false); 
+      const newlyUnlocked = checkTitleUnlocks();
+      
+      saveData();
+
+      setTimeout(() => { 
+        updateHomeUI(); 
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+        document.getElementById('home-screen').classList.add('active'); 
+        if (newlyUnlocked.length > 0) showTitleModal(newlyUnlocked);
+      }, 2000);
+    }
+  }
+
+  function handleTimeout() {
+    if (!isAnswering) return;
+    isAnswering = false; appData.totalAnswers++;
+    playIncorrectSound(); recordStatistics(currentQuestion, false);
+    const btns = document.querySelectorAll('.choice-btn');
+    btns[currentQuestion.correctIndex].style.background = '#0be881';
+    btns[currentQuestion.correctIndex].style.color = '#fff';
+    addHistory(false, true);
+    const newlyUnlocked = checkTitleUnlocks();
+    
+    saveData();
+
+    setTimeout(() => { 
+      updateHomeUI(); 
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+      document.getElementById('home-screen').classList.add('active'); 
+      if (newlyUnlocked.length > 0) showTitleModal(newlyUnlocked);
+    }, 2000);
+  }
+
+  // --- 履歴処理 ---
+  function addHistory(isCorrect, isTimeout = false) {
+    let resultText = isCorrect ? "🌟 正解！" : (isTimeout ? "⏳ タイムアップ" : "💧 ザンネン...");
+    let ptText = isCorrect ? `(+${currentQuestion.level}pt)` : "";
+    let className = isCorrect ? "correct" : "incorrect";
+    const historyStr = `<div class="history-item ${className}">
+      <span style="font-size:12px; color:#a4b0be;">[Lv${currentQuestion.level}] ${currentQuestion.genre}</span><br>
+      ${resultText} ${ptText}
+    </div>`;
+    appData.history.unshift(historyStr);
+    if(appData.history.length > 50) appData.history.pop();
+    renderHistory();
+  }
+
+  function renderHistory() { 
+    const hl = document.getElementById('history-list');
+    if(hl) hl.innerHTML = appData.history.join('');
+  }
+
+  // --- 称号システム ---
+  function checkTitleUnlocks() {
+    let newlyUnlocked = [];
+    if(titlesData.length === 0) return newlyUnlocked;
+
+    titlesData.forEach(t => {
+      if (!appData.unlockedTitles.includes(t.id)) {
+        if (t.check(appData)) { 
+          appData.unlockedTitles.push(t.id); 
+          newlyUnlocked.push(t);
+        }
+      }
+    });
+    if(newlyUnlocked.length > 0) saveData();
+    return newlyUnlocked;
+  }
+
+  function showTitleModal(titles) {
+    playCorrectSound();
+    const container = document.getElementById('unlocked-titles-container');
+    container.innerHTML = titles.map(t => `
+      <div class="new-title-item">
+        <div class="new-title-label">NEW TITLE!!</div>
+        <div class="new-title-name">[${t.type}] ${t.title}</div>
+        <div class="new-title-desc">${t.condition_desc}</div>
+      </div>
+    `).join('');
+    document.getElementById('title-unlock-modal').classList.add('active');
+  }
+
+  function closeTitleModal() {
+    playClick(); document.getElementById('title-unlock-modal').classList.remove('active');
+  }
+
+  function showTitleScreen() {
+    playClick(); renderTitleList();
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('title-screen').classList.add('active');
+  }
+
+  function renderTitleList() {
+    const list = document.getElementById('title-list');
+    if (titlesData.length === 0) {
+      list.innerHTML = '<div style="text-align:center; padding: 20px; color: #808e9b; font-weight: bold;">称号データは現在準備中です！<br>もうしばらくお待ちください。</div>';
+      return;
+    }
+
+    let html = '';
+    titlesData.forEach(t => {
+      const isUnlocked = appData.unlockedTitles.includes(t.id);
+      const isCurrent = appData.currentTitleId === t.id;
+      if (isUnlocked) {
+        html += `
+          <div class="title-item">
+            <div class="title-info">
+              <div class="title-name">[${t.type}] ${t.title}</div>
+              <div class="title-desc">${t.condition_desc}</div>
+            </div>
+            <button class="title-btn ${isCurrent ? 'current' : ''}" ${isCurrent ? 'disabled' : ''} onclick="setCurrentTitle(${t.id})">
+              ${isCurrent ? 'セット中' : 'セットする'}
+            </button>
+          </div>`;
+      } else {
+        html += `
+          <div class="title-item locked">
+            <div class="title-info">
+              <div class="title-name">🔒 ？？？</div>
+              <div class="title-desc">解放条件: ${t.condition_desc}</div>
+            </div>
+            <button class="title-btn" disabled>未獲得</button>
+          </div>`;
+      }
+    });
+    list.innerHTML = html;
+  }
+
+  function setCurrentTitle(id) {
+    playClick(); appData.currentTitleId = id; saveData();
+    updateHomeUI(); renderTitleList();
+  }
+
+  window.onload = loadGameData;
+</script>
+</body>
+</html>
