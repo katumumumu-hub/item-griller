@@ -55,7 +55,7 @@
     }
   }
 
-  /* 画面切り替えアニメーションとスクロール防止の余白縮小 */
+  /* 画面切り替えアニメーション */
   .screen { display: none; padding: 12px; box-sizing: border-box; height: 100%; overflow-y: auto; flex-direction: column; }
   .screen.active { display: flex; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes popIn { 
@@ -63,7 +63,7 @@
     to { opacity: 1; transform: scale(1) translateY(0); } 
   }
 
-  /* ロゴのアニメーション設定 */
+  /* ロゴ */
   .title-logo {
     font-size: 45px; color: #fff; font-weight: 900; line-height: 1.2; text-align: center;
     text-shadow: 4px 4px 0 var(--border-color), -2px -2px 0 var(--border-color), 2px -2px 0 var(--border-color), -2px 2px 0 var(--border-color);
@@ -76,7 +76,7 @@
     50% { transform: rotate(-3deg) scale(1.05); }
   }
 
-  /* 共通ヘッダー（クイズ画面用など） */
+  /* 共通ヘッダー */
   .header {
     background: repeating-linear-gradient(-45deg, #ff4757, #ff4757 15px, #ff6b81 15px, #ff6b81 30px);
     color: var(--white); text-align: center; padding: 10px; border-radius: 12px; margin-bottom: 12px;
@@ -97,7 +97,7 @@
     font-size: 22px; color: #ff3f34; display: block; margin-top: 2px; text-shadow: 2px 2px 0 var(--white);
   }
 
-  /* ステータスバー（ライフ・問題数・獲得pt） */
+  /* ステータスバー */
   .status-bar {
     display: flex; justify-content: space-between; align-items: center;
     background: #0be881;
@@ -107,10 +107,9 @@
   }
   .life-area { text-align: right; }
   .life-icons { letter-spacing: 2px; text-shadow: 1px 1px 0px var(--border-color); }
-  #life-timer { font-size: 11px; color: var(--text-main); background: var(--white); padding: 4px 10px; border-radius: 10px; display: inline-block; margin-top: 4px;
-  border: 2px solid var(--border-color); font-weight: 900;}
+  #life-timer { font-size: 11px; color: var(--text-main); background: var(--white); padding: 4px 10px; border-radius: 10px; display: inline-block; margin-top: 4px; border: 2px solid var(--border-color); font-weight: 900;}
 
-  /* レーダーチャートの囲み */
+  /* レーダーチャート */
   .chart-container {
     background: transparent; border: none; box-shadow: none;
     padding: 0px 5px; margin-bottom: 10px; flex-grow: 1; 
@@ -130,143 +129,79 @@
     transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color);
   }
 
-  /* メインアクションボタン */
+  /* アクションボタン */
   .action-btn {
-    width: 100%; padding: 14px;
-    border: 3px solid var(--border-color) !important; border-radius: 15px;
-    background: linear-gradient(135deg, #ff9ff3 0%, #feca57 100%) !important;
-    color: #fff !important; font-size: 18px; font-weight: 900; margin-bottom: 10px;
-    cursor: pointer; box-shadow: 0 5px 0px var(--border-color); transition: transform 0.1s, box-shadow 0.1s;
-    text-shadow: 2px 2px 0 var(--border-color); font-family: 'M PLUS Rounded 1c', sans-serif;
+    width: 100%; padding: 14px; border: 3px solid var(--border-color) !important; border-radius: 15px;
+    background: linear-gradient(135deg, #ff9ff3 0%, #feca57 100%) !important; color: #fff !important; font-size: 18px; font-weight: 900; margin-bottom: 10px; cursor: pointer; box-shadow: 0 5px 0px var(--border-color); transition: transform 0.1s, box-shadow 0.1s; text-shadow: 2px 2px 0 var(--border-color); font-family: 'M PLUS Rounded 1c', sans-serif;
   }
   .action-btn:active { transform: translateY(5px); box-shadow: 0 0px 0 var(--border-color); }
-  .action-btn:disabled { background: #d2dae2 !important; box-shadow: 0 5px 0 #808e9b !important;
-  border-color: #808e9b !important; text-shadow: none !important; cursor: not-allowed; transform: none; }
+  .action-btn:disabled { background: #d2dae2 !important; box-shadow: 0 5px 0 #808e9b !important; border-color: #808e9b !important; text-shadow: none !important; cursor: not-allowed; transform: none; }
 
   /* モード選択のデータ表示用 */
   .mode-info-box {
     font-size: 14px; color: #fff; text-shadow: none; margin-top: 10px;
-    background: rgba(0, 0, 0, 0.2); padding: 8px; border-radius: 10px;
-    line-height: 1.4;
+    background: rgba(0, 0, 0, 0.2); padding: 8px; border-radius: 10px; line-height: 1.4;
   }
   .info-highlight { color: #ffd32a; font-size: 18px; text-shadow: 1px 1px 0 #2f3542; }
 
   /* サブボタン */
-  .share-area { display: flex; justify-content: space-between; gap: 6px; margin-bottom: 10px; }
-  .share-area button {
+  .share-area, .history-link { display: flex; justify-content: space-between; gap: 6px; margin-bottom: 10px; }
+  .share-area button, .history-link button {
     flex: 1; padding: 8px 4px; border: 3px solid var(--border-color); border-radius: 10px; font-weight: 900;
-    background: #fff; color: var(--text-main); box-shadow: 0 4px 0px var(--border-color); cursor: pointer;
-    transition: all 0.1s; font-size: 13px;
+    cursor: pointer; transition: all 0.1s; font-size: 13px; box-shadow: 0 4px 0px var(--border-color);
   }
-  .share-area button:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); }
+  .share-area button { background: #fff; color: var(--text-main); }
+  .history-link button { background-color: #d2dae2; color: var(--text-main); font-size: 12px; }
+  .share-area button:active, .history-link button:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); }
 
-  .history-link { display: flex; justify-content: space-between; gap: 6px; }
-  .history-link button {
-    padding: 8px 4px; background-color: #d2dae2; color: var(--text-main); border: 3px solid var(--border-color);
-    border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 900; flex: 1;
-    box-shadow: 0 4px 0px var(--border-color); transition: all 0.1s;
-  }
-  .history-link button:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); }
+  /* ランキングタブ */
+  .ranking-tabs { display: flex; gap: 5px; margin-bottom: 10px; }
+  .ranking-tab { flex: 1; padding: 10px; text-align: center; font-weight: 900; font-size: 14px; border: 3px solid var(--border-color); border-radius: 10px; background: #fff; cursor: pointer; transition: 0.2s; box-shadow: 0 3px 0 var(--border-color); }
+  .ranking-tab:active { transform: translateY(3px); box-shadow: 0 0 0 var(--border-color); }
+  .ranking-tab.active-tab { background: #4bcffa; color: #fff; text-shadow: 1px 1px 0 var(--border-color); }
 
-  /* --- 回答画面要素 --- */
-  .quiz-info {
-    background: #ef5777; color: #fff; text-shadow: 1px 1px 0 var(--border-color);
-    border: 3px solid var(--border-color); padding: 10px; text-align: center; border-radius: 12px;
-    box-shadow: 4px 4px 0px var(--border-color); margin-bottom: 15px; font-weight: 900; font-size: 15px;
-  }
-  .timer-bar {
-    width: 100%; height: 16px; background-color: #fff; border-radius: 8px;
-    border: 3px solid var(--border-color); margin-bottom: 15px; overflow: hidden; box-shadow: 4px 4px 0px var(--border-color);
-  }
+  /* クイズ・リスト画面要素 */
+  .quiz-info { background: #ef5777; color: #fff; text-shadow: 1px 1px 0 var(--border-color); border: 3px solid var(--border-color); padding: 10px; text-align: center; border-radius: 12px; box-shadow: 4px 4px 0px var(--border-color); margin-bottom: 15px; font-weight: 900; font-size: 15px; }
+  .timer-bar { width: 100%; height: 16px; background-color: #fff; border-radius: 8px; border: 3px solid var(--border-color); margin-bottom: 15px; overflow: hidden; box-shadow: 4px 4px 0px var(--border-color); }
   .timer-fill { height: 100%; background: linear-gradient(90deg, #ff3f34 0%, #ffbe76 100%); width: 100%; transition: width 1s linear; }
-  .question-area {
-    background: #ffffff; color: var(--text-main); text-shadow: none;  min-height: 100px;
-    padding: 15px; border-radius: 15px; border: 3px solid var(--border-color);
-    margin-bottom: 15px; display: flex; align-items: center; justify-content: center;
-    font-size: 17px; text-align: center; font-weight: 900; line-height: 1.5;
-    box-shadow: 4px 4px 0px var(--border-color); flex-grow: 1;
-  }
-  .choice-btn {
-    width: 100%; padding: 14px; margin-bottom: 10px; border: 3px solid var(--border-color);
-    background-color: #fff; cursor: pointer; font-size: 15px; text-align: center; border-radius: 12px; font-weight: 900;
-    color: var(--text-main); box-shadow: 0 4px 0px var(--border-color); transition: transform 0.1s, background 0.2s;
-    font-family: 'M PLUS Rounded 1c', sans-serif;
-  }
+  .question-area { background: #ffffff; color: var(--text-main); text-shadow: none; min-height: 100px; padding: 15px; border-radius: 15px; border: 3px solid var(--border-color); margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 17px; text-align: center; font-weight: 900; line-height: 1.5; box-shadow: 4px 4px 0px var(--border-color); flex-grow: 1; }
+  .choice-btn { width: 100%; padding: 14px; margin-bottom: 10px; border: 3px solid var(--border-color); background-color: #fff; cursor: pointer; font-size: 15px; text-align: center; border-radius: 12px; font-weight: 900; color: var(--text-main); box-shadow: 0 4px 0px var(--border-color); transition: transform 0.1s, background 0.2s; font-family: 'M PLUS Rounded 1c', sans-serif; }
   .choice-btn:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); background-color: #f1f2f6; }
   
-  /* --- 履歴・統計・称号画面リスト --- */
-  .custom-list {
-    background: var(--white); overflow-y: auto; margin-bottom: 15px; flex-grow: 1;
-    padding: 15px; border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color);
-  }
-  .custom-list::-webkit-scrollbar { width: 8px; }
-  .custom-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-
-  /* 統計エリア */
-  .stats-container {
-    background: var(--white); flex-grow: 1; overflow-y: auto; margin-bottom: 15px;
-    padding: 15px; border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color); font-size: 14px; font-weight: 900;
-  }
-  .stats-container::-webkit-scrollbar { width: 8px; }
-  .stats-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+  .custom-list, .stats-container { background: var(--white); overflow-y: auto; margin-bottom: 15px; flex-grow: 1; padding: 15px; border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color); font-size: 14px; font-weight: 900; }
+  .custom-list::-webkit-scrollbar, .stats-container::-webkit-scrollbar { width: 8px; }
+  .custom-list::-webkit-scrollbar-thumb, .stats-container::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
   .stats-section { margin-bottom: 15px; }
-  .stats-section:last-child { margin-bottom: 0; }
-  .stats-section-title { color: var(--white); background: #3c40c6; display: inline-block; padding: 4px 10px;
-  border-radius: 8px; margin-bottom: 10px; border: 2px solid var(--border-color); font-size: 15px;}
+  .stats-section-title { color: var(--white); background: #3c40c6; display: inline-block; padding: 4px 10px; border-radius: 8px; margin-bottom: 10px; border: 2px solid var(--border-color); font-size: 15px;}
   .stats-row { display: flex; justify-content: space-between; padding: 6px 0; color: var(--text-main); border-bottom: 2px dashed #d2dae2; }
-
-  /* 履歴リストアイテム */
   .history-item { padding: 12px 10px; border-bottom: 3px dashed #d2dae2; font-weight: 900; }
-  .history-item:last-child { border-bottom: none; }
-  .history-item.correct { color: #05c46b; text-shadow: 1px 1px 0px rgba(0,0,0,0.1); }
-  .history-item.incorrect { color: #ff3f34; text-shadow: 1px 1px 0px rgba(0,0,0,0.1); }
+  .history-item.correct { color: #05c46b; }
+  .history-item.incorrect { color: #ff3f34; }
 
   /* 称号アイテム */
-  .title-item {
-    border: 3px solid var(--border-color); padding: 12px; display: flex; justify-content: space-between;
-    align-items: center; background-color: #fff; margin-bottom: 12px; border-radius: 12px; box-shadow: 2px 2px 0px var(--border-color);
-  }
+  .title-item { border: 3px solid var(--border-color); padding: 12px; display: flex; justify-content: space-between; align-items: center; background-color: #fff; margin-bottom: 12px; border-radius: 12px; box-shadow: 2px 2px 0px var(--border-color); }
   .title-item.locked { background: #d2dae2; box-shadow: none; border-color: #808e9b; color: #808e9b;}
   .title-info { flex: 1; margin-right: 10px; }
   .title-name { font-weight: 900; font-size: 15px; margin-bottom: 4px; color: #3c40c6; }
   .title-item.locked .title-name { color: #808e9b; }
   .title-desc { font-size: 12px; color: #575fcf; font-weight: 900; }
   .title-item.locked .title-desc { color: #808e9b; }
-  
-  .title-btn {
-    padding: 8px 12px; background: #0fb9b1; border: 3px solid var(--border-color); color: #fff;
-    border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 900;
-    box-shadow: 0 3px 0px var(--border-color); transition: all 0.1s; text-shadow: 1px 1px 0 var(--border-color);
-  }
+  .title-btn { padding: 8px 12px; background: #0fb9b1; border: 3px solid var(--border-color); color: #fff; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 900; box-shadow: 0 3px 0px var(--border-color); transition: all 0.1s; text-shadow: 1px 1px 0 var(--border-color); }
   .title-btn:active { transform: translateY(3px); box-shadow: 0 0px 0 var(--border-color); }
   .title-btn.current { background: #ffdd59; color: var(--text-main); text-shadow: none; }
-  .title-btn:disabled { background: #808e9b; color: #d2dae2; border-color: #808e9b;
-  box-shadow: none; cursor: not-allowed; transform: none; text-shadow: none;}
+  .title-btn:disabled { background: #808e9b; color: #d2dae2; border-color: #808e9b; box-shadow: none; cursor: not-allowed; transform: none; text-shadow: none;}
 
-  /* --- 称号獲得通知モーダル --- */
-  .modal-overlay {
-    display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(47, 53, 66, 0.8); z-index: 100; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;
-  }
+  /* モーダル群 */
+  .modal-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(47, 53, 66, 0.8); z-index: 100; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
   .modal-overlay.active { display: flex; animation: fadeInModal 0.3s ease; }
-  .modal-content {
-    background: radial-gradient(circle, #ffffff 0%, #fff2cc 100%); padding: 20px; border-radius: 20px; width: 100%;
-    max-height: 80vh; overflow-y: auto; border: 4px solid var(--border-color); box-shadow: 8px 8px 0px var(--border-color);
-    text-align: center; animation: popModal 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
+  .modal-content { background: radial-gradient(circle, #ffffff 0%, #fff2cc 100%); padding: 20px; border-radius: 20px; width: 100%; max-height: 80vh; overflow-y: auto; border: 4px solid var(--border-color); box-shadow: 8px 8px 0px var(--border-color); text-align: center; animation: popModal 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .modal-content::-webkit-scrollbar { width: 6px; }
   .modal-content::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
   @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
   @keyframes popModal { from { transform: scale(0.5) rotate(-10deg); } to { transform: scale(1) rotate(0deg); } }
   
-  .modal-title {
-    color: #ff4757; text-shadow: 2px 2px 0px var(--border-color); font-size: 26px;
-    margin-top: 0; margin-bottom: 20px; font-weight: 900; animation: flashText 1.5s infinite;
-  }
-  .new-title-item {
-    background: #fff; border: 3px solid var(--border-color); border-radius: 15px;
-    padding: 15px; margin-bottom: 15px; box-shadow: 4px 4px 0px var(--border-color);
-  }
+  .modal-title { color: #ff4757; text-shadow: 2px 2px 0px var(--border-color); font-size: 26px; margin-top: 0; margin-bottom: 20px; font-weight: 900; animation: flashText 1.5s infinite; }
+  .new-title-item { background: #fff; border: 3px solid var(--border-color); border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 4px 4px 0px var(--border-color); }
   .new-title-label { font-size: 12px; color: #ff4757; font-weight: 900; margin-bottom: 5px; }
   .new-title-name { font-size: 20px; color: #3c40c6; font-weight: 900; margin-bottom: 8px; }
   .new-title-desc { font-size: 13px; color: var(--text-main); font-weight: 900; }
@@ -280,23 +215,24 @@
     <div class="title-logo">🌟 アニマス 🌟<br>QUIZ</div>
     <div class="header" style="margin-bottom: 20px;">🎮 モード選択</div>
     
+    <div style="text-align: center; font-size: 18px; font-weight: 900; margin-bottom: 15px; color: var(--text-main);">
+      👤 <span id="top-player-name" style="color: var(--primary);">ゲスト</span> さん
+      <span onclick="openNameEditModal()" style="cursor: pointer; font-size: 16px; margin-left: 5px; padding: 5px; background: #fff; border-radius: 50%; border: 2px solid var(--border-color); box-shadow: 2px 2px 0 var(--border-color);">✏️</span>
+    </div>
+
     <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 20px; padding-bottom: 20px;">
-      
       <button class="action-btn" style="padding: 15px; font-size: 22px;" onclick="goToHome()">
         分野別モード
         <div class="mode-info-box" id="genre-info-text">データ読み込み中...</div>
       </button>
-      
       <button class="action-btn" style="padding: 15px; font-size: 22px;" onclick="window.location.href='generation/generation.html'">
         世代別モード
         <div class="mode-info-box" id="gen-info-text">データ読み込み中...</div>
       </button>
-
       <button class="action-btn" style="padding: 15px; font-size: 22px;" onclick="window.location.href='onepiece/onepiece.html'">
         ワンピースモード
         <div class="mode-info-box" id="onepiece-info-text">データ読み込み中...</div>
       </button>
-      
     </div>
   </div>
 
@@ -307,6 +243,7 @@
       <div>
         <div style="font-size:14px;">総回答数 <span id="total-answers" style="color:#ff3f34; font-size:18px; text-shadow: 1px 1px 0 #fff;">0</span> 問</div>
         <div style="font-size:12px; margin-top:2px; color:var(--text-main);">総獲得pt <span id="total-points" style="color:#ffa502; font-size:16px; text-shadow: 1px 1px 0 #fff;">0</span> pt</div>
+        <div style="font-size:12px; margin-top:2px; color:var(--text-main);">正解率 <span id="correct-rate" style="color:#0be881; font-size:16px; text-shadow: 1px 1px 0 #fff;">0</span> %</div>
       </div>
       <div class="life-area">
         <div class="life-icons" id="life-icons">💙💙💙💙💙</div>
@@ -336,6 +273,7 @@
     
     <div class="history-link">
       <button onclick="showTitleScreen()">🏆 称号</button>
+      <button onclick="showRankingScreen()" style="background:#ff9ff3; color:#fff; text-shadow:1px 1px 0 var(--border-color);">👑 ﾗﾝｷﾝｸﾞ</button>
       <button onclick="showScreen('history-screen')">📊 データ</button>
     </div>
     
@@ -361,12 +299,38 @@
     <div class="custom-list" id="title-list"></div>
     <button class="action-btn" onclick="showScreen('home-screen')">🏠 ホームに戻る</button>
   </div>
+
+  <div id="ranking-screen" class="screen">
+    <div class="header">👑 ランキング</div>
+    
+    <div class="ranking-tabs">
+      <div id="ranking-tab-point" class="ranking-tab active-tab" onclick="loadRankingData('point')">総合ポイント</div>
+      <div id="ranking-tab-rate" class="ranking-tab" onclick="loadRankingData('rate')">正解率</div>
+    </div>
+    
+    <div class="custom-list" id="ranking-list-area" style="padding: 10px;">
+      </div>
+
+    <button class="action-btn" onclick="showScreen('home-screen')">🏠 ホームに戻る</button>
+  </div>
   
   <div id="title-unlock-modal" class="modal-overlay">
     <div class="modal-content">
       <h2 class="modal-title">🎉 新称号 獲得!! 🎉</h2>
       <div id="unlocked-titles-container"></div>
       <button class="action-btn" style="margin-bottom:0;" onclick="closeTitleModal()">OK!</button>
+    </div>
+  </div>
+
+  <div id="name-modal" class="modal-overlay">
+    <div class="modal-content" style="background: #fff;">
+      <h2 class="modal-title" style="font-size: 20px; animation: none;">プレイヤー名設定</h2>
+      <p style="font-size: 13px; color: #808e9b; margin-bottom: 15px; font-weight: 900;">
+        ランキングに表示される名前です。<br>全モードで共通して使用されます。
+      </p>
+      <input type="text" id="player-name-input" placeholder="10文字以内で入力" maxlength="10" style="width: 90%; padding: 12px; font-size: 16px; margin-bottom: 5px; border: 3px solid var(--border-color); border-radius: 10px; font-weight: 900; font-family: 'M PLUS Rounded 1c', sans-serif;">
+      <div id="name-error" style="color: #ff4757; font-size: 12px; font-weight: 900; min-height: 18px; margin-bottom: 10px;"></div>
+      <button class="action-btn" style="margin-bottom:0;" onclick="savePlayerName()">決定</button>
     </div>
   </div>
 
@@ -381,127 +345,85 @@
     if (!audioCtx) audioCtx = new AudioContext();
     if (audioCtx.state === 'suspended') audioCtx.resume();
   }
-
   function playTone(freq, type, duration, vol=0.1) {
     if (!audioCtx) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + duration);
+    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+    osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + duration);
   }
-
   function playClick() { initAudio(); playTone(800, 'sine', 0.05, 0.05); }
-  function playCorrectSound() {
-    initAudio();
-    playTone(523.25, 'sine', 0.1, 0.1); 
-    setTimeout(() => playTone(659.25, 'sine', 0.1, 0.1), 100);
-    setTimeout(() => playTone(783.99, 'sine', 0.3, 0.1), 200); 
-  }
-  function playIncorrectSound() {
-    initAudio();
-    playTone(200, 'sawtooth', 0.2, 0.1);
-    setTimeout(() => playTone(150, 'sawtooth', 0.4, 0.1), 150);
-  }
+  function playCorrectSound() { initAudio(); playTone(523.25, 'sine', 0.1, 0.1); setTimeout(() => playTone(659.25, 'sine', 0.1, 0.1), 100); setTimeout(() => playTone(783.99, 'sine', 0.3, 0.1), 200); }
+  function playIncorrectSound() { initAudio(); playTone(200, 'sawtooth', 0.2, 0.1); setTimeout(() => playTone(150, 'sawtooth', 0.4, 0.1), 150); }
 
-  // --- 空の配列を用意 ---
+  // --- 全体共通変数 ---
   let questionsData = [];
   let titlesData = [];
   let isDataLoaded = false;
+  let playerName = localStorage.getItem('animasPlayerName') || '';
 
-  // --- 非同期でJSONデータを読み込む処理 ---
+  // --- 非同期データ読み込み ---
   async function loadGameData() {
     try {
-      // 分野別のデータ読み込み
       const qRes = await fetch('questions.json');
       if (!qRes.ok) throw new Error('questions.json が見つかりません');
       questionsData = await qRes.json();
 
-      // ★ 収録アニメ数と問題数の計算・表示 (分野別)
       const uniqueAnimes = new Set(questionsData.map(q => q.anime)).size;
       const totalQuestions = questionsData.length;
       document.getElementById('genre-info-text').innerHTML = `📺 収録アニメ: <span class="info-highlight">${uniqueAnimes}</span> 作品<br>📝 総問題数: <span class="info-highlight">${totalQuestions}</span> 問`;
 
-      // ★ 収録アニメ数と問題数の計算・表示 (世代別)
       try {
         const gRes = await fetch('generation/generation.json');
         if (gRes.ok) {
           const gText = await gRes.text();
           const genData = JSON.parse(gText);
           const gUniqueAnimes = new Set(genData.map(q => q["アニメ名"] || q.anime)).size;
-          const gTotalQuestions = genData.length;
-          document.getElementById('gen-info-text').innerHTML = `📺 収録アニメ: <span class="info-highlight">${gUniqueAnimes}</span> 作品<br>📝 総問題数: <span class="info-highlight">${gTotalQuestions}</span> 問`;
-        } else {
-          document.getElementById('gen-info-text').innerHTML = `📺 収録アニメ: 準備中<br>📝 総問題数: 準備中`;
-        }
-      } catch (e) {
-        document.getElementById('gen-info-text').innerHTML = `📺 収録アニメ: 準備中<br>📝 総問題数: 準備中`;
-      }
+          document.getElementById('gen-info-text').innerHTML = `📺 収録アニメ: <span class="info-highlight">${gUniqueAnimes}</span> 作品<br>📝 総問題数: <span class="info-highlight">${genData.length}</span> 問`;
+        } else { document.getElementById('gen-info-text').innerHTML = `📺 収録アニメ: 準備中<br>📝 総問題数: 準備中`; }
+      } catch (e) { document.getElementById('gen-info-text').innerHTML = `📺 収録アニメ: 準備中<br>📝 総問題数: 準備中`; }
 
-      // ★ 収録アニメ数と問題数の計算・表示 (ワンピース)
       try {
         const oRes = await fetch('onepiece/onepiece.json');
         if (oRes.ok) {
           const oText = await oRes.text();
           const onePieceData = JSON.parse(oText);
           const oUniqueAnimes = new Set(onePieceData.map(q => q["アニメ名"] || q.anime)).size;
-          const oTotalQuestions = onePieceData.length;
-          document.getElementById('onepiece-info-text').innerHTML = `📺 収録アニメ: <span class="info-highlight">${oUniqueAnimes}</span> 作品<br>📝 総問題数: <span class="info-highlight">${oTotalQuestions}</span> 問`;
-        } else {
-          document.getElementById('onepiece-info-text').innerHTML = `📺 収録アニメ: 準備中<br>📝 総問題数: 準備中`;
-        }
-      } catch (e) {
-        document.getElementById('onepiece-info-text').innerHTML = `📺 収録アニメ: 準備中<br>📝 総問題数: 準備中`;
-      }
+          document.getElementById('onepiece-info-text').innerHTML = `📺 収録アニメ: <span class="info-highlight">${oUniqueAnimes}</span> 作品<br>📝 総問題数: <span class="info-highlight">${onePieceData.length}</span> 問`;
+        } else { document.getElementById('onepiece-info-text').innerHTML = `📺 収録アニメ: 準備中<br>📝 総問題数: 準備中`; }
+      } catch (e) { document.getElementById('onepiece-info-text').innerHTML = `📺 収録アニメ: 準備中<br>📝 総問題数: 準備中`; }
 
-      // 称号データ読み込み
       const tRes = await fetch('titles.json');
-      if (!tRes.ok) throw new Error('titles.json が見つかりません');
-      const rawTitles = await tRes.json();
-      titlesData = rawTitles.map(t => {
-        t.check = function(d) {
-          const earned = d.stats.action + d.stats.fantasy + d.stats.scifi + d.stats.sliceOfLife + d.stats.romance;
-          const maxVal = Math.max(d.stats.action, d.stats.fantasy, d.stats.scifi, d.stats.sliceOfLife, d.stats.romance);
-          if (t.id === 1) return true;
-          if (t.id >= 2 && t.id <= 10) {
-            const req = [0, 10, 50, 100, 300, 500, 1000, 2000, 5000, 10000][t.id - 1];
-            return earned >= req;
-          }
-          if (t.id >= 11 && t.id <= 60) {
-            const typeMap = {1: 'action', 2: 'fantasy', 3: 'scifi', 4: 'sliceOfLife', 5: 'romance'};
-            const statName = typeMap[Math.floor((t.id - 11) / 10) + 1];
-            const reqArr = [20, 50, 100, 200, 300, 500, 1000, 2000, 5000];
-            const idx = (t.id - 1) % 10; 
-            if (idx < 9) return (d.stats[statName]) >= reqArr[idx] && maxVal === d.stats[statName];
-            else return earned > 0 && (d.stats[statName]) / earned >= 0.8;
-          }
-          if (t.id >= 61 && t.id <= 80) {
-            const req = (t.id % 2 !== 0) ? 50 : 300;
-            const s = [d.stats.action, d.stats.fantasy, d.stats.scifi, d.stats.sliceOfLife, d.stats.romance].sort((a,b)=>b-a);
-            return (s[0]) >= req && (s[1]) >= req && (s[0] - s[1]) <= 20;
-          }
-          if (t.id >= 81 && t.id <= 84) {
-            const req = [50, 100, 300, 1000][t.id - 81];
-            const minVal = Math.min(d.stats.action, d.stats.fantasy, d.stats.scifi, d.stats.sliceOfLife, d.stats.romance);
-            return (minVal) >= req;
-          }
-          if (t.id >= 92 && t.id <= 94) {
-            const req = [100, 500, 1000][t.id - 92];
-            return d.totalAnswers >= req;
-          }
-          if (t.id === 95) return d.answeredQuestions.length >= 100;
-          return false; 
-        };
-        return t;
-      });
+      if (tRes.ok) {
+        const rawTitles = await tRes.json();
+        titlesData = rawTitles.map(t => {
+          t.check = function(d) {
+            const earned = d.stats.action + d.stats.fantasy + d.stats.scifi + d.stats.sliceOfLife + d.stats.romance;
+            const maxVal = Math.max(d.stats.action, d.stats.fantasy, d.stats.scifi, d.stats.sliceOfLife, d.stats.romance);
+            if (t.id === 1) return true;
+            if (t.id >= 2 && t.id <= 10) return earned >= [0, 10, 50, 100, 300, 500, 1000, 2000, 5000, 10000][t.id - 1];
+            if (t.id >= 11 && t.id <= 60) {
+              const typeMap = {1: 'action', 2: 'fantasy', 3: 'scifi', 4: 'sliceOfLife', 5: 'romance'};
+              const statName = typeMap[Math.floor((t.id - 11) / 10) + 1];
+              const idx = (t.id - 1) % 10; 
+              if (idx < 9) return (d.stats[statName]) >= [20, 50, 100, 200, 300, 500, 1000, 2000, 5000][idx] && maxVal === d.stats[statName];
+              else return earned > 0 && (d.stats[statName]) / earned >= 0.8;
+            }
+            if (t.id >= 61 && t.id <= 80) {
+              const s = [d.stats.action, d.stats.fantasy, d.stats.scifi, d.stats.sliceOfLife, d.stats.romance].sort((a,b)=>b-a);
+              return (s[0]) >= ((t.id % 2 !== 0) ? 50 : 300) && (s[1]) >= ((t.id % 2 !== 0) ? 50 : 300) && (s[0] - s[1]) <= 20;
+            }
+            if (t.id >= 81 && t.id <= 84) return Math.min(d.stats.action, d.stats.fantasy, d.stats.scifi, d.stats.sliceOfLife, d.stats.romance) >= [50, 100, 300, 1000][t.id - 81];
+            if (t.id >= 92 && t.id <= 94) return d.totalAnswers >= [100, 500, 1000][t.id - 92];
+            if (t.id === 95) return d.answeredQuestions.length >= 100;
+            return false; 
+          };
+          return t;
+        });
+      }
 
       document.getElementById('start-btn').innerText = "▶ クイズに挑戦！";
       document.getElementById('start-btn').disabled = false;
-      
       isDataLoaded = true;
       init();
     } catch (error) {
@@ -509,18 +431,50 @@
     }
   }
 
-  // モード選択からホームへ遷移する処理
-  function goToHome() {
-    if(!isDataLoaded) {
-      alert("データを読み込み中です。少々お待ちください。");
-      return;
+  // --- プレイヤー名管理 ---
+  const BANNED_WORDS = ['死ね', '殺す', 'ばか', 'アホ', 'うんこ', 'カス'];
+
+  function updatePlayerNameDisplay() {
+    const el = document.getElementById('top-player-name');
+    if (el) el.innerText = playerName || 'ゲスト';
+  }
+
+  function openNameEditModal() {
+    playClick();
+    document.getElementById('player-name-input').value = playerName || '';
+    document.getElementById('name-error').innerText = '';
+    document.getElementById('name-modal').classList.add('active');
+  }
+
+  function savePlayerName() {
+    const input = document.getElementById('player-name-input').value.trim();
+    const errorEl = document.getElementById('name-error');
+    errorEl.innerText = '';
+    
+    if (!input) { errorEl.innerText = '名前を入力してください。'; return; }
+    if (input.length > 10) { errorEl.innerText = '10文字以内で入力してください。'; return; }
+    for (let word of BANNED_WORDS) {
+      if (input.includes(word)) { errorEl.innerText = '不適切な単語が含まれています。'; return; }
     }
+    
+    playerName = input;
+    localStorage.setItem('animasPlayerName', playerName);
+    document.getElementById('name-modal').classList.remove('active');
+    updatePlayerNameDisplay();
+    playClick();
+    
+    // 100問解いていれば名前変更と同時にランキング送信
+    sendRankingData();
+  }
+
+  // --- 画面遷移 ---
+  function goToHome() {
+    if(!isDataLoaded) { alert("データを読み込み中です。少々お待ちください。"); return; }
     playClick();
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('home-screen').classList.add('active');
   }
 
-  // ホームからモード選択へ戻る処理
   function goToModeSelect() {
     playClick();
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -531,7 +485,7 @@
   const DEFAULT_DATA = {
     life: 5, lastLifeTime: Date.now(),
     stats: { action: 0, fantasy: 0, scifi: 0, sliceOfLife: 0, romance: 0 }, 
-    answeredQuestions: [], totalAnswers: 0, history: [],
+    answeredQuestions: [], totalAnswers: 0, totalCorrects: 0, history: [],
     unlockedTitles: [1], currentTitleId: 1,
     statistics: { anime: {}, genre: {}, level: {} }
   };
@@ -539,6 +493,7 @@
   if (!appData.unlockedTitles) appData.unlockedTitles = [1];
   if (!appData.currentTitleId) appData.currentTitleId = 1;
   if (!appData.statistics) appData.statistics = { anime: {}, genre: {}, level: {} };
+  if (typeof appData.totalCorrects === 'undefined') appData.totalCorrects = 0;
   
   // 状態管理
   let currentLevel = null;
@@ -556,45 +511,110 @@
 
   function saveData() { localStorage.setItem('animasData', JSON.stringify(appData)); }
 
-  // --- 広告を見て回復する処理（仮組み） ---
+  // --- 広告を見て回復する処理（仮） ---
   function watchAdToRecover() {
     playClick();
-    
     const btn = document.getElementById('ad-recover-btn');
-    btn.disabled = true;
-    btn.innerText = "⏳ 広告を再生中..."; 
-
-    // 擬似的な広告再生時間（2秒）
+    btn.disabled = true; btn.innerText = "⏳ 広告を再生中..."; 
     setTimeout(() => {
-      appData.life = 5;
-      appData.lastLifeTime = Date.now();
-      saveData();
-      updateHomeUI(); 
-      
+      appData.life = 5; appData.lastLifeTime = Date.now();
+      saveData(); updateHomeUI(); 
       alert("広告の視聴が完了しました！\nライフが全回復しました！💙");
-      
-      btn.disabled = false;
-      btn.innerText = "📺 広告を見てライフ全回復！";
+      btn.disabled = false; btn.innerText = "📺 広告を見てライフ全回復！";
     }, 2000); 
+  }
+
+  // --- ランキングAPI（ダミー＆将来用） ---
+  let currentRankingTab = 'point';
+
+  function showRankingScreen() {
+    playClick();
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('ranking-screen').classList.add('active');
+    loadRankingData('point');
+  }
+
+  async function loadRankingData(type) {
+    playClick();
+    currentRankingTab = type;
+    document.getElementById('ranking-tab-point').classList.toggle('active-tab', type === 'point');
+    document.getElementById('ranking-tab-rate').classList.toggle('active-tab', type === 'rate');
+    
+    const listArea = document.getElementById('ranking-list-area');
+    listArea.innerHTML = '<div style="text-align:center; padding:30px; font-size:18px; color:var(--primary);">通信中...</div>';
+    
+    // 自身のスコアと参加条件
+    const myTotalPt = Object.values(appData.stats).reduce((a, b) => a + b, 0);
+    const myRate = appData.totalAnswers > 0 ? Math.floor((appData.totalCorrects / appData.totalAnswers) * 100) : 0;
+    let myVal = type === 'point' ? myTotalPt : myRate;
+    let unit = type === 'point' ? 'pt' : '%';
+    
+    let infoHtml = `<div style="margin-bottom:15px; padding:10px; background:#ffd32a; border-radius:10px; border:3px solid var(--border-color); font-weight:900; text-align:center;">
+        あなたの記録：${myVal}${unit} <br>`;
+        
+    if (appData.totalAnswers < 100) {
+        infoHtml += `<span style="font-size:12px; color:#e15f41;">※100問解答でランキングに参加できます (現在:${appData.totalAnswers}問)</span>`;
+    } else {
+        infoHtml += `<span style="font-size:12px; color:#05c46b;">✅ ランキング参加中！</span>`;
+    }
+    infoHtml += `</div>`;
+
+    // 将来的にはここでGASのURLを叩き（fetch）、JSONを受け取る
+    // 今回はダミーのモックアップデータを生成
+    setTimeout(() => {
+        let dummyData = [];
+        for(let i=1; i<=30; i++) {
+            dummyData.push({
+                rank: i,
+                name: i === 12 && appData.totalAnswers >= 100 ? playerName : `アニメマスター${i}号`,
+                score: 15000 - (i * 350),
+                rate: 99 - Math.floor(i * 1.5),
+                date: '2023/10/25'
+            });
+        }
+        
+        let html = infoHtml;
+        dummyData.forEach(d => {
+            let val = type === 'point' ? d.score : d.rate;
+            let rankColor = d.rank <= 3 ? '#ff4757' : 'var(--text-main)';
+            let isMe = (d.name === playerName);
+            let bgStyle = isMe ? 'background: #ffeaa7;' : '';
+
+            html += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:2px dashed #d2dae2; align-items:center; ${bgStyle}">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:20px; font-weight:900; color:${rankColor}; width:30px; text-align:center;">${d.rank}</span>
+                    <span style="font-weight:900; font-size:14px;">${d.name} ${isMe ? '<span style="color:#ff4757; font-size:10px;">(YOU)</span>' : ''}</span>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-weight:900; color:var(--primary); font-size:16px;">${val}${unit}</div>
+                    <div style="font-size:10px; color:#808e9b;">${d.date}</div>
+                </div>
+            </div>`;
+        });
+        listArea.innerHTML = html;
+    }, 800);
+  }
+
+  // スコア送信処理（将来用モックアップ）
+  function sendRankingData() {
+      if (appData.totalAnswers < 100 || !playerName) return;
+      const totalPts = Object.values(appData.stats).reduce((a, b) => a + b, 0);
+      const rate = Math.floor((appData.totalCorrects / appData.totalAnswers) * 100);
+      
+      // console.log(`GASへ送信: 名前=${playerName}, スコア=${totalPts}, 正解率=${rate}`);
+      // 将来的にはここに fetch('GASのURL', { method:'POST', body: ... }) を記述します
   }
 
   // --- シェア機能 ---
   function getShareText() {
     const t = titlesData.find(x => x.id === appData.currentTitleId);
     const titleName = t ? t.title : "見習いウォッチャー";
-    const s = appData.stats;
-    const earnedPts = s.action + s.fantasy + s.scifi + s.sliceOfLife + s.romance; 
+    const earnedPts = Object.values(appData.stats).reduce((a, b) => a + b, 0); 
+    const rate = appData.totalAnswers > 0 ? Math.floor((appData.totalCorrects / appData.totalAnswers) * 100) : 0;
     
-    let text = `私のアニマス名は「${titleName}」です！✨\n`;
-    text += `総獲得pt: ${earnedPts}pt\n\n`;
-    text += `📊 パラメータ\n`;
-    text += `⚔️ アクション: ${s.action}pt\n`;
-    text += `🪄 ファンタジー: ${s.fantasy}pt\n`;
-    text += `🚀 ＳＦ: ${s.scifi}pt\n`;
-    text += `☕️ 日常: ${s.sliceOfLife}pt\n`;
-    text += `💕 恋愛: ${s.romance}pt\n\n`;
+    let text = `${playerName} のアニマス名「${titleName}」✨\n`;
+    text += `総獲得pt: ${earnedPts}pt (正解率: ${rate}%)\n\n`;
     text += `#アニマス #アニメクイズ`;
-    
     return text;
   }
 
@@ -603,8 +623,8 @@
     const text = getShareText();
     if (type === 'copy') {
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => { alert("クリップボードにコピーしました！\nSNSなどに貼り付けてシェアしてください。"); }).catch(err => { alert("コピーに失敗しました。"); });
-      } else { alert("お使いのブラウザではコピー機能がサポートされていません。"); }
+        navigator.clipboard.writeText(text).then(() => { alert("コピーしました！"); }).catch(err => { alert("コピー失敗"); });
+      } else { alert("未サポートです"); }
     } else if (type === 'line') {
       window.open(`https://line.me/R/msg/text/?${encodeURIComponent(text)}`, '_blank');
     } else if (type === 'x') {
@@ -634,9 +654,7 @@
               font: { family: "'M PLUS Rounded 1c', sans-serif", size: 14, weight: '900' }, color: '#2f3542',
               callback: function(value, index) {
                 const stats = [appData.stats.action, appData.stats.fantasy, appData.stats.scifi, appData.stats.sliceOfLife, appData.stats.romance];
-                if (Array.isArray(value)) {
-                  return [...value, stats[index] + ' pt'];
-                }
+                if (Array.isArray(value)) return [...value, stats[index] + ' pt'];
                 return [value, stats[index] + ' pt'];
               }
             }, 
@@ -651,28 +669,6 @@
   function updateChart() {
     radarChart.data.datasets[0].data = [appData.stats.action, appData.stats.fantasy, appData.stats.scifi, appData.stats.sliceOfLife, appData.stats.romance];
     radarChart.update();
-  }
-
-  // --- ライフ回復ロジック ---
-  function checkLifeRecovery() {
-    const RECOVERY_MS = 10 * 60 * 1000;
-    if (appData.life >= 5) {
-      appData.lastLifeTime = Date.now();
-      document.getElementById('life-timer').innerText = "MAX";
-      saveData(); return;
-    }
-    const diff = Date.now() - appData.lastLifeTime;
-    if (diff >= RECOVERY_MS) {
-      const recovered = Math.floor(diff / RECOVERY_MS);
-      appData.life = Math.min(5, appData.life + recovered);
-      appData.lastLifeTime += recovered * RECOVERY_MS;
-      saveData(); updateHomeUI();
-    } else {
-      const remainMs = RECOVERY_MS - diff;
-      const remainMin = Math.floor(remainMs / (60 * 1000));
-      const remainSec = Math.floor((remainMs % (60 * 1000)) / 1000);
-      document.getElementById('life-timer').innerText = `あと ${String(remainMin).padStart(2, '0')}:${String(remainSec).padStart(2, '0')}`;
-    }
   }
 
   // --- 画面遷移とUI更新 ---
@@ -699,19 +695,21 @@
     document.getElementById('total-answers').innerText = appData.totalAnswers;
     const earnedPts = appData.stats.action + appData.stats.fantasy + appData.stats.scifi + appData.stats.sliceOfLife + appData.stats.romance; 
     document.getElementById('total-points').innerText = earnedPts;
+    
+    // 正解率の更新
+    const rate = appData.totalAnswers > 0 ? Math.floor((appData.totalCorrects / appData.totalAnswers) * 100) : 0;
+    const rateEl = document.getElementById('correct-rate');
+    if(rateEl) rateEl.innerText = rate;
+
     let lifeStr = "";
     for(let i=0; i<5; i++) { lifeStr += (i < appData.life) ? "💙" : "🤍"; }
     document.getElementById('life-icons').innerText = lifeStr;
     updateChart(); updateTitleDisplay();
 
-    // ライフが5未満の場合のみ広告ボタンを表示
     const adBtn = document.getElementById('ad-recover-btn');
     if (adBtn) {
-      if (appData.life < 5) {
-        adBtn.style.display = 'block';
-      } else {
-        adBtn.style.display = 'none';
-      }
+      if (appData.life < 5) adBtn.style.display = 'block';
+      else adBtn.style.display = 'none';
     }
   }
 
@@ -726,6 +724,13 @@
     appData.life--; saveData(); updateHomeUI();
     currentQuestion = available[Math.floor(Math.random() * available.length)];
     
+    let correctText = currentQuestion.choices[currentQuestion.correctIndex];
+    for (let i = currentQuestion.choices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [currentQuestion.choices[i], currentQuestion.choices[j]] = [currentQuestion.choices[j], currentQuestion.choices[i]];
+    }
+    currentQuestion.correctIndex = currentQuestion.choices.indexOf(correctText);
+
     document.getElementById('quiz-level-display').innerText = `Lv${currentLevel}`;
     document.getElementById('quiz-genre').innerText = `【 ${currentQuestion.anime} 】\n${currentQuestion.genre}`;
     document.getElementById('quiz-text').innerText = currentQuestion.text;
@@ -755,11 +760,10 @@
     }, 1000);
   }
 
-  // --- 統計記録処理 ---
+  // --- 統計 ---
   function recordStatistics(q, isCorrect) {
     if (!appData.statistics) appData.statistics = { anime: {}, genre: {}, level: {} };
     const s = appData.statistics;
-    
     if (!s.anime[q.anime]) s.anime[q.anime] = { total: 0, correct: 0 };
     s.anime[q.anime].total++; if (isCorrect) s.anime[q.anime].correct++;
     if (!s.genre[q.genre]) s.genre[q.genre] = { total: 0, correct: 0 };
@@ -772,7 +776,6 @@
     if (!appData.statistics) appData.statistics = { anime: {}, genre: {}, level: {} };
     const s = appData.statistics;
     let html = '';
-
     const makeSection = (title, dataObj, keyPrefix) => {
       let secHtml = `<div class="stats-section"><div class="stats-section-title">${title}</div>`;
       const keys = Object.keys(dataObj);
@@ -788,19 +791,16 @@
       secHtml += `</div>`;
       return secHtml;
     };
-
     html += makeSection('📌 アニメ別', s.anime, '');
     html += makeSection('📌 ジャンル別', s.genre, '');
     html += makeSection('📌 レベル別', s.level, 'Lv ');
-
     document.getElementById('stats-area').innerHTML = html;
   }
 
   // --- 回答処理 ---
   function handleAnswer(selectedIndex, btnElement) {
     if (!isAnswering) return;
-    isAnswering = false;
-    clearInterval(timerInterval);
+    isAnswering = false; clearInterval(timerInterval);
     appData.totalAnswers++;
     const isCorrect = (selectedIndex === currentQuestion.correctIndex);
     const btns = document.querySelectorAll('.choice-btn');
@@ -808,6 +808,7 @@
     recordStatistics(currentQuestion, isCorrect);
     if (isCorrect) {
       playCorrectSound();
+      appData.totalCorrects++; // 正解数加算
       btnElement.style.background = '#0be881'; btnElement.style.color = '#fff';
       const pt = currentQuestion.level;
       if(currentQuestion.genre === "アクション") appData.stats.action += pt;
@@ -819,12 +820,11 @@
       appData.answeredQuestions.push(currentQuestion.id);
       addHistory(true); 
       const newlyUnlocked = checkTitleUnlocks();
-
       saveData();
+      sendRankingData(); // ランキング送信
       
       setTimeout(() => { 
-        updateHomeUI(); 
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+        updateHomeUI(); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
         document.getElementById('home-screen').classList.add('active'); 
         if (newlyUnlocked.length > 0) showTitleModal(newlyUnlocked);
       }, 1200);
@@ -835,12 +835,11 @@
       btns[currentQuestion.correctIndex].style.color = '#fff';
       addHistory(false); 
       const newlyUnlocked = checkTitleUnlocks();
-      
       saveData();
+      sendRankingData(); // ランキング送信
 
       setTimeout(() => { 
-        updateHomeUI(); 
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+        updateHomeUI(); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
         document.getElementById('home-screen').classList.add('active'); 
         if (newlyUnlocked.length > 0) showTitleModal(newlyUnlocked);
       }, 2000);
@@ -851,24 +850,21 @@
     if (!isAnswering) return;
     isAnswering = false; appData.totalAnswers++;
     playIncorrectSound(); recordStatistics(currentQuestion, false); 
-
     const btns = document.querySelectorAll('.choice-btn');
     btns[currentQuestion.correctIndex].style.background = '#0be881';
     btns[currentQuestion.correctIndex].style.color = '#fff';
     addHistory(false, true);
     const newlyUnlocked = checkTitleUnlocks();
-    
     saveData();
+    sendRankingData(); // ランキング送信
 
     setTimeout(() => { 
-      updateHomeUI(); 
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+      updateHomeUI(); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
       document.getElementById('home-screen').classList.add('active'); 
       if (newlyUnlocked.length > 0) showTitleModal(newlyUnlocked);
     }, 2000);
   }
 
-  // --- 履歴追加 ---
   function addHistory(isCorrect, isTimeout = false) {
     let resultText = isCorrect ? "🌟 正解！" : (isTimeout ? "⏳ タイムアップ" : "💧 ザンネン...");
     let ptText = isCorrect ? `(+${currentQuestion.level}pt)` : "";
@@ -879,7 +875,6 @@
     </div>`;
     appData.history.unshift(historyStr);
     if(appData.history.length > 50) appData.history.pop();
-    
     const hl = document.getElementById('history-list');
     if(hl) hl.innerHTML = appData.history.join('');
   }
@@ -894,10 +889,7 @@
     let newlyUnlocked = [];
     titlesData.forEach(t => {
       if (!appData.unlockedTitles.includes(t.id)) {
-        if (t.check(appData)) { 
-          appData.unlockedTitles.push(t.id); 
-          newlyUnlocked.push(t);
-        }
+        if (t.check(appData)) { appData.unlockedTitles.push(t.id); newlyUnlocked.push(t); }
       }
     });
     if(newlyUnlocked.length > 0) saveData();
@@ -933,42 +925,28 @@
     titlesData.forEach(t => {
       const isUnlocked = appData.unlockedTitles.includes(t.id);
       const isCurrent = appData.currentTitleId === t.id;
-      
       if (isUnlocked) {
-        html += `
-          <div class="title-item">
-            <div class="title-info">
-              <div class="title-name">[${t.type}] ${t.title}</div>
-              <div class="title-desc">${t.condition_desc}</div>
-            </div>
-            <button class="title-btn ${isCurrent ? 'current' : ''}" 
-                    ${isCurrent ? 'disabled' : ''} 
-                    onclick="setCurrentTitle(${t.id})">
-              ${isCurrent ? 'セット中' : 'セットする'}
-            </button>
-          </div>
-        `;
+        html += `<div class="title-item"><div class="title-info"><div class="title-name">[${t.type}] ${t.title}</div><div class="title-desc">${t.condition_desc}</div></div><button class="title-btn ${isCurrent ? 'current' : ''}" ${isCurrent ? 'disabled' : ''} onclick="setCurrentTitle(${t.id})">${isCurrent ? 'セット中' : 'セットする'}</button></div>`;
       } else {
-        html += `
-          <div class="title-item locked">
-            <div class="title-info">
-              <div class="title-name">🔒 ？？？</div>
-              <div class="title-desc">解放条件: ${t.condition_desc}</div>
-            </div>
-            <button class="title-btn" disabled>未獲得</button>
-          </div>
-        `;
+        html += `<div class="title-item locked"><div class="title-info"><div class="title-name">🔒 ？？？</div><div class="title-desc">解放条件: ${t.condition_desc}</div></div><button class="title-btn" disabled>未獲得</button></div>`;
       }
     });
     list.innerHTML = html;
   }
 
   function setCurrentTitle(id) {
-    playClick(); appData.currentTitleId = id; saveData();
-    updateHomeUI(); renderTitleList();
+    playClick(); appData.currentTitleId = id; saveData(); updateHomeUI(); renderTitleList();
   }
 
-  window.onload = loadGameData;
+  // --- 初期起動処理 ---
+  window.onload = async () => {
+    await loadGameData();
+    if (!playerName) {
+      document.getElementById('name-modal').classList.add('active');
+    } else {
+      updatePlayerNameDisplay();
+    }
+  };
 </script>
 </body>
 </html>
