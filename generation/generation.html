@@ -288,9 +288,9 @@
     <button class="btn-back-mode" onclick="window.location.href='../index.html'">🔙 モード選択に戻る</button>
 
     <div class="level-select">
-      <button class="level-btn" onclick="selectLevel(1)">Lv 1</button>
-      <button class="level-btn" onclick="selectLevel(2)">Lv 2</button>
-      <button class="level-btn" onclick="selectLevel(3)">Lv 3</button>
+      <button class="level-btn" onclick="selectLevel(1, this)">Lv 1</button>
+      <button class="level-btn" onclick="selectLevel(2, this)">Lv 2</button>
+      <button class="level-btn" onclick="selectLevel(3, this)">Lv 3</button>
     </div>
 
     <button class="action-btn" id="start-btn" onclick="startQuiz()" disabled>データ読み込み中...</button>
@@ -407,7 +407,7 @@
         };
       });
 
-      // 称号データの読み込み（一つ上の階層）
+      // 称号データの読み込み
       try {
         const tRes = await fetch('../titles.json');
         if (tRes.ok) {
@@ -462,7 +462,16 @@
     unlockedTitles: [1], currentTitleId: 1,
     statistics: { anime: {}, genre: {}, level: {} }
   };
+  
   let appData = JSON.parse(localStorage.getItem('animasGenerationData')) || DEFAULT_DATA;
+  
+  // ★ 古いセーブデータが残っている場合の崩壊バスター（データ構造クレンジング）★
+  if (!appData.stats) appData.stats = {};
+  if (typeof appData.stats.showaEarly === 'undefined') appData.stats.showaEarly = 0;
+  if (typeof appData.stats.showaLate === 'undefined') appData.stats.showaLate = 0;
+  if (typeof appData.stats.heiseiEarly === 'undefined') appData.stats.heiseiEarly = 0;
+  if (typeof appData.stats.heiseiLate === 'undefined') appData.stats.heiseiLate = 0;
+  if (typeof appData.stats.reiwa === 'undefined') appData.stats.reiwa = 0;
   if (!appData.unlockedTitles) appData.unlockedTitles = [1];
   if (!appData.currentTitleId) appData.currentTitleId = 1;
   if (!appData.statistics) appData.statistics = { anime: {}, genre: {}, level: {} };
@@ -475,30 +484,17 @@
   let currentQuestion = null; let radarChart;
   
   function init() {
+    playerName = localStorage.getItem('animasPlayerName') || 'ゲスト';
     initChart(); checkTitleUnlocks(); updateHomeUI(); renderHistory(); setInterval(checkLifeRecovery, 1000);
   }
 
   function saveData() { localStorage.setItem('animasGenerationData', JSON.stringify(appData)); }
-
-  // --- 広告を見て回復する処理（仮） ---
-  function watchAdToRecover() {
-    playClick();
-    const btn = document.getElementById('ad-recover-btn');
-    btn.disabled = true; btn.innerText = "⏳ 広告を再生中..."; 
-    setTimeout(() => {
-      appData.life = 5; appData.lastLifeTime = Date.now();
-      saveData(); updateHomeUI(); 
-      alert("広告の視聴が完了しました！\nライフが全回復しました！💙");
-      btn.disabled = false; btn.innerText = "📺 広告を見てライフ全回復！";
-    }, 2000); 
-  }
 
   // --- ランキングAPI（ダミー＆将来用） ---
   let currentRankingTab = 'point';
 
   function showRankingScreen() {
     playClick();
-    // 画面を開く直前に最新の名前をロード
     playerName = localStorage.getItem('animasPlayerName') || 'ゲスト';
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('ranking-screen').classList.add('active');
@@ -514,7 +510,6 @@
     const listArea = document.getElementById('ranking-list-area');
     listArea.innerHTML = '<div style="text-align:center; padding:30px; font-size:18px; color:var(--primary);">通信中...</div>';
     
-    // 自身のスコアと参加条件
     const myTotalPt = Object.values(appData.stats).reduce((a, b) => a + b, 0);
     const myRate = appData.totalAnswers > 0 ? Math.floor((appData.totalCorrects / appData.totalAnswers) * 100) : 0;
     let myVal = type === 'point' ? myTotalPt : myRate;
@@ -530,7 +525,6 @@
     }
     infoHtml += `</div>`;
 
-    // ダミーのモックアップデータを生成
     setTimeout(() => {
         let dummyData = [];
         for(let i=1; i<=30; i++) {
@@ -539,7 +533,7 @@
                 name: i === 12 && appData.totalAnswers >= 100 ? playerName : `世代マスター${i}号`,
                 score: 15000 - (i * 350),
                 rate: 99 - Math.floor(i * 1.5),
-                date: '2023/10/25'
+                date: '2026/05/18'
             });
         }
         
@@ -569,7 +563,6 @@
       if (appData.totalAnswers < 100 || !playerName || playerName === 'ゲスト') return;
       const totalPts = Object.values(appData.stats).reduce((a, b) => a + b, 0);
       const rate = Math.floor((appData.totalCorrects / appData.totalAnswers) * 100);
-      // console.log(`GASへ送信: 名前=${playerName}, スコア=${totalPts}, 正解率=${rate}`);
   }
 
   // --- シェア機能 ---
@@ -582,7 +575,6 @@
     let text = `${playerName} の世代別称号「${titleName}」✨\n`;
     text += `総獲得pt: ${earnedPts}pt (正解率: ${rate}%)\n\n`;
     text += `#アニマス世代別 #アニメクイズ`;
-    
     return text;
   }
 
@@ -638,6 +630,28 @@
     radarChart.update();
   }
 
+  // --- ライフ回復ロジック ---
+  function checkLifeRecovery() {
+    const RECOVERY_MS = 10 * 60 * 1000;
+    if (appData.life >= 5) {
+      appData.lastLifeTime = Date.now();
+      document.getElementById('life-timer').innerText = "MAX";
+      saveData(); return;
+    }
+    const diff = Date.now() - appData.lastLifeTime;
+    if (diff >= RECOVERY_MS) {
+      const recovered = Math.floor(diff / RECOVERY_MS);
+      appData.life = Math.min(5, appData.life + recovered);
+      appData.lastLifeTime += recovered * RECOVERY_MS;
+      saveData(); updateHomeUI();
+    } else {
+      const remainMs = RECOVERY_MS - diff;
+      const remainMin = Math.floor(remainMs / (60 * 1000));
+      const remainSec = Math.floor((remainMs % (60 * 1000)) / 1000);
+      document.getElementById('life-timer').innerText = `あと ${String(remainMin).padStart(2, '0')}:${String(remainSec).padStart(2, '0')}`;
+    }
+  }
+
   // --- 画面遷移とUI更新 ---
   function showScreen(screenId) {
     playClick();
@@ -646,15 +660,11 @@
     document.getElementById(screenId).classList.add('active');
   }
 
-  function selectLevel(level) {
+  function selectLevel(level, btnElement) {
     playClick();
     currentLevel = level;
     document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('selected'));
-    event.target.classList.add('selected');
-  }
-
-  UX = function() {
-    playerName = localStorage.getItem('animasPlayerName') || 'ゲスト';
+    btnElement.classList.add('selected');
   }
 
   function updateTitleDisplay() {
@@ -946,9 +956,7 @@
     updateHomeUI(); renderTitleList();
   }
 
-  // --- 初期起動処理 ---
   window.onload = async () => {
-    UX();
     await loadGameData();
   };
 </script>
