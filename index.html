@@ -56,14 +56,20 @@
   }
 
   /* 画面切り替えアニメーション */
-  .screen { display: none; padding: 12px; box-sizing: border-box; height: 100%; overflow-y: auto; flex-direction: column; }
+  .screen { display: none; padding: 10px; box-sizing: border-box; height: 100%; overflow-y: auto; flex-direction: column; }
   .screen.active { display: flex; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes popIn { 
     from { opacity: 0; transform: scale(0.9) translateY(20px); } 
     to { opacity: 1; transform: scale(1) translateY(0); } 
   }
 
-  /* ロゴ */
+  /* ホーム画面はスクロール無効化し全体を綺麗に1画面に収める */
+  #home-screen {
+    overflow-y: hidden;
+    justify-content: space-between;
+  }
+
+  /* ロゴのアニメーション設定 */
   .title-logo {
     font-size: 45px; color: #fff; font-weight: 900; line-height: 1.2; text-align: center;
     text-shadow: 4px 4px 0 var(--border-color), -2px -2px 0 var(--border-color), 2px -2px 0 var(--border-color), -2px 2px 0 var(--border-color);
@@ -88,54 +94,42 @@
   
   /* ホーム画面のアニマス名表示 */
   .animas-name {
-    text-align: center; padding: 10px;
+    text-align: center; padding: 6px;
     background-color: #ffd32a;
     border-radius: 15px; border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color);
-    margin-bottom: 10px; font-size: 13px; color: var(--border-color);
+    margin-bottom: 6px; font-size: 13px; color: var(--border-color);
   }
   #animas-title {
     font-size: 22px; color: #ff3f34; display: block; margin-top: 2px; text-shadow: 2px 2px 0 var(--white);
   }
 
-  /* ステータスバー */
+  /* ステータスバー（ライフ・問題数・獲得pt・正解率） */
   .status-bar {
     display: flex; justify-content: space-between; align-items: center;
     background: #0be881;
-    padding: 8px 12px; border-radius: 12px;
+    padding: 6px 12px; border-radius: 12px;
     border: 3px solid var(--border-color); box-shadow: 4px 4px 0px var(--border-color);
-    margin-bottom: 10px; font-weight: 900;
+    margin-bottom: 6px; font-weight: 900;
   }
   .life-area { text-align: right; }
   .life-icons { letter-spacing: 2px; text-shadow: 1px 1px 0px var(--border-color); }
   #life-timer { font-size: 11px; color: var(--text-main); background: var(--white); padding: 4px 10px; border-radius: 10px; display: inline-block; margin-top: 4px; border: 2px solid var(--border-color); font-weight: 900;}
 
-  /* レーダーチャート */
+  /* レーダーチャートの囲み（パラメータ拡大＆中央配置） */
   .chart-container {
     background: transparent; border: none; box-shadow: none;
-    padding: 0px 5px; margin-bottom: 10px; flex-grow: 1; 
+    padding: 0px; margin: 6px 0; flex-grow: 1; 
     display: flex; align-items: center; justify-content: center;
   }
-  canvas { width: 100% !important; max-height: 280px !important; }
-
-  /* レベル選択ボタン */
-  .level-select { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
-  .level-btn {
-    flex: 1; padding: 10px 0; border: 3px solid var(--border-color); border-radius: 12px;
-    background-color: #fff; color: var(--text-main); font-weight: 900; cursor: pointer;
-    box-shadow: 0 4px 0px var(--border-color); transition: all 0.1s; font-size: 15px;
-  }
-  .level-btn.selected {
-    background: #4bcffa; color: #fff; text-shadow: 1px 1px 0 var(--border-color);
-    transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color);
-  }
+  canvas { width: 100% !important; max-height: 330px !important; }
 
   /* アクションボタン */
   .action-btn {
-    width: 100%; padding: 14px; border: 3px solid var(--border-color) !important; border-radius: 15px;
-    background: linear-gradient(135deg, #ff9ff3 0%, #feca57 100%) !important; color: #fff !important; font-size: 18px; font-weight: 900; margin-bottom: 10px; cursor: pointer; box-shadow: 0 5px 0px var(--border-color); transition: transform 0.1s, box-shadow 0.1s; text-shadow: 2px 2px 0 var(--border-color); font-family: 'M PLUS Rounded 1c', sans-serif;
+    width: 100%; padding: 12px; border: 3px solid var(--border-color) !important; border-radius: 15px;
+    background: linear-gradient(135deg, #ff9ff3 0%, #feca57 100%) !important; color: #fff !important; font-size: 18px; font-weight: 900; margin-bottom: 6px; cursor: pointer; box-shadow: 0 4px 0px var(--border-color); transition: transform 0.1s, box-shadow 0.1s; text-shadow: 2px 2px 0 var(--border-color); font-family: 'M PLUS Rounded 1c', sans-serif;
   }
-  .action-btn:active { transform: translateY(5px); box-shadow: 0 0px 0 var(--border-color); }
-  .action-btn:disabled { background: #d2dae2 !important; box-shadow: 0 5px 0 #808e9b !important; border-color: #808e9b !important; text-shadow: none !important; cursor: not-allowed; transform: none; }
+  .action-btn:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); }
+  .action-btn:disabled { background: #d2dae2 !important; box-shadow: 0 4px 0 #808e9b !important; border-color: #808e9b !important; text-shadow: none !important; cursor: not-allowed; transform: none; }
 
   /* モード選択のデータ表示用 */
   .mode-info-box {
@@ -145,14 +139,14 @@
   .info-highlight { color: #ffd32a; font-size: 18px; text-shadow: 1px 1px 0 #2f3542; }
 
   /* サブボタン */
-  .share-area, .history-link { display: flex; justify-content: space-between; gap: 6px; margin-bottom: 10px; }
+  .share-area, .history-link { display: flex; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
   .share-area button, .history-link button {
-    flex: 1; padding: 8px 4px; border: 3px solid var(--border-color); border-radius: 10px; font-weight: 900;
-    cursor: pointer; transition: all 0.1s; font-size: 13px; box-shadow: 0 4px 0px var(--border-color);
+    flex: 1; padding: 6px 4px; border: 3px solid var(--border-color); border-radius: 10px; font-weight: 900;
+    cursor: pointer; transition: all 0.1s; font-size: 13px; box-shadow: 0 3px 0px var(--border-color);
   }
   .share-area button { background: #fff; color: var(--text-main); }
   .history-link button { background-color: #d2dae2; color: var(--text-main); font-size: 12px; }
-  .share-area button:active, .history-link button:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); }
+  .share-area button:active, .history-link button:active { transform: translateY(3px); box-shadow: 0 0px 0 var(--border-color); }
 
   /* ランキングタブ */
   .ranking-tabs { display: flex; gap: 5px; margin-bottom: 10px; }
@@ -190,21 +184,6 @@
   .title-btn:active { transform: translateY(3px); box-shadow: 0 0px 0 var(--border-color); }
   .title-btn.current { background: #ffdd59; color: var(--text-main); text-shadow: none; }
   .title-btn:disabled { background: #808e9b; color: #d2dae2; border-color: #808e9b; box-shadow: none; cursor: not-allowed; transform: none; text-shadow: none;}
-
-  /* モーダル群 */
-  .modal-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(47, 53, 66, 0.8); z-index: 100; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
-  .modal-overlay.active { display: flex; animation: fadeInModal 0.3s ease; }
-  .modal-content { background: radial-gradient(circle, #ffffff 0%, #fff2cc 100%); padding: 20px; border-radius: 20px; width: 100%; max-height: 80vh; overflow-y: auto; border: 4px solid var(--border-color); box-shadow: 8px 8px 0px var(--border-color); text-align: center; animation: popModal 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-  .modal-content::-webkit-scrollbar { width: 6px; }
-  .modal-content::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
-  @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes popModal { from { transform: scale(0.5) rotate(-10deg); } to { transform: scale(1) rotate(0deg); } }
-  
-  .modal-title { color: #ff4757; text-shadow: 2px 2px 0px var(--border-color); font-size: 26px; margin-top: 0; margin-bottom: 20px; font-weight: 900; animation: flashText 1.5s infinite; }
-  .new-title-item { background: #fff; border: 3px solid var(--border-color); border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 4px 4px 0px var(--border-color); }
-  .new-title-label { font-size: 12px; color: #ff4757; font-weight: 900; margin-bottom: 5px; }
-  .new-title-name { font-size: 20px; color: #3c40c6; font-weight: 900; margin-bottom: 8px; }
-  .new-title-desc { font-size: 13px; color: var(--text-main); font-weight: 900; }
 </style>
 </head>
 <body>
@@ -253,15 +232,9 @@
 
     <div class="chart-container"><canvas id="radarChart"></canvas></div>
 
-    <div class="level-select">
-      <button class="level-btn" onclick="selectLevel(1)">Lv 1</button>
-      <button class="level-btn" onclick="selectLevel(2)">Lv 2</button>
-      <button class="level-btn" onclick="selectLevel(3)">Lv 3</button>
-    </div>
-
     <button class="action-btn" id="start-btn" onclick="startQuiz()" disabled>データ読み込み中...</button>
     
-    <button id="ad-recover-btn" class="action-btn" style="display: none; background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%) !important; margin-bottom: 10px;" onclick="watchAdToRecover()">
+    <button id="ad-recover-btn" class="action-btn" style="display: none; background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%) !important; margin-bottom: 6px;" onclick="watchAdToRecover()">
       📺 広告を見てライフ全回復！
     </button>
 
@@ -277,7 +250,7 @@
       <button onclick="showScreen('history-screen')">📊 データ</button>
     </div>
     
-    <button class="action-btn" style="margin-top: 10px; padding: 10px; font-size: 15px; background: linear-gradient(135deg, #d2dae2 0%, #a4b0be 100%) !important; color: #2f3542 !important; text-shadow: 1px 1px 0 #fff !important; border-color: #808e9b !important; box-shadow: 0 4px 0px #808e9b !important;" onclick="goToModeSelect()">⬅️ モード選択に戻る</button>
+    <button class="action-btn" style="margin-top: 4px; padding: 8px; font-size: 15px; background: linear-gradient(135deg, #d2dae2 0%, #a4b0be 100%) !important; color: #2f3542 !important; text-shadow: 1px 1px 0 #fff !important; border-color: #808e9b !important; box-shadow: 0 3px 0px #808e9b !important; margin-bottom: 0;" onclick="goToModeSelect()">⬅️ モード選択に戻る</button>
   </div>
 
   <div id="quiz-screen" class="screen">
@@ -308,8 +281,7 @@
       <div id="ranking-tab-rate" class="ranking-tab" onclick="loadRankingData('rate')">正解率</div>
     </div>
     
-    <div class="custom-list" id="ranking-list-area" style="padding: 10px;">
-      </div>
+    <div class="custom-list" id="ranking-list-area" style="padding: 10px;"></div>
 
     <button class="action-btn" onclick="showScreen('home-screen')">🏠 ホームに戻る</button>
   </div>
@@ -462,8 +434,6 @@
     document.getElementById('name-modal').classList.remove('active');
     updatePlayerNameDisplay();
     playClick();
-    
-    // 100問解いていれば名前変更と同時にランキング送信
     sendRankingData();
   }
 
@@ -496,7 +466,6 @@
   if (typeof appData.totalCorrects === 'undefined') appData.totalCorrects = 0;
   
   // 状態管理
-  let currentLevel = null;
   let isAnswering = false;
   let timerInterval; let timeLeft = 10;
   let currentQuestion = null; let radarChart;
@@ -511,7 +480,7 @@
 
   function saveData() { localStorage.setItem('animasData', JSON.stringify(appData)); }
 
-  // --- 広告を見て回復する処理（仮） ---
+  // --- 広告を見て回復する処理 ---
   function watchAdToRecover() {
     playClick();
     const btn = document.getElementById('ad-recover-btn');
@@ -524,7 +493,7 @@
     }, 2000); 
   }
 
-  // --- ランキングAPI（ダミー＆将来用） ---
+  // --- ランキングAPI ---
   let currentRankingTab = 'point';
 
   function showRankingScreen() {
@@ -543,7 +512,6 @@
     const listArea = document.getElementById('ranking-list-area');
     listArea.innerHTML = '<div style="text-align:center; padding:30px; font-size:18px; color:var(--primary);">通信中...</div>';
     
-    // 自身のスコアと参加条件
     const myTotalPt = Object.values(appData.stats).reduce((a, b) => a + b, 0);
     const myRate = appData.totalAnswers > 0 ? Math.floor((appData.totalCorrects / appData.totalAnswers) * 100) : 0;
     let myVal = type === 'point' ? myTotalPt : myRate;
@@ -559,8 +527,6 @@
     }
     infoHtml += `</div>`;
 
-    // 将来的にはここでGASのURLを叩き（fetch）、JSONを受け取る
-    // 今回はダミーのモックアップデータを生成
     setTimeout(() => {
         let dummyData = [];
         for(let i=1; i<=30; i++) {
@@ -569,7 +535,7 @@
                 name: i === 12 && appData.totalAnswers >= 100 ? playerName : `アニメマスター${i}号`,
                 score: 15000 - (i * 350),
                 rate: 99 - Math.floor(i * 1.5),
-                date: '2023/10/25'
+                date: '2026/05/18'
             });
         }
         
@@ -595,14 +561,8 @@
     }, 800);
   }
 
-  // スコア送信処理（将来用モックアップ）
   function sendRankingData() {
       if (appData.totalAnswers < 100 || !playerName) return;
-      const totalPts = Object.values(appData.stats).reduce((a, b) => a + b, 0);
-      const rate = Math.floor((appData.totalCorrects / appData.totalAnswers) * 100);
-      
-      // console.log(`GASへ送信: 名前=${playerName}, スコア=${totalPts}, 正解率=${rate}`);
-      // 将来的にはここに fetch('GASのURL', { method:'POST', body: ... }) を記述します
   }
 
   // --- シェア機能 ---
@@ -671,6 +631,28 @@
     radarChart.update();
   }
 
+  // --- ライフ回復ロジック ---
+  function checkLifeRecovery() {
+    const RECOVERY_MS = 10 * 60 * 1000;
+    if (appData.life >= 5) {
+      appData.lastLifeTime = Date.now();
+      document.getElementById('life-timer').innerText = "MAX";
+      saveData(); return;
+    }
+    const diff = Date.now() - appData.lastLifeTime;
+    if (diff >= RECOVERY_MS) {
+      const recovered = Math.floor(diff / RECOVERY_MS);
+      appData.life = Math.min(5, appData.life + recovered);
+      appData.lastLifeTime += recovered * RECOVERY_MS;
+      saveData(); updateHomeUI();
+    } else {
+      const remainMs = RECOVERY_MS - diff;
+      const remainMin = Math.floor(remainMs / (60 * 1000));
+      const remainSec = Math.floor((remainMs % (60 * 1000)) / 1000);
+      document.getElementById('life-timer').innerText = `あと ${String(remainMin).padStart(2, '0')}:${String(remainSec).padStart(2, '0')}`;
+    }
+  }
+
   // --- 画面遷移とUI更新 ---
   function showScreen(screenId) {
     playClick();
@@ -679,11 +661,9 @@
     document.getElementById(screenId).classList.add('active');
   }
 
-  function selectLevel(level) {
+  // レベル選択ボタンを廃止したため不要ですが、互換性のために統合
+  function selectLevel(level, btnElement) {
     playClick();
-    currentLevel = level;
-    document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('selected'));
-    event.target.classList.add('selected');
   }
 
   function updateTitleDisplay() {
@@ -691,12 +671,15 @@
     document.getElementById('animas-title').innerText = t ? t.title : "見習いウォッチャー";
   }
 
+  UX = function() {
+    playerName = localStorage.getItem('animasPlayerName') || '';
+  }
+
   function updateHomeUI() {
     document.getElementById('total-answers').innerText = appData.totalAnswers;
     const earnedPts = appData.stats.action + appData.stats.fantasy + appData.stats.scifi + appData.stats.sliceOfLife + appData.stats.romance; 
     document.getElementById('total-points').innerText = earnedPts;
     
-    // 正解率の更新
     const rate = appData.totalAnswers > 0 ? Math.floor((appData.totalCorrects / appData.totalAnswers) * 100) : 0;
     const rateEl = document.getElementById('correct-rate');
     if(rateEl) rateEl.innerText = rate;
@@ -713,17 +696,19 @@
     }
   }
 
-  // --- クイズ開始 ---
+  // --- クイズ開始（全レベルから完全にランダムで出題） ---
   function startQuiz() {
     playClick();
-    if (!currentLevel) { alert("レベルを選択してください！"); return; }
     if (appData.life <= 0) { alert("ライフが回復するまでお待ちください！"); return; }
-    const available = questionsData.filter(q => q.level === currentLevel && !appData.answeredQuestions.includes(q.id));
-    if (available.length === 0) { alert("このレベルの問題はすべてクリアしました！"); return; }
+    
+    // レベルによる制限をなくし、未クリア（未回答）の問題から選出
+    const available = questionsData.filter(q => !appData.answeredQuestions.includes(q.id));
+    if (available.length === 0) { alert("すべてのクイズをクリアしました！クリアおめでとうございます！"); return; }
 
     appData.life--; saveData(); updateHomeUI();
     currentQuestion = available[Math.floor(Math.random() * available.length)];
     
+    // 選択肢のシャッフル処理
     let correctText = currentQuestion.choices[currentQuestion.correctIndex];
     for (let i = currentQuestion.choices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -731,7 +716,8 @@
     }
     currentQuestion.correctIndex = currentQuestion.choices.indexOf(correctText);
 
-    document.getElementById('quiz-level-display').innerText = `Lv${currentLevel}`;
+    // ヘッダーに出題問題の元のレベルを表示
+    document.getElementById('quiz-level-display').innerText = `Lv${currentQuestion.level}`;
     document.getElementById('quiz-genre').innerText = `【 ${currentQuestion.anime} 】\n${currentQuestion.genre}`;
     document.getElementById('quiz-text').innerText = currentQuestion.text;
     
@@ -793,7 +779,7 @@
     };
     html += makeSection('📌 アニメ別', s.anime, '');
     html += makeSection('📌 ジャンル別', s.genre, '');
-    html += makeSection('📌 レベル別', s.level, 'Lv ');
+    html += makeSection('📌 レレベル別', s.level, 'Lv ');
     document.getElementById('stats-area').innerHTML = html;
   }
 
@@ -808,9 +794,9 @@
     recordStatistics(currentQuestion, isCorrect);
     if (isCorrect) {
       playCorrectSound();
-      appData.totalCorrects++; // 正解数加算
+      appData.totalCorrects++;
       btnElement.style.background = '#0be881'; btnElement.style.color = '#fff';
-      const pt = currentQuestion.level;
+      const pt = currentQuestion.level; // レベルの値がそのままポイントになる
       if(currentQuestion.genre === "アクション") appData.stats.action += pt;
       if(currentQuestion.genre === "ファンタジー") appData.stats.fantasy += pt;
       if(currentQuestion.genre === "SF") appData.stats.scifi += pt;
@@ -821,7 +807,7 @@
       addHistory(true); 
       const newlyUnlocked = checkTitleUnlocks();
       saveData();
-      sendRankingData(); // ランキング送信
+      sendRankingData();
       
       setTimeout(() => { 
         updateHomeUI(); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
@@ -836,7 +822,7 @@
       addHistory(false); 
       const newlyUnlocked = checkTitleUnlocks();
       saveData();
-      sendRankingData(); // ランキング送信
+      sendRankingData();
 
       setTimeout(() => { 
         updateHomeUI(); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
@@ -856,7 +842,7 @@
     addHistory(false, true);
     const newlyUnlocked = checkTitleUnlocks();
     saveData();
-    sendRankingData(); // ランキング送信
+    sendRankingData();
 
     setTimeout(() => { 
       updateHomeUI(); document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
@@ -940,12 +926,9 @@
 
   // --- 初期起動処理 ---
   window.onload = async () => {
+    UX();
     await loadGameData();
-    if (!playerName) {
-      document.getElementById('name-modal').classList.add('active');
-    } else {
-      updatePlayerNameDisplay();
-    }
+    updatePlayerNameDisplay();
   };
 </script>
 </body>
