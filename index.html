@@ -292,6 +292,11 @@
         世代別モード
         <div class="mode-info-box" id="gen-info-text">データ読み込み中...</div>
       </button>
+
+      <button class="action-btn" style="padding: 15px; font-size: 22px;" onclick="window.location.href='onepiece/onepiece.html'">
+        ワンピースモード
+        <div class="mode-info-box" id="onepiece-info-text">データ読み込み中...</div>
+      </button>
       
     </div>
   </div>
@@ -425,7 +430,7 @@
         if (gRes.ok) {
           const gText = await gRes.text();
           const genData = JSON.parse(gText);
-          const gUniqueAnimes = new Set(genData.map(q => q["アニメ名"])).size;
+          const gUniqueAnimes = new Set(genData.map(q => q["アニメ名"] || q.anime)).size;
           const gTotalQuestions = genData.length;
           document.getElementById('gen-info-text').innerHTML = `📺 収録アニメ: <span class="info-highlight">${gUniqueAnimes}</span> 作品<br>📝 総問題数: <span class="info-highlight">${gTotalQuestions}</span> 問`;
         } else {
@@ -433,6 +438,22 @@
         }
       } catch (e) {
         document.getElementById('gen-info-text').innerHTML = `📺 収録アニメ: 準備中<br>📝 総問題数: 準備中`;
+      }
+
+      // ★ 収録アニメ数と問題数の計算・表示 (ワンピース)
+      try {
+        const oRes = await fetch('onepiece/onepiece.json');
+        if (oRes.ok) {
+          const oText = await oRes.text();
+          const onePieceData = JSON.parse(oText);
+          const oUniqueAnimes = new Set(onePieceData.map(q => q["アニメ名"] || q.anime)).size;
+          const oTotalQuestions = onePieceData.length;
+          document.getElementById('onepiece-info-text').innerHTML = `📺 収録アニメ: <span class="info-highlight">${oUniqueAnimes}</span> 作品<br>📝 総問題数: <span class="info-highlight">${oTotalQuestions}</span> 問`;
+        } else {
+          document.getElementById('onepiece-info-text').innerHTML = `📺 収録アニメ: 準備中<br>📝 総問題数: 準備中`;
+        }
+      } catch (e) {
+        document.getElementById('onepiece-info-text').innerHTML = `📺 収録アニメ: 準備中<br>📝 総問題数: 準備中`;
       }
 
       // 称号データ読み込み
