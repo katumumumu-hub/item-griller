@@ -94,8 +94,7 @@
   }
   .life-area { text-align: right; }
   .life-icons { letter-spacing: 2px; text-shadow: 1px 1px 0px var(--border-color); }
-  #life-timer { font-size: 11px; color: var(--text-main); background: var(--white); padding: 4px 10px; border-radius: 10px; display: inline-block; margin-top: 4px;
-  border: 2px solid var(--border-color); font-weight: 900;}
+  #life-timer { font-size: 11px; color: var(--text-main); background: var(--white); padding: 4px 10px; border-radius: 10px; display: inline-block; margin-top: 4px; border: 2px solid var(--border-color); font-weight: 900;}
 
   /* レーダーチャート */
   .chart-container {
@@ -155,7 +154,12 @@
     box-shadow: 0 4px 0px var(--border-color); transition: all 0.1s;
   }
   .history-link button:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--border-color); }
-  .dev-btn { background-color: #ffb822 !important; color: #fff !important; text-shadow: 1px 1px 0 var(--border-color); }
+
+  /* ランキングタブ */
+  .ranking-tabs { display: flex; gap: 5px; margin-bottom: 10px; }
+  .ranking-tab { flex: 1; padding: 10px; text-align: center; font-weight: 900; font-size: 14px; border: 3px solid var(--border-color); border-radius: 10px; background: #fff; cursor: pointer; transition: 0.2s; box-shadow: 0 3px 0 var(--border-color); }
+  .ranking-tab:active { transform: translateY(3px); box-shadow: 0 0 0 var(--border-color); }
+  .ranking-tab.active-tab { background: #4bcffa; color: #fff; text-shadow: 1px 1px 0 var(--border-color); }
 
   /* --- 回答画面要素 --- */
   .quiz-info {
@@ -231,7 +235,7 @@
   .title-btn.current { background: #ffdd59; color: var(--text-main); text-shadow: none; }
   .title-btn:disabled { background: #808e9b; color: #d2dae2; border-color: #808e9b; box-shadow: none; cursor: not-allowed; transform: none; text-shadow: none;}
 
-  /* --- 称号獲得通知モーダル --- */
+  /* モーダル群 */
   .modal-overlay {
     display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(47, 53, 66, 0.8); z-index: 100; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;
@@ -271,6 +275,7 @@
       <div>
         <div style="font-size:14px;">総回答数 <span id="total-answers" style="color:#ff3f34; font-size:18px; text-shadow: 1px 1px 0 #fff;">0</span> 問</div>
         <div style="font-size:12px; margin-top:2px; color:var(--text-main);">総獲得pt <span id="total-points" style="color:#ffa502; font-size:16px; text-shadow: 1px 1px 0 #fff;">0</span> pt</div>
+        <div style="font-size:12px; margin-top:2px; color:var(--text-main);">正解率 <span id="correct-rate" style="color:#0be881; font-size:16px; text-shadow: 1px 1px 0 #fff;">0</span> %</div>
       </div>
       <div class="life-area">
         <div class="life-icons" id="life-icons">💙💙💙💙💙</div>
@@ -302,6 +307,7 @@
     
     <div class="history-link">
       <button onclick="showTitleScreen()">🏆 称号</button>
+      <button onclick="showRankingScreen()" style="background:#ff9ff3; color:#fff; text-shadow:1px 1px 0 var(--border-color);">👑 ﾗﾝｷﾝｸﾞ</button>
       <button onclick="showScreen('history-screen')">📊 データ</button>
     </div>
   </div>
@@ -325,6 +331,20 @@
     <div class="custom-list" id="title-list"></div>
     <button class="action-btn" onclick="showScreen('home-screen')">🏠 ホームに戻る</button>
   </div>
+
+  <div id="ranking-screen" class="screen">
+    <div class="header">👑 ランキング</div>
+    
+    <div class="ranking-tabs">
+      <div id="ranking-tab-point" class="ranking-tab active-tab" onclick="loadRankingData('point')">総合ポイント</div>
+      <div id="ranking-tab-rate" class="ranking-tab" onclick="loadRankingData('rate')">正解率</div>
+    </div>
+    
+    <div class="custom-list" id="ranking-list-area" style="padding: 10px;">
+      </div>
+
+    <button class="action-btn" onclick="showScreen('home-screen')">🏠 ホームに戻る</button>
+  </div>
   
   <div id="title-unlock-modal" class="modal-overlay">
     <div class="modal-content">
@@ -345,52 +365,39 @@
     if (!audioCtx) audioCtx = new AudioContext();
     if (audioCtx.state === 'suspended') audioCtx.resume();
   }
-
   function playTone(freq, type, duration, vol=0.1) {
     if (!audioCtx) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + duration);
+    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+    osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + duration);
   }
-
   function playClick() { initAudio(); playTone(800, 'sine', 0.05, 0.05); }
-  function playCorrectSound() {
-    initAudio();
-    playTone(523.25, 'sine', 0.1, 0.1); setTimeout(() => playTone(659.25, 'sine', 0.1, 0.1), 100); setTimeout(() => playTone(783.99, 'sine', 0.3, 0.1), 200); 
-  }
-  function playIncorrectSound() {
-    initAudio();
-    playTone(200, 'sawtooth', 0.2, 0.1); setTimeout(() => playTone(150, 'sawtooth', 0.4, 0.1), 150);
-  }
+  function playCorrectSound() { initAudio(); playTone(523.25, 'sine', 0.1, 0.1); setTimeout(() => playTone(659.25, 'sine', 0.1, 0.1), 100); setTimeout(() => playTone(783.99, 'sine', 0.3, 0.1), 200); }
+  function playIncorrectSound() { initAudio(); playTone(200, 'sawtooth', 0.2, 0.1); setTimeout(() => playTone(150, 'sawtooth', 0.4, 0.1), 150); }
 
-  // --- 空の配列を用意 ---
+  // --- 全体共通変数 ---
   let questionsData = [];
   let titlesData = [];
   let isDataLoaded = false;
+  let playerName = localStorage.getItem('animasPlayerName') || 'ゲスト';
 
   // --- 非同期でJSONデータを読み込む処理 ---
   async function loadGameData() {
     try {
-      // 1. クイズデータの読み込み（同フォルダ）
+      // クイズデータの読み込み
       const qRes = await fetch('./generation.json');
       if (!qRes.ok) throw new Error(`HTTP ${qRes.status}`);
       let rawQuestions = await qRes.json();
 
-      // ★ 日本語キーで書かれたJSONデータを、システム用の英語キーに自動変換 ★
       questionsData = rawQuestions.map((q, index) => {
         let correctIdx = 0;
         if (q["選択肢"] && q["回答"]) {
           correctIdx = q["選択肢"].indexOf(q["回答"]);
-          if(correctIdx === -1) correctIdx = 0; // 見つからない時のための安全策
+          if(correctIdx === -1) correctIdx = 0;
         }
         return {
-          id: "gen_" + index, // IDかぶりを防ぐため一意なIDを生成
+          id: "gen_" + index,
           level: q["レベル"],
           anime: q["アニメ名"],
           genre: q["年代"],
@@ -400,9 +407,9 @@
         };
       });
 
-      // 2. 称号データの読み込み（同フォルダ。無ければエラーにならずにスキップ）
+      // 称号データの読み込み（一つ上の階層）
       try {
-        const tRes = await fetch('./titles.json');
+        const tRes = await fetch('../titles.json');
         if (tRes.ok) {
           const rawTitles = await tRes.json();
           titlesData = rawTitles.map(t => {
@@ -436,14 +443,6 @@
         console.warn("titles.json の読み込みをスキップしました");
       }
 
-      const uniqueAnimes = new Set(questionsData.map(q => q.anime)).size;
-      const totalQuestions = questionsData.length;
-      const infoEl = document.getElementById('game-info-text');
-      if(infoEl) {
-          infoEl.innerHTML = `📺 収録アニメ: <span style="color:#ffd32a; font-size:20px; text-shadow:2px 2px 0 #2f3542;">${uniqueAnimes}</span> 作品<br>📝 総問題数: <span style="color:#ffd32a; font-size:20px; text-shadow:2px 2px 0 #2f3542;">${totalQuestions}</span> 問`;
-          infoEl.style.display = 'block';
-      }
-
       document.getElementById('start-btn').innerText = "▶ クイズに挑戦！";
       document.getElementById('start-btn').disabled = false;
       
@@ -459,7 +458,7 @@
   const DEFAULT_DATA = {
     life: 5, lastLifeTime: Date.now(),
     stats: { showaEarly: 0, showaLate: 0, heiseiEarly: 0, heiseiLate: 0, reiwa: 0 }, 
-    answeredQuestions: [], totalAnswers: 0, history: [],
+    answeredQuestions: [], totalAnswers: 0, totalCorrects: 0, history: [],
     unlockedTitles: [1], currentTitleId: 1,
     statistics: { anime: {}, genre: {}, level: {} }
   };
@@ -467,6 +466,7 @@
   if (!appData.unlockedTitles) appData.unlockedTitles = [1];
   if (!appData.currentTitleId) appData.currentTitleId = 1;
   if (!appData.statistics) appData.statistics = { anime: {}, genre: {}, level: {} };
+  if (typeof appData.totalCorrects === 'undefined') appData.totalCorrects = 0;
   
   // 状態管理
   let currentLevel = null;
@@ -480,43 +480,107 @@
 
   function saveData() { localStorage.setItem('animasGenerationData', JSON.stringify(appData)); }
 
-  // --- 広告を見て回復する処理（仮組み） ---
+  // --- 広告を見て回復する処理（仮） ---
   function watchAdToRecover() {
     playClick();
-    
     const btn = document.getElementById('ad-recover-btn');
-    btn.disabled = true;
-    btn.innerText = "⏳ 広告を再生中..."; 
-
-    // 擬似的な広告再生時間（2秒）
+    btn.disabled = true; btn.innerText = "⏳ 広告を再生中..."; 
     setTimeout(() => {
-      appData.life = 5;
-      appData.lastLifeTime = Date.now();
-      saveData();
-      updateHomeUI(); 
-      
+      appData.life = 5; appData.lastLifeTime = Date.now();
+      saveData(); updateHomeUI(); 
       alert("広告の視聴が完了しました！\nライフが全回復しました！💙");
-      
-      btn.disabled = false;
-      btn.innerText = "📺 広告を見てライフ全回復！";
+      btn.disabled = false; btn.innerText = "📺 広告を見てライフ全回復！";
     }, 2000); 
+  }
+
+  // --- ランキングAPI（ダミー＆将来用） ---
+  let currentRankingTab = 'point';
+
+  function showRankingScreen() {
+    playClick();
+    // 画面を開く直前に最新の名前をロード
+    playerName = localStorage.getItem('animasPlayerName') || 'ゲスト';
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('ranking-screen').classList.add('active');
+    loadRankingData('point');
+  }
+
+  async function loadRankingData(type) {
+    playClick();
+    currentRankingTab = type;
+    document.getElementById('ranking-tab-point').classList.toggle('active-tab', type === 'point');
+    document.getElementById('ranking-tab-rate').classList.toggle('active-tab', type === 'rate');
+    
+    const listArea = document.getElementById('ranking-list-area');
+    listArea.innerHTML = '<div style="text-align:center; padding:30px; font-size:18px; color:var(--primary);">通信中...</div>';
+    
+    // 自身のスコアと参加条件
+    const myTotalPt = Object.values(appData.stats).reduce((a, b) => a + b, 0);
+    const myRate = appData.totalAnswers > 0 ? Math.floor((appData.totalCorrects / appData.totalAnswers) * 100) : 0;
+    let myVal = type === 'point' ? myTotalPt : myRate;
+    let unit = type === 'point' ? 'pt' : '%';
+    
+    let infoHtml = `<div style="margin-bottom:15px; padding:10px; background:#ffd32a; border-radius:10px; border:3px solid var(--border-color); font-weight:900; text-align:center;">
+        あなたの記録：[${playerName}] ${myVal}${unit} <br>`;
+        
+    if (appData.totalAnswers < 100) {
+        infoHtml += `<span style="font-size:12px; color:#e15f41;">※100問解答でランキングに参加できます (現在:${appData.totalAnswers}問)</span>`;
+    } else {
+        infoHtml += `<span style="font-size:12px; color:#05c46b;">✅ ランキング参加中！</span>`;
+    }
+    infoHtml += `</div>`;
+
+    // ダミーのモックアップデータを生成
+    setTimeout(() => {
+        let dummyData = [];
+        for(let i=1; i<=30; i++) {
+            dummyData.push({
+                rank: i,
+                name: i === 12 && appData.totalAnswers >= 100 ? playerName : `世代マスター${i}号`,
+                score: 15000 - (i * 350),
+                rate: 99 - Math.floor(i * 1.5),
+                date: '2023/10/25'
+            });
+        }
+        
+        let html = infoHtml;
+        dummyData.forEach(d => {
+            let val = type === 'point' ? d.score : d.rate;
+            let rankColor = d.rank <= 3 ? '#ff4757' : 'var(--text-main)';
+            let isMe = (d.name === playerName);
+            let bgStyle = isMe ? 'background: #ffeaa7;' : '';
+
+            html += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:2px dashed #d2dae2; align-items:center; ${bgStyle}">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:20px; font-weight:900; color:${rankColor}; width:30px; text-align:center;">${d.rank}</span>
+                    <span style="font-weight:900; font-size:14px;">${d.name} ${isMe ? '<span style="color:#ff4757; font-size:10px;">(YOU)</span>' : ''}</span>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-weight:900; color:var(--primary); font-size:16px;">${val}${unit}</div>
+                    <div style="font-size:10px; color:#808e9b;">${d.date}</div>
+                </div>
+            </div>`;
+        });
+        listArea.innerHTML = html;
+    }, 800);
+  }
+
+  function sendRankingData() {
+      if (appData.totalAnswers < 100 || !playerName || playerName === 'ゲスト') return;
+      const totalPts = Object.values(appData.stats).reduce((a, b) => a + b, 0);
+      const rate = Math.floor((appData.totalCorrects / appData.totalAnswers) * 100);
+      // console.log(`GASへ送信: 名前=${playerName}, スコア=${totalPts}, 正解率=${rate}`);
   }
 
   // --- シェア機能 ---
   function getShareText() {
     const t = titlesData.find(x => x.id === appData.currentTitleId);
     const titleName = t ? t.title : "見習いウォッチャー";
-    const s = appData.stats;
-    const earnedPts = s.showaEarly + s.showaLate + s.heiseiEarly + s.heiseiLate + s.reiwa; 
+    const earnedPts = Object.values(appData.stats).reduce((a, b) => a + b, 0); 
+    const rate = appData.totalAnswers > 0 ? Math.floor((appData.totalCorrects / appData.totalAnswers) * 100) : 0;
     
-    let text = `私の世代別称号は「${titleName}」です！✨\n`;
-    text += `総獲得pt: ${earnedPts}pt\n\n`;
-    text += `📊 パラメータ\n`;
-    text += `🕰 昭和前期: ${s.showaEarly}pt\n`;
-    text += `📻 昭和後期: ${s.showaLate}pt\n`;
-    text += `📟 平成前期: ${s.heiseiEarly}pt\n`;
-    text += `📱 平成後期: ${s.heiseiLate}pt\n`;
-    text += `✨ 令和: ${s.reiwa}pt\n\n`;
+    let text = `${playerName} の世代別称号「${titleName}」✨\n`;
+    text += `総獲得pt: ${earnedPts}pt (正解率: ${rate}%)\n\n`;
     text += `#アニマス世代別 #アニメクイズ`;
     
     return text;
@@ -574,28 +638,6 @@
     radarChart.update();
   }
 
-  // --- ライフ回復ロジック ---
-  function checkLifeRecovery() {
-    const RECOVERY_MS = 10 * 60 * 1000;
-    if (appData.life >= 5) {
-      appData.lastLifeTime = Date.now();
-      document.getElementById('life-timer').innerText = "MAX";
-      saveData(); return;
-    }
-    const diff = Date.now() - appData.lastLifeTime;
-    if (diff >= RECOVERY_MS) {
-      const recovered = Math.floor(diff / RECOVERY_MS);
-      appData.life = Math.min(5, appData.life + recovered);
-      appData.lastLifeTime += recovered * RECOVERY_MS;
-      saveData(); updateHomeUI();
-    } else {
-      const remainMs = RECOVERY_MS - diff;
-      const remainMin = Math.floor(remainMs / (60 * 1000));
-      const remainSec = Math.floor((remainMs % (60 * 1000)) / 1000);
-      document.getElementById('life-timer').innerText = `あと ${String(remainMin).padStart(2, '0')}:${String(remainSec).padStart(2, '0')}`;
-    }
-  }
-
   // --- 画面遷移とUI更新 ---
   function showScreen(screenId) {
     playClick();
@@ -611,6 +653,10 @@
     event.target.classList.add('selected');
   }
 
+  UX = function() {
+    playerName = localStorage.getItem('animasPlayerName') || 'ゲスト';
+  }
+
   function updateTitleDisplay() {
     const t = titlesData.find(x => x.id === appData.currentTitleId);
     document.getElementById('animas-title').innerText = t ? t.title : "見習いウォッチャー";
@@ -620,19 +666,20 @@
     document.getElementById('total-answers').innerText = appData.totalAnswers;
     const earnedPts = appData.stats.showaEarly + appData.stats.showaLate + appData.stats.heiseiEarly + appData.stats.heiseiLate + appData.stats.reiwa; 
     document.getElementById('total-points').innerText = earnedPts;
+    
+    const rate = appData.totalAnswers > 0 ? Math.floor((appData.totalCorrects / appData.totalAnswers) * 100) : 0;
+    const rateEl = document.getElementById('correct-rate');
+    if(rateEl) rateEl.innerText = rate;
+
     let lifeStr = "";
     for(let i=0; i<5; i++) { lifeStr += (i < appData.life) ? "💙" : "🤍"; }
     document.getElementById('life-icons').innerText = lifeStr;
     updateChart(); updateTitleDisplay();
 
-    // ライフが5未満の場合のみ広告ボタンを表示
     const adBtn = document.getElementById('ad-recover-btn');
     if (adBtn) {
-      if (appData.life < 5) {
-        adBtn.style.display = 'block';
-      } else {
-        adBtn.style.display = 'none';
-      }
+      if (appData.life < 5) adBtn.style.display = 'block';
+      else adBtn.style.display = 'none';
     }
   }
 
@@ -648,14 +695,12 @@
     appData.life--; saveData(); updateHomeUI();
     currentQuestion = available[Math.floor(Math.random() * available.length)];
     
-    // ▼ 選択肢をランダムにシャッフルする
     let correctText = currentQuestion.choices[currentQuestion.correctIndex];
     for (let i = currentQuestion.choices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [currentQuestion.choices[i], currentQuestion.choices[j]] = [currentQuestion.choices[j], currentQuestion.choices[i]];
     }
     currentQuestion.correctIndex = currentQuestion.choices.indexOf(correctText);
-    // ▲ ここまで
 
     document.getElementById('quiz-level-display').innerText = `Lv${currentLevel}`;
     document.getElementById('quiz-genre').innerText = `【 ${currentQuestion.anime} 】\n${currentQuestion.genre}`;
@@ -738,6 +783,7 @@
     recordStatistics(currentQuestion, isCorrect);
     if (isCorrect) {
       playCorrectSound();
+      appData.totalCorrects++;
       btnElement.style.background = '#0be881'; btnElement.style.color = '#fff';
       const pt = currentQuestion.level;
       if(currentQuestion.genre === "昭和前期") appData.stats.showaEarly += pt;
@@ -749,8 +795,9 @@
       appData.answeredQuestions.push(currentQuestion.id);
       addHistory(true);
       const newlyUnlocked = checkTitleUnlocks();
-
+      
       saveData();
+      sendRankingData();
       
       setTimeout(() => { 
         updateHomeUI(); 
@@ -767,6 +814,7 @@
       const newlyUnlocked = checkTitleUnlocks();
       
       saveData();
+      sendRankingData();
 
       setTimeout(() => { 
         updateHomeUI(); 
@@ -788,6 +836,7 @@
     const newlyUnlocked = checkTitleUnlocks();
 
     saveData();
+    sendRankingData();
 
     setTimeout(() => { 
       updateHomeUI(); 
@@ -885,7 +934,7 @@
               <div class="title-name">🔒 ？？？</div>
               <div class="title-desc">解放条件: ${t.condition_desc}</div>
             </div>
-            <button class=\"title-btn\" disabled>未獲得</button>
+            <button class="title-btn" disabled>未獲得</button>
           </div>`;
       }
     });
@@ -897,7 +946,11 @@
     updateHomeUI(); renderTitleList();
   }
 
-  window.onload = loadGameData;
+  // --- 初期起動処理 ---
+  window.onload = async () => {
+    UX();
+    await loadGameData();
+  };
 </script>
 </body>
 </html>
