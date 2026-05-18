@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+！<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -184,6 +184,17 @@
   .title-btn:active { transform: translateY(3px); box-shadow: 0 0px 0 var(--border-color); }
   .title-btn.current { background: #ffdd59; color: var(--text-main); text-shadow: none; }
   .title-btn:disabled { background: #808e9b; color: #d2dae2; border-color: #808e9b; box-shadow: none; cursor: not-allowed; transform: none; text-shadow: none;}
+
+  /* ★ 不具合修正：消えてしまっていたモーダル制御用のCSSを完全修復 ★ */
+  .modal-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(47, 53, 66, 0.8); z-index: 100; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+  .modal-overlay.active { display: flex; animation: fadeInModal 0.3s ease; }
+  .modal-title { color: #ff4757; text-shadow: 2px 2px 0px var(--border-color); font-size: 26px; margin-top: 0; margin-bottom: 20px; font-weight: 900; animation: flashText 1.5s infinite; }
+  .new-title-item { background: #fff; border: 3px solid var(--border-color); border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 4px 4px 0px var(--border-color); }
+  .new-title-label { font-size: 12px; color: #ff4757; font-weight: 900; margin-bottom: 5px; }
+  .new-title-name { font-size: 20px; color: #3c40c6; font-weight: 900; margin-bottom: 8px; }
+  .new-title-desc { font-size: 13px; color: var(--text-main); font-weight: 900; }
+  @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes popModal { from { transform: scale(0.5) rotate(-10deg); } to { transform: scale(1) rotate(0deg); } }
 </style>
 </head>
 <body>
@@ -216,7 +227,7 @@
   </div>
 
   <div id="home-screen" class="screen">
-    <div class="animas-name">あなたのアニマス名<br><strong id="animas-title">見習いウォッチャー</strong></div>
+    <div class="animas-name">あなた anatomical 名<br><strong id="animas-title">見習いウォッチャー</strong></div>
     
     <div class="status-bar">
       <div>
@@ -438,6 +449,11 @@
   }
 
   // --- 画面遷移 ---
+  function deleteSavedData() {
+    localStorage.removeItem('animasData');
+    location.reload();
+  }
+
   function goToHome() {
     if(!isDataLoaded) { alert("データを読み込み中です。少々お待ちください。"); return; }
     playClick();
@@ -565,31 +581,8 @@
       if (appData.totalAnswers < 100 || !playerName) return;
   }
 
-  // --- シェア機能 ---
-  function getShareText() {
-    const t = titlesData.find(x => x.id === appData.currentTitleId);
-    const titleName = t ? t.title : "見習いウォッチャー";
-    const earnedPts = Object.values(appData.stats).reduce((a, b) => a + b, 0); 
-    const rate = appData.totalAnswers > 0 ? Math.floor((appData.totalCorrects / appData.totalAnswers) * 100) : 0;
-    
-    let text = `${playerName} のアニマス名「${titleName}」✨\n`;
-    text += `総獲得pt: ${earnedPts}pt (正解率: ${rate}%)\n\n`;
-    text += `#アニマス #アニメクイズ`;
-    return text;
-  }
-
-  function shareResult(type) {
-    playClick();
-    const text = getShareText();
-    if (type === 'copy') {
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => { alert("コピーしました！"); }).catch(err => { alert("コピー失敗"); });
-      } else { alert("未サポートです"); }
-    } else if (type === 'line') {
-      window.open(`https://line.me/R/msg/text/?${encodeURIComponent(text)}`, '_blank');
-    } else if (type === 'x') {
-      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
-    }
+  UX = function() {
+    playerName = localStorage.getItem('animasPlayerName') || '';
   }
 
   // --- レーダーチャート ---
@@ -661,18 +654,9 @@
     document.getElementById(screenId).classList.add('active');
   }
 
-  // レベル選択ボタンを廃止したため不要ですが、互換性のために統合
-  function selectLevel(level, btnElement) {
-    playClick();
-  }
-
   function updateTitleDisplay() {
     const t = titlesData.find(x => x.id === appData.currentTitleId);
     document.getElementById('animas-title').innerText = t ? t.title : "見習いウォッチャー";
-  }
-
-  UX = function() {
-    playerName = localStorage.getItem('animasPlayerName') || '';
   }
 
   function updateHomeUI() {
@@ -696,19 +680,17 @@
     }
   }
 
-  // --- クイズ開始（全レベルから完全にランダムで出題） ---
+  // --- クイズ開始 ---
   function startQuiz() {
     playClick();
     if (appData.life <= 0) { alert("ライフが回復するまでお待ちください！"); return; }
     
-    // レベルによる制限をなくし、未クリア（未回答）の問題から選出
     const available = questionsData.filter(q => !appData.answeredQuestions.includes(q.id));
     if (available.length === 0) { alert("すべてのクイズをクリアしました！クリアおめでとうございます！"); return; }
 
     appData.life--; saveData(); updateHomeUI();
     currentQuestion = available[Math.floor(Math.random() * available.length)];
     
-    // 選択肢のシャッフル処理
     let correctText = currentQuestion.choices[currentQuestion.correctIndex];
     for (let i = currentQuestion.choices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -716,7 +698,6 @@
     }
     currentQuestion.correctIndex = currentQuestion.choices.indexOf(correctText);
 
-    // ヘッダーに出題問題の元のレベルを表示
     document.getElementById('quiz-level-display').innerText = `Lv${currentQuestion.level}`;
     document.getElementById('quiz-genre').innerText = `【 ${currentQuestion.anime} 】\n${currentQuestion.genre}`;
     document.getElementById('quiz-text').innerText = currentQuestion.text;
@@ -779,7 +760,7 @@
     };
     html += makeSection('📌 アニメ別', s.anime, '');
     html += makeSection('📌 ジャンル別', s.genre, '');
-    html += makeSection('📌 レレベル別', s.level, 'Lv ');
+    html += makeSection('📌 レベル別', s.level, 'Lv ');
     document.getElementById('stats-area').innerHTML = html;
   }
 
@@ -796,7 +777,7 @@
       playCorrectSound();
       appData.totalCorrects++;
       btnElement.style.background = '#0be881'; btnElement.style.color = '#fff';
-      const pt = currentQuestion.level; // レベルの値がそのままポイントになる
+      const pt = currentQuestion.level; 
       if(currentQuestion.genre === "アクション") appData.stats.action += pt;
       if(currentQuestion.genre === "ファンタジー") appData.stats.fantasy += pt;
       if(currentQuestion.genre === "SF") appData.stats.scifi += pt;
@@ -929,6 +910,10 @@
     UX();
     await loadGameData();
     updatePlayerNameDisplay();
+    // 名前が未登録なら自動的に設定モーダルを起動
+    if (!playerName) {
+      document.getElementById('name-modal').classList.add('active');
+    }
   };
 </script>
 </body>
