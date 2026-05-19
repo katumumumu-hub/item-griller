@@ -114,6 +114,8 @@
     width: 100%;
     box-sizing: border-box;
   }
+  /* canvas要素のサイズはコンテナのflexに委ねることでズレを防止 */
+  canvas { width: 100% !important; height: 100% !important; max-height: none !important; }
 
   /* モード選択に戻るボタン */
   .btn-back-mode {
@@ -358,8 +360,11 @@
   let isDataLoaded = false;
   let playerName = localStorage.getItem('animasPlayerName') || 'ゲスト';
 
-  // ワンピースの編一覧（順番定義用）
-  const OP_ARCS = ["東の海編", "アラバスタ編", "空島編", "ウォーターセブン編", "スリラーバーク編", "シャボンディ編", "頂上戦争編", "魚人島編", "パンクハザード編", "ドレスローザ編", "ゾウ編", "ホールケーキアイランド編", "ワノ国編", "エッグヘッド編"];
+  // ワンピースの編一覧（順番定義用マスターデータ）
+  const OP_ARCS = ["東の海編", "シロップ村編", "バラティエ編", "アーロンパーク編", "ローグタウン編", "アラバスタ編", "空島編", "ウォーターセブン編", "スリラーバーク編", "シャボンディ編", "頂上戦争編", "魚人島編", "パンクハザード編", "ドレスローザ編", "ゾウ編", "ホールケーキアイランド編", "ワノ国編", "エッグヘッド編"];
+  
+  // JSONから抽出した、実際に存在する編のみを保持するリスト
+  let activeArcs = [];
 
   // --- 非同期でJSONデータを読み込む処理 ---
   async function loadGameData() {
@@ -387,8 +392,16 @@
         };
       });
 
-      const allArcs = [...new Set(questionsData.map(q => q.genre))];
-      allArcs.forEach(arc => {
+      // ★ JSONファイルに実際に存在する「編」のみを抽出し、OP_ARCSのストーリー順にソートする
+      activeArcs = [...new Set(questionsData.map(q => q.genre))];
+      activeArcs.sort((a, b) => {
+         let idxA = OP_ARCS.indexOf(a); let idxB = OP_ARCS.indexOf(b);
+         if(idxA === -1) idxA = 999; if(idxB === -1) idxB = 999;
+         return idxA - idxB;
+      });
+
+      // 存在する編のみをアプリデータに登録
+      activeArcs.forEach(arc => {
         if (appData.stats[arc] === undefined) {
           appData.stats[arc] = 0;
         }
@@ -401,7 +414,10 @@
           titlesData = rawTitles.map(t => {
             t.check = function(d) {
               let earned = 0;
-              Object.values(d.stats).forEach(v => earned += v);
+              // ★ 現在JSONに存在する編のポイントのみを合計する
+              activeArcs.forEach(arc => {
+                earned += (d.stats[arc] || 0);
+              });
 
               if (t.id === 1) return true;
               
@@ -413,14 +429,14 @@
               if (t.id >= 11 && t.id <= 150) {
                 const arcIndex = Math.floor((t.id - 11) / 10);
                 const arcName = OP_ARCS[arcIndex];
-                if (!arcName) return false;
+                if (!arcName || !activeArcs.includes(arcName)) return false; // JSONにない編の称号は解放しない
                 
                 const subId = (t.id - 11) % 10;
                 const arcPts = d.stats[arcName] || 0;
                 
                 let isTop = true;
-                Object.keys(d.stats).forEach(k => {
-                  if (d.stats[k] > arcPts) isTop = false;
+                activeArcs.forEach(k => {
+                  if ((d.stats[k] || 0) > arcPts) isTop = false;
                 });
 
                 if (subId < 9) {
@@ -433,7 +449,9 @@
               
               if (t.id >= 151 && t.id <= 170) {
                 const req = (t.id % 2 !== 0) ? 50 : 300;
-                const sortedPts = Object.values(d.stats).sort((a,b)=>b-a);
+                let validPts = [];
+                activeArcs.forEach(k => validPts.push(d.stats[k] || 0));
+                const sortedPts = validPts.sort((a,b)=>b-a);
                 if (sortedPts.length < 2) return false;
                 return sortedPts[0] >= req && sortedPts[1] >= req && (sortedPts[0] - sortedPts[1]) <= 20;
               }
@@ -441,7 +459,7 @@
               if (t.id >= 171 && t.id <= 175) {
                 const reqs = [50, 100, 300, 500, 1000];
                 const req = reqs[t.id - 171];
-                for (let arc of OP_ARCS) {
+                for (let arc of activeArcs) {
                   if ((d.stats[arc] || 0) < req) return false;
                 }
                 return true;
@@ -489,9 +507,6 @@
   let appData = JSON.parse(localStorage.getItem('animasOnepieceData')) || DEFAULT_DATA;
   
   if (!appData.stats) appData.stats = {};
-  OP_ARCS.forEach(arc => {
-    if (typeof appData.stats[arc] === 'undefined') appData.stats[arc] = 0;
-  });
   if (!appData.unlockedTitles) appData.unlockedTitles = [1];
   if (!appData.currentTitleId) appData.currentTitleId = 1;
   if (!appData.statistics) appData.statistics = { arc: {}, level: {} };
@@ -544,7 +559,7 @@
     listArea.innerHTML = '<div style="text-align:center; padding:30px; font-size:18px; color:var(--primary);">通信中...</div>';
     
     let myTotalPt = 0;
-    Object.values(appData.stats).forEach(v => myTotalPt += v);
+    activeArcs.forEach(arc => myTotalPt += (appData.stats[arc] || 0));
     const myRate = appData.totalAnswers > 0 ? Math.floor((appData.totalCorrects / appData.totalAnswers) * 100) : 0;
     let myVal = type === 'point' ? myTotalPt : myRate;
     let unit = type === 'point' ? 'pt' : '%';
@@ -602,7 +617,7 @@
     const t = titlesData.find(x => x.id === appData.currentTitleId);
     const titleName = t ? t.title : "海賊見習い";
     let earnedPts = 0;
-    Object.values(appData.stats).forEach(v => earnedPts += v);
+    activeArcs.forEach(arc => earnedPts += (appData.stats[arc] || 0));
     const rate = appData.totalAnswers > 0 ? Math.floor((appData.totalCorrects / appData.totalAnswers) * 100) : 0;
     
     let text = `${playerName} のワンピース称号「${titleName}」✨\n`;
@@ -625,18 +640,19 @@
     }
   }
 
+  // ★ 長い編の名前をグラフ用に改行するフォーマット関数
+  function formatLabel(label) {
+    if (label === "ホールケーキアイランド編") return ["ホールケーキ", "アイランド編"];
+    if (label === "ウォーターセブン編") return ["ウォーター", "セブン編"];
+    return label;
+  }
+
   // --- 横棒グラフ ---
   function initChart() {
     const ctx = document.getElementById('barChart').getContext('2d');
     
-    let labels = [];
-    let data = [];
-    OP_ARCS.forEach(arc => {
-      if (appData.stats[arc] !== undefined) {
-        labels.push(arc);
-        data.push(appData.stats[arc]);
-      }
-    });
+    let labels = activeArcs.map(formatLabel);
+    let data = activeArcs.map(arc => appData.stats[arc] || 0);
     
     if (labels.length === 0) {
       labels = ['データなし'];
@@ -666,6 +682,7 @@
             ticks: { precision: 0 } 
           },
           y: { 
+            grid: { display: false }, /* 横線を消してスッキリさせズレを目立たなくする */
             ticks: { 
               autoSkip: false,
               font: { family: "'M PLUS Rounded 1c', sans-serif", weight: '900', size: 10 }, 
@@ -679,17 +696,9 @@
   }
 
   function updateChart() {
-    if (Object.keys(appData.stats).length > 0) {
-      let labels = [];
-      let data = [];
-      OP_ARCS.forEach(arc => {
-        if (appData.stats[arc] !== undefined) {
-          labels.push(arc);
-          data.push(appData.stats[arc]);
-        }
-      });
-      barChart.data.labels = labels;
-      barChart.data.datasets[0].data = data;
+    if (activeArcs.length > 0) {
+      barChart.data.labels = activeArcs.map(formatLabel);
+      barChart.data.datasets[0].data = activeArcs.map(arc => appData.stats[arc] || 0);
     }
     barChart.update();
   }
@@ -733,7 +742,7 @@
     document.getElementById('total-answers').innerText = appData.totalAnswers;
     
     let earnedPts = 0;
-    Object.values(appData.stats).forEach(v => earnedPts += v);
+    activeArcs.forEach(arc => earnedPts += (appData.stats[arc] || 0));
     document.getElementById('total-points').innerText = earnedPts;
     
     const rate = appData.totalAnswers > 0 ? Math.floor((appData.totalCorrects / appData.totalAnswers) * 100) : 0;
@@ -763,7 +772,6 @@
     appData.life--; saveData(); updateHomeUI();
     currentQuestion = available[Math.floor(Math.random() * available.length)];
     
-    // 選択肢のシャッフル処理
     let correctText = currentQuestion.choices[currentQuestion.correctIndex];
     for (let i = currentQuestion.choices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -820,6 +828,12 @@
     const makeSection = (title, dataObj, keyPrefix, isLevel = false) => {
       let secHtml = `<div class="stats-section"><div class="stats-section-title">${title}</div>`;
       let keys = Object.keys(dataObj);
+      
+      // JSONに存在する編のみを表示
+      if (!isLevel) {
+          keys = keys.filter(k => activeArcs.includes(k));
+      }
+
       if (keys.length === 0) {
         secHtml += `<div style="color:#999; font-size:12px;">データがありません</div>`;
       } else {
@@ -865,7 +879,7 @@
       appData.totalCorrects++;
       btnElement.style.background = '#0be881'; btnElement.style.color = '#fff';
       
-      const pt = currentQuestion.level; // レベルの値がそのままポイントになる
+      const pt = currentQuestion.level; 
       appData.stats[currentQuestion.genre] = (appData.stats[currentQuestion.genre] || 0) + pt;
       
       appData.answeredQuestions.push(currentQuestion.id);
