@@ -106,7 +106,7 @@
   .life-icons { letter-spacing: 2px; text-shadow: 1px 1px 0px #000; }
   #life-timer { font-size: 11px; color: var(--secondary); background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 10px; display: inline-block; margin-top: 4px; border: 2px solid #000; font-weight: 900;}
 
-  /* 棒グラフ用のコンテナ（ズレ修正済） */
+  /* 棒グラフ用のコンテナ */
   .chart-container {
     position: relative;
     background: transparent; border: none; box-shadow: none;
@@ -114,7 +114,6 @@
     width: 100%;
     box-sizing: border-box;
   }
-  /* canvas要素のサイズはコンテナのflexに委ねることでズレを防止 */
   canvas { width: 100% !important; height: 100% !important; max-height: none !important; }
 
   /* モード選択に戻るボタン */
@@ -318,8 +317,7 @@
       <div id="ranking-tab-rate" class="ranking-tab" onclick="loadRankingData('rate')">正解率</div>
     </div>
     
-    <div class="custom-list" id="ranking-list-area" style="padding: 10px;">
-      </div>
+    <div class="custom-list" id="ranking-list-area" style="padding: 10px;"></div>
 
     <button class="action-btn" onclick="showScreen('home-screen')">🏠 ホームに戻る</button>
   </div>
@@ -360,8 +358,13 @@
   let isDataLoaded = false;
   let playerName = localStorage.getItem('animasPlayerName') || 'ゲスト';
 
-  // ワンピースの編一覧（順番定義用マスターデータ）
-  const OP_ARCS = ["東の海編", "シロップ村編", "バラティエ編", "アーロンパーク編", "ローグタウン編", "アラバスタ編", "空島編", "ウォーターセブン編", "スリラーバーク編", "シャボンディ編", "頂上戦争編", "魚人島編", "パンクハザード編", "ドレスローザ編", "ゾウ編", "ホールケーキアイランド編", "ワノ国編", "エッグヘッド編"];
+  // ワンピースの編一覧（順番定義用マスターデータ：今後増えてもここに追記するだけでOK）
+  const OP_ARCS = [
+    "東の海編", "シロップ村編", "バラティエ編", "アーロンパーク編", "ローグタウン編",
+    "アラバスタ編", "空島編", "ウォーターセブン編", "スリラーバーク編", "シャボンディ編",
+    "頂上戦争編", "魚人島編", "パンクハザード編", "ドレスローザ編", "ゾウ編",
+    "ホールケーキアイランド編", "ワノ国編", "エッグヘッド編"
+  ];
   
   // JSONから抽出した、実際に存在する編のみを保持するリスト
   let activeArcs = [];
@@ -400,7 +403,6 @@
          return idxA - idxB;
       });
 
-      // 存在する編のみをアプリデータに登録
       activeArcs.forEach(arc => {
         if (appData.stats[arc] === undefined) {
           appData.stats[arc] = 0;
@@ -414,65 +416,74 @@
           titlesData = rawTitles.map(t => {
             t.check = function(d) {
               let earned = 0;
-              // ★ 現在JSONに存在する編のポイントのみを合計する
+              // 実際に存在する編のポイントのみを合計する
               activeArcs.forEach(arc => {
                 earned += (d.stats[arc] || 0);
               });
 
+              // ★ 10pt未満は基本称号以外獲得不可（ストッパー機能）
+              if (earned < 10 && t.id !== 1) return false;
+
               if (t.id === 1) return true;
               
-              if (t.id >= 2 && t.id <= 10) {
-                const reqs = [10, 50, 100, 300, 500, 1000, 2000, 5000, 10000];
-                return earned >= reqs[t.id - 2];
+              if (t.type === "総合") {
+                const match = t.condition_desc.match(/(\d+)pt/);
+                if (match) return earned >= parseInt(match[1], 10);
+                return false;
               }
               
-              if (t.id >= 11 && t.id <= 150) {
-                const arcIndex = Math.floor((t.id - 11) / 10);
-                const arcName = OP_ARCS[arcIndex];
-                if (!arcName || !activeArcs.includes(arcName)) return false; // JSONにない編の称号は解放しない
-                
-                const subId = (t.id - 11) % 10;
-                const arcPts = d.stats[arcName] || 0;
+              if (t.type.endsWith("編")) {
+                const arcPts = d.stats[t.type] || 0;
+                if (arcPts === 0) return false; // その編が存在しない、または0ptなら獲得不可
                 
                 let isTop = true;
                 activeArcs.forEach(k => {
                   if ((d.stats[k] || 0) > arcPts) isTop = false;
                 });
 
-                if (subId < 9) {
-                  const reqs = [20, 50, 100, 200, 300, 500, 1000, 2000, 5000];
-                  return arcPts >= reqs[subId] && isTop;
-                } else {
+                if (t.condition_desc.includes("80%")) {
                   return earned > 0 && (arcPts / earned) >= 0.8;
+                } else {
+                  const match = t.condition_desc.match(/(\d+)pt/);
+                  if (match) return arcPts >= parseInt(match[1], 10) && isTop;
                 }
               }
               
-              if (t.id >= 151 && t.id <= 170) {
-                const req = (t.id % 2 !== 0) ? 50 : 300;
-                let validPts = [];
-                activeArcs.forEach(k => validPts.push(d.stats[k] || 0));
-                const sortedPts = validPts.sort((a,b)=>b-a);
-                if (sortedPts.length < 2) return false;
-                return sortedPts[0] >= req && sortedPts[1] >= req && (sortedPts[0] - sortedPts[1]) <= 20;
-              }
-              
-              if (t.id >= 171 && t.id <= 175) {
-                const reqs = [50, 100, 300, 500, 1000];
-                const req = reqs[t.id - 171];
-                for (let arc of activeArcs) {
-                  if ((d.stats[arc] || 0) < req) return false;
+              if (t.type === "バランス") {
+                const match = t.condition_desc.match(/(\d+)pt/);
+                if (match) {
+                  const req = parseInt(match[1], 10);
+                  let validPts = [];
+                  activeArcs.forEach(k => validPts.push(d.stats[k] || 0));
+                  const sortedPts = validPts.sort((a,b)=>b-a);
+                  if (sortedPts.length < 2) return false;
+                  return sortedPts[0] >= req && sortedPts[1] >= req && (sortedPts[0] - sortedPts[1]) <= 20;
                 }
-                return true;
               }
               
-              if (t.id >= 176 && t.id <= 180) {
-                const reqs = [100, 500, 1000, 2000, 5000];
-                return d.totalAnswers >= reqs[t.id - 176];
+              if (t.type === "オールラウンダー") {
+                const match = t.condition_desc.match(/(\d+)pt/);
+                if (match) {
+                  const req = parseInt(match[1], 10);
+                  if (activeArcs.length === 0) return false;
+                  for (let arc of activeArcs) {
+                    if ((d.stats[arc] || 0) < req) return false;
+                  }
+                  return true;
+                }
               }
-              if (t.id >= 181 && t.id <= 185) {
-                const reqs = [100, 300, 500, 800, 1000];
-                const uniqueAnswers = new Set(d.answeredQuestions).size;
-                return uniqueAnswers >= reqs[t.id - 181];
+              
+              if (t.type === "やり込み") {
+                if (t.condition_desc.includes("回 回答する")) {
+                  const match = t.condition_desc.match(/累計(\d+)回/);
+                  if (match) return d.totalAnswers >= parseInt(match[1], 10);
+                } else if (t.condition_desc.includes("種類の異なる問題")) {
+                  const match = t.condition_desc.match(/(\d+)種類/);
+                  if (match) {
+                    const uniqueAnswers = new Set(d.answeredQuestions).size;
+                    return uniqueAnswers >= parseInt(match[1], 10);
+                  }
+                }
               }
 
               return false; 
@@ -507,6 +518,9 @@
   let appData = JSON.parse(localStorage.getItem('animasOnepieceData')) || DEFAULT_DATA;
   
   if (!appData.stats) appData.stats = {};
+  OP_ARCS.forEach(arc => {
+    if (typeof appData.stats[arc] === 'undefined') appData.stats[arc] = 0;
+  });
   if (!appData.unlockedTitles) appData.unlockedTitles = [1];
   if (!appData.currentTitleId) appData.currentTitleId = 1;
   if (!appData.statistics) appData.statistics = { arc: {}, level: {} };
@@ -525,7 +539,6 @@
 
   function saveData() { localStorage.setItem('animasOnepieceData', JSON.stringify(appData)); }
 
-  // --- 広告を見て回復する処理 ---
   function watchAdToRecover() {
     playClick();
     const btn = document.getElementById('ad-recover-btn');
@@ -538,7 +551,6 @@
     }, 2000); 
   }
 
-  // --- ランキングAPI ---
   let currentRankingTab = 'point';
 
   function showRankingScreen() {
@@ -612,7 +624,6 @@
       if (appData.totalAnswers < 100 || !playerName || playerName === 'ゲスト') return;
   }
 
-  // --- シェア機能 ---
   function getShareText() {
     const t = titlesData.find(x => x.id === appData.currentTitleId);
     const titleName = t ? t.title : "海賊見習い";
@@ -640,14 +651,12 @@
     }
   }
 
-  // ★ 長い編の名前をグラフ用に改行するフォーマット関数
   function formatLabel(label) {
     if (label === "ホールケーキアイランド編") return ["ホールケーキ", "アイランド編"];
     if (label === "ウォーターセブン編") return ["ウォーター", "セブン編"];
     return label;
   }
 
-  // --- 横棒グラフ ---
   function initChart() {
     const ctx = document.getElementById('barChart').getContext('2d');
     
@@ -682,7 +691,7 @@
             ticks: { precision: 0 } 
           },
           y: { 
-            grid: { display: false }, /* 横線を消してスッキリさせズレを目立たなくする */
+            grid: { display: false },
             ticks: { 
               autoSkip: false,
               font: { family: "'M PLUS Rounded 1c', sans-serif", weight: '900', size: 10 }, 
@@ -703,7 +712,6 @@
     barChart.update();
   }
 
-  // --- ライフ回復ロジック ---
   function checkLifeRecovery() {
     const RECOVERY_MS = 10 * 60 * 1000;
     if (appData.life >= 5) {
@@ -725,7 +733,6 @@
     }
   }
 
-  // --- 画面遷移とUI更新 ---
   function showScreen(screenId) {
     playClick();
     if (screenId === 'history-screen') renderStatistics();
@@ -761,7 +768,6 @@
     }
   }
 
-  // --- クイズ開始 ---
   function startQuiz() {
     playClick();
     if (appData.life <= 0) { alert("ライフが回復するまでお待ちください！"); return; }
@@ -808,7 +814,6 @@
     }, 1000);
   }
 
-  // --- 統計記録処理 ---
   function recordStatistics(q, isCorrect) {
     if (!appData.statistics) appData.statistics = { arc: {}, level: {} };
     const s = appData.statistics;
@@ -829,7 +834,6 @@
       let secHtml = `<div class="stats-section"><div class="stats-section-title">${title}</div>`;
       let keys = Object.keys(dataObj);
       
-      // JSONに存在する編のみを表示
       if (!isLevel) {
           keys = keys.filter(k => activeArcs.includes(k));
       }
@@ -840,7 +844,6 @@
         if (isLevel) {
           keys.sort((a, b) => parseInt(a) - parseInt(b));
         } else {
-          // 編はOP_ARCSの順番通りにソート
           keys.sort((a, b) => {
              let idxA = OP_ARCS.indexOf(a); let idxB = OP_ARCS.indexOf(b);
              if(idxA === -1) idxA = 999; if(idxB === -1) idxB = 999;
@@ -863,7 +866,6 @@
     document.getElementById('stats-area').innerHTML = html;
   }
 
-  // --- 回答処理 ---
   function handleAnswer(selectedIndex, btnElement) {
     if (!isAnswering) return;
     isAnswering = false;
@@ -936,7 +938,6 @@
     }, 2000);
   }
 
-  // --- 履歴処理 ---
   function addHistory(isCorrect, isTimeout = false) {
     let resultText = isCorrect ? "🌟 正解！" : (isTimeout ? "⏳ タイムアップ" : "💧 ザンネン...");
     let ptText = isCorrect ? `(+${currentQuestion.level}pt)` : "";
@@ -953,23 +954,6 @@
   function renderHistory() { 
     const hl = document.getElementById('history-list');
     if(hl) hl.innerHTML = appData.history.join('');
-  }
-
-  // --- 称号システム ---
-  function checkTitleUnlocks() {
-    let newlyUnlocked = [];
-    if(titlesData.length === 0) return newlyUnlocked;
-
-    titlesData.forEach(t => {
-      if (!appData.unlockedTitles.includes(t.id)) {
-        if (t.check(appData)) { 
-          appData.unlockedTitles.push(t.id); 
-          newlyUnlocked.push(t);
-        }
-      }
-    });
-    if(newlyUnlocked.length > 0) saveData();
-    return newlyUnlocked;
   }
 
   function showTitleModal(titles) {
@@ -1004,6 +988,9 @@
 
     let html = '';
     titlesData.forEach(t => {
+      // ★ JSONファイルに存在しない編の称号は非表示（封印）にする
+      if (t.type.endsWith("編") && !activeArcs.includes(t.type)) return;
+
       const isUnlocked = appData.unlockedTitles.includes(t.id);
       const isCurrent = appData.currentTitleId === t.id;
       if (isUnlocked) {
