@@ -114,7 +114,6 @@
     width: 100%;
     box-sizing: border-box;
   }
-  /* canvas要素への強制サイズ指定はChart.jsの描画ズレを引き起こすため削除 */
 
   /* モード選択に戻るボタン */
   .btn-back-mode {
@@ -481,7 +480,7 @@
   // --- データ保存・初期化 (localStorage) ---
   const DEFAULT_DATA = {
     life: 5, lastLifeTime: Date.now(),
-    stats: {}, // 全ての〇〇編が動的に格納される
+    stats: {}, 
     answeredQuestions: [], totalAnswers: 0, totalCorrects: 0, history: [],
     unlockedTitles: [1], currentTitleId: 1,
     statistics: { arc: {}, level: {} }
@@ -630,8 +629,14 @@
   function initChart() {
     const ctx = document.getElementById('barChart').getContext('2d');
     
-    let labels = Object.keys(appData.stats);
-    let data = Object.values(appData.stats);
+    let labels = [];
+    let data = [];
+    OP_ARCS.forEach(arc => {
+      if (appData.stats[arc] !== undefined) {
+        labels.push(arc);
+        data.push(appData.stats[arc]);
+      }
+    });
     
     if (labels.length === 0) {
       labels = ['データなし'];
@@ -675,8 +680,16 @@
 
   function updateChart() {
     if (Object.keys(appData.stats).length > 0) {
-      barChart.data.labels = Object.keys(appData.stats);
-      barChart.data.datasets[0].data = Object.values(appData.stats);
+      let labels = [];
+      let data = [];
+      OP_ARCS.forEach(arc => {
+        if (appData.stats[arc] !== undefined) {
+          labels.push(arc);
+          data.push(appData.stats[arc]);
+        }
+      });
+      barChart.data.labels = labels;
+      barChart.data.datasets[0].data = data;
     }
     barChart.update();
   }
@@ -750,6 +763,7 @@
     appData.life--; saveData(); updateHomeUI();
     currentQuestion = available[Math.floor(Math.random() * available.length)];
     
+    // 選択肢のシャッフル処理
     let correctText = currentQuestion.choices[currentQuestion.correctIndex];
     for (let i = currentQuestion.choices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
